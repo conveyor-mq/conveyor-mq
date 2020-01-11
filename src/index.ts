@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { RedisClient } from 'redis';
+import { Moment } from 'moment';
 import { set, get, rpop, brpop } from './utils';
+
+import moment = require('moment');
 
 export enum TaskStatuses {
   Queued = 'queued',
@@ -16,6 +19,7 @@ export interface Task {
   data?: any;
   result?: any;
   error?: any;
+  expiresOn?: Moment;
 }
 
 export const getTaskKey = ({
@@ -192,6 +196,45 @@ export const takeTaskBlocking = async ({
 };
 
 export type HandlerF = ({ task }: { task: Task }) => any;
+
+export const hasTaskExpired = ({
+  task,
+  asOf,
+}: {
+  task: Task;
+  asOf: Moment;
+}) => {
+  return !!task.expiresOn && task.expiresOn < asOf;
+};
+
+export const handleTask = async ({
+  task,
+  queue,
+  client,
+  handler,
+  asOf,
+}: {
+  task: Task;
+  queue: string;
+  client: RedisClient;
+  handler: ({ task }: { task: Task }) => any;
+  asOf: Moment;
+}): Promise<any> => {
+  if (!task || hasTaskExpired({ task, asOf })) return null;
+  try {
+    const result = await handler({ task });
+    await markTaskSuccess({
+      task,
+      queue,
+      client,
+      result,
+    });
+    return result;
+  } catch (e) {
+    await markTaskFailed({ task, queue, client, error: e.message });
+    return e;
+  }
+};
 
 export const registerHandler = ({
   queue,

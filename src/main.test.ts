@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import redis from 'redis';
+import moment from 'moment';
 import {
   putTask,
   getTask,
@@ -8,6 +9,9 @@ import {
   markTaskSuccess,
   markTaskFailed,
   takeTaskBlocking,
+  Task,
+  hasTaskExpired,
+  handleTask,
 } from '.';
 import { flushAll } from './utils';
 
@@ -119,5 +123,92 @@ describe('Tasks', () => {
     });
     expect(failedTask).toHaveProperty('status', TaskStatuses.Failed);
     expect(failedTask).toHaveProperty('error', 'aww :(');
+  });
+  it('hasTaskExpired returns false for task with no expiresOn', () => {
+    const thePast = moment('2020-01-01');
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+    };
+    expect(hasTaskExpired({ task, asOf: thePast })).toBe(false);
+  });
+  it('hasTaskExpired returns false for not expired task', () => {
+    const thePast = moment('2020-01-01');
+    const theFuture = moment('2020-01-02');
+    const task: Task = {
+      id: 'i',
+      expiresOn: theFuture,
+      data: 'j',
+    };
+    expect(hasTaskExpired({ task, asOf: thePast })).toBe(false);
+  });
+  it('hasTaskExpired returns true for expired task', () => {
+    const thePast = moment('2020-01-01');
+    const theFuture = moment('2020-01-02');
+    const task: Task = {
+      id: 'i',
+      expiresOn: thePast,
+      data: 'j',
+    };
+    expect(hasTaskExpired({ task, asOf: theFuture })).toBe(true);
+  });
+  it('handleTask returns null for expired task', async () => {
+    const thePast = moment('2020-01-01');
+    const theFuture = moment('2020-01-02');
+    const expiredTask: Task = {
+      id: 'i',
+      expiresOn: thePast,
+      data: 'j',
+    };
+    const result = await handleTask({
+      queue,
+      client,
+      task: expiredTask,
+      asOf: theFuture,
+      handler: () => 'some-result',
+    });
+    expect(result).toBe(null);
+  });
+  it('handleTask handles task success case', async () => {
+    const now = moment('2020-01-02');
+    const theTask: Task = {
+      id: 'i',
+      data: 'j',
+    };
+    const result = await handleTask({
+      queue,
+      client,
+      task: theTask,
+      asOf: now,
+      handler: ({ task }: { task: Task }) => {
+        expect(task.id).toBe(theTask.id);
+        return 'some-result';
+      },
+    });
+    const handledTask = await getTask({ queue, taskId: theTask.id, client });
+    expect(result).toBe('some-result');
+    expect(handledTask && handledTask.status).toBe(TaskStatuses.Success);
+    expect(handledTask && handledTask.result).toBe('some-result');
+    expect(handledTask && handledTask.error).toBe(undefined);
+  });
+  it('handleTask handles task failure case', async () => {
+    const now = moment('2020-01-02');
+    const theTask: Task = {
+      id: 'i',
+      data: 'j',
+    };
+    const result = await handleTask({
+      queue,
+      client,
+      task: theTask,
+      asOf: now,
+      handler: () => {
+        throw new Error('some-error');
+      },
+    });
+    const handledTask = await getTask({ queue, taskId: theTask.id, client });
+    expect(handledTask && handledTask.status).toBe(TaskStatuses.Failed);
+    expect(handledTask && handledTask.error).toBe('some-error');
+    expect(handledTask && handledTask.result).toBe(undefined);
   });
 });
