@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import redis from 'redis';
-import { markTaskSuccess, getTaskKey, takeTaskBlocking } from './tasks';
 import { myQueue } from '.';
+import { takeTaskBlocking, getTaskKey, markTaskSuccess } from '..';
 
 const main = async () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });

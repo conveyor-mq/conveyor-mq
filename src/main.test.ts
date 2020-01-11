@@ -8,7 +8,7 @@ import {
   markTaskSuccess,
   markTaskFailed,
   takeTaskBlocking,
-} from './tasks';
+} from '.';
 import { flushAll } from './utils';
 
 describe('Tasks', () => {
@@ -49,6 +49,8 @@ describe('Tasks', () => {
       'status',
       TaskStatuses.Processing,
     );
+    const retrievedTask = await takeTask({ queue, client });
+    expect(retrievedTask).toBe(null);
   });
   it('takeTask returns null when there is no task to take', async () => {
     const acquireTaskPromise = takeTask({ queue, client });
@@ -66,6 +68,8 @@ describe('Tasks', () => {
       'status',
       TaskStatuses.Processing,
     );
+    const retrievedTask = await takeTask({ queue, client });
+    expect(retrievedTask).toBe(null);
   });
   it('takeTaskBlocking returns null after timeout when there is no task to take', async () => {
     const blockingClient = client.duplicate();
@@ -87,14 +91,14 @@ describe('Tasks', () => {
       expect(acquiredTask).toHaveProperty('id', task.id);
       return;
     }
-    const successedTask = await markTaskSuccess({
+    const successfulTask = await markTaskSuccess({
       task: acquiredTask,
       queue,
       client,
       result: 'horaay!',
     });
-    expect(successedTask).toHaveProperty('status', TaskStatuses.Success);
-    expect(successedTask).toHaveProperty('result', 'horaay!');
+    expect(successfulTask).toHaveProperty('status', TaskStatuses.Success);
+    expect(successfulTask).toHaveProperty('result', 'horaay!');
   });
   it('markTaskFailed marks task failed', async () => {
     const task = {

@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import redis from 'redis';
 import { myQueue } from '.';
-import { putTask } from './tasks';
+import { putTask } from '..';
 
 const main = async () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
