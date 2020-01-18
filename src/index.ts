@@ -1,10 +1,9 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { RedisClient } from 'redis';
 import { Moment } from 'moment';
 import { set, get, rpop, brpop } from './utils';
-
-import moment = require('moment');
 
 export enum TaskStatuses {
   Queued = 'queued',
@@ -20,6 +19,8 @@ export interface Task {
   result?: any;
   error?: any;
   expiresOn?: Moment;
+  maxAttempts?: number;
+  attemptCount?: number;
 }
 
 export const getTaskKey = ({
@@ -81,7 +82,11 @@ export const putTask = async ({
   task: Task;
   client: RedisClient;
 }): Promise<Task> => {
-  const queuedTask = { ...task, status: TaskStatuses.Queued };
+  const queuedTask = {
+    ...task,
+    status: TaskStatuses.Queued,
+    attemptCount: task.attemptCount || 0,
+  };
   const taskString = serializeTask(queuedTask);
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const queuedListKey = getQueuedListKey({ queue });
@@ -101,6 +106,24 @@ export const putTask = async ({
   });
 };
 
+export const updateTask = async ({
+  task,
+  queue,
+  client,
+}: {
+  task: Task;
+  queue: string;
+  client: RedisClient;
+}) => {
+  const taskKey = getTaskKey({ taskId: task.id, queue });
+  await set({
+    key: taskKey,
+    value: serializeTask(task),
+    client,
+  });
+  return task;
+};
+
 export const markTaskSuccess = async ({
   task,
   queue,
@@ -112,14 +135,15 @@ export const markTaskSuccess = async ({
   client: RedisClient;
   result?: any;
 }) => {
-  const taskKey = getTaskKey({ taskId: task.id, queue });
-  const successTask = { ...task, status: TaskStatuses.Success, result };
-  await set({
-    key: taskKey,
-    value: serializeTask(successTask),
+  return updateTask({
+    task: {
+      ...task,
+      status: TaskStatuses.Success,
+      result,
+    },
+    queue,
     client,
   });
-  return successTask;
 };
 
 export const markTaskFailed = async ({
@@ -133,14 +157,15 @@ export const markTaskFailed = async ({
   client: RedisClient;
   error?: any;
 }) => {
-  const taskKey = getTaskKey({ taskId: task.id, queue });
-  const failedTask: Task = { ...task, status: TaskStatuses.Failed, error };
-  await set({
-    key: taskKey,
-    value: serializeTask(failedTask),
+  return updateTask({
+    task: {
+      ...task,
+      status: TaskStatuses.Failed,
+      error,
+    },
+    queue,
     client,
   });
-  return failedTask;
 };
 
 export const takeTask = async ({
@@ -220,18 +245,47 @@ export const handleTask = async ({
   handler: ({ task }: { task: Task }) => any;
   asOf: Moment;
 }): Promise<any> => {
-  if (!task || hasTaskExpired({ task, asOf })) return null;
+  if (!task) {
+    console.warn('No task provided to handle.');
+    return null;
+  }
+  if (hasTaskExpired({ task, asOf })) {
+    console.warn('Not handling expired task.');
+    return null;
+  }
+  if (task.maxAttempts && (task.attemptCount || 0) >= task.maxAttempts) {
+    console.warn('Task has exceeded its maxAttempts.');
+    return null;
+  }
+  const updatedTask = { ...task, attemptCount: (task.attemptCount || 0) + 1 };
   try {
     const result = await handler({ task });
     await markTaskSuccess({
-      task,
+      task: updatedTask,
       queue,
       client,
       result,
     });
     return result;
   } catch (e) {
-    await markTaskFailed({ task, queue, client, error: e.message });
+    if (
+      updatedTask.maxAttempts &&
+      updatedTask.attemptCount < updatedTask.maxAttempts
+    ) {
+      await putTask({
+        queue,
+        client,
+        task: updatedTask,
+      });
+      return null;
+    }
+
+    await markTaskFailed({
+      task: updatedTask,
+      queue,
+      client,
+      error: e.message,
+    });
     return e;
   }
 };

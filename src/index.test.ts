@@ -197,7 +197,7 @@ describe('Tasks', () => {
       id: 'i',
       data: 'j',
     };
-    const result = await handleTask({
+    await handleTask({
       queue,
       client,
       task: theTask,
@@ -210,5 +210,52 @@ describe('Tasks', () => {
     expect(handledTask && handledTask.status).toBe(TaskStatuses.Failed);
     expect(handledTask && handledTask.error).toBe('some-error');
     expect(handledTask && handledTask.result).toBe(undefined);
+  });
+  it('handleTask retires task', async () => {
+    const now = moment('2020-01-02');
+    const theTask: Task = {
+      id: 'i',
+      data: 'j',
+      maxAttempts: 2,
+    };
+    await handleTask({
+      queue,
+      client,
+      task: theTask,
+      asOf: now,
+      handler: () => {
+        throw new Error('some-error');
+      },
+    });
+    const handledTask = await getTask({ queue, taskId: theTask.id, client });
+    if (handledTask === null) {
+      expect(handledTask).not.toBe(null);
+    }
+    expect(handledTask!.attemptCount).toBe(1);
+    expect(handledTask!.status).toBe(TaskStatuses.Queued);
+    expect(handledTask!.error).toBe(undefined);
+    expect(handledTask!.result).toBe(undefined);
+    await expect(takeTask({ queue, client })).resolves.toHaveProperty(
+      'id',
+      theTask.id,
+    );
+    await handleTask({
+      queue,
+      client,
+      task: handledTask!,
+      asOf: now,
+      handler: () => {
+        throw new Error('some-error');
+      },
+    });
+    const handledTask2 = await getTask({ queue, taskId: theTask.id, client });
+    if (handledTask2 === null) {
+      expect(handledTask2).not.toBe(null);
+    }
+    expect(handledTask2!.attemptCount).toBe(2);
+    expect(handledTask2!.status).toBe(TaskStatuses.Failed);
+    expect(handledTask2!.error).toBe('some-error');
+    expect(handledTask2!.result).toBe(undefined);
+    await expect(takeTask({ queue, client })).resolves.toBe(null);
   });
 });
