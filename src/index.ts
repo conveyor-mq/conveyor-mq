@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { RedisClient } from 'redis';
-import { Moment } from 'moment';
+import { Moment, utc as moment } from 'moment';
 import { set, get, rpop, brpop } from './utils';
 
 export enum TaskStatuses {
@@ -21,6 +21,10 @@ export interface Task {
   expiresOn?: Moment;
   maxAttempts?: number;
   attemptCount?: number;
+  stalledAfter?: number;
+  queuedOn?: Moment;
+  processingStartedOn?: Moment;
+  processingEndedOn?: Moment;
 }
 
 export const getTaskKey = ({
@@ -39,22 +43,30 @@ export const getQueuedListKey = ({ queue }: { queue: string }) =>
 export const getProcessingListKey = ({ queue }: { queue: string }) =>
   `${queue}:lists:processing`;
 
-export const getHandlerKey = ({
-  handlerId,
-  queue,
-}: {
-  handlerId: string;
-  queue: string;
-}) => {
-  return `${queue}:handlers:${handlerId}`;
-};
-
 export const serializeTask = (task: Task) => {
   return JSON.stringify(task);
 };
 
-export const deSerializeTask = (taskString: string) => {
-  return JSON.parse(taskString);
+export const deSerializeTask = (taskString: string): Task => {
+  const taskJson = JSON.parse(taskString);
+  return {
+    id: taskJson.id,
+    status: taskJson.status,
+    data: taskJson.data,
+    result: taskJson.result,
+    error: taskJson.error,
+    expiresOn: taskJson.expiresOn ? moment(taskJson.expiresOn) : undefined,
+    maxAttempts: taskJson.maxAttempts,
+    attemptCount: taskJson.attemptCount,
+    stalledAfter: taskJson.stalledAfter,
+    queuedOn: taskJson.queuedOn ? moment(taskJson.queuedOn) : undefined,
+    processingStartedOn: taskJson.processingStartedOn
+      ? moment(taskJson.processingStartedOn)
+      : undefined,
+    processingEndedOn: taskJson.processingEndedOn
+      ? moment(taskJson.processingEndedOn)
+      : undefined,
+  };
 };
 
 export const getTask = async ({
@@ -82,8 +94,11 @@ export const putTask = async ({
   task: Task;
   client: RedisClient;
 }): Promise<Task> => {
-  const queuedTask = {
+  const queuedTask: Task = {
     ...task,
+    queuedOn: moment(),
+    processingStartedOn: undefined,
+    processingEndedOn: undefined,
     status: TaskStatuses.Queued,
     attemptCount: task.attemptCount || 0,
   };
@@ -92,7 +107,7 @@ export const putTask = async ({
   const queuedListKey = getQueuedListKey({ queue });
   return new Promise((resolve, reject) => {
     client.watch(taskKey, err => {
-      if (err) throw err;
+      if (err) reject(err);
       client
         .multi()
         .set(taskKey, taskString)
@@ -220,8 +235,6 @@ export const takeTaskBlocking = async ({
   return processingTask;
 };
 
-export type HandlerF = ({ task }: { task: Task }) => any;
-
 export const hasTaskExpired = ({
   task,
   asOf,
@@ -244,7 +257,7 @@ export const handleTask = async ({
   client: RedisClient;
   handler: ({ task }: { task: Task }) => any;
   asOf: Moment;
-}): Promise<any> => {
+}): Promise<any | null> => {
   if (!task) {
     console.warn('No task provided to handle.');
     return null;
@@ -257,11 +270,15 @@ export const handleTask = async ({
     console.warn('Task has exceeded its maxAttempts.');
     return null;
   }
-  const updatedTask = { ...task, attemptCount: (task.attemptCount || 0) + 1 };
+  const updatedTask: Task = {
+    ...task,
+    processingStartedOn: moment(),
+    attemptCount: (task.attemptCount || 0) + 1,
+  };
   try {
-    const result = await handler({ task });
+    const result = await handler({ task: updatedTask });
     await markTaskSuccess({
-      task: updatedTask,
+      task: { ...updatedTask, processingEndedOn: moment() },
       queue,
       client,
       result,
@@ -270,18 +287,19 @@ export const handleTask = async ({
   } catch (e) {
     if (
       updatedTask.maxAttempts &&
+      updatedTask.attemptCount &&
       updatedTask.attemptCount < updatedTask.maxAttempts
     ) {
       await putTask({
+        task: { ...updatedTask, processingEndedOn: moment() },
         queue,
         client,
-        task: updatedTask,
       });
       return null;
     }
 
     await markTaskFailed({
-      task: updatedTask,
+      task: { ...updatedTask, processingEndedOn: moment() },
       queue,
       client,
       error: e.message,
@@ -296,13 +314,13 @@ export const registerHandler = ({
   client,
 }: {
   queue: string;
-  handler: HandlerF;
+  handler: ({ task, ...other }: { task: Task; other?: any }) => any;
   client: RedisClient;
 }) => {
   const checkForAndHandleTask = async () => {
     const task = await takeTaskBlocking({ queue, client });
     if (task) {
-      await handler({ task });
+      await handleTask({ task, queue, client, asOf: moment(), handler });
     }
     checkForAndHandleTask();
     return true;

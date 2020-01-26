@@ -12,8 +12,9 @@ import {
   Task,
   hasTaskExpired,
   handleTask,
+  registerHandler,
 } from '.';
-import { flushAll } from './utils';
+import { flushAll, createUuid, sleep } from './utils';
 
 describe('Tasks', () => {
   const client = redis.createClient({
@@ -27,19 +28,30 @@ describe('Tasks', () => {
   });
 
   it('putTask adds task to a queue', async () => {
-    const task = {
+    const task: Task = {
       id: 'a',
       data: 'b',
     };
     const queuedTask = await putTask({ queue, client, task });
-    const retrievedTask = await getTask({
-      queue,
-      taskId: task.id,
-      client,
-    });
-    expect(task.data).toBe(queuedTask.data);
+    expect(queuedTask.data).toBe(task.data);
+    expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedOn).toBe(undefined);
+    expect(queuedTask.processingEndedOn).toBe(undefined);
     expect(queuedTask.status).toBe(TaskStatuses.Queued);
-    expect(task.data).toBe(retrievedTask!.data);
+    expect(queuedTask.data).toBe(task.data);
+  });
+  it('putTask resets processing dates', async () => {
+    const task: Task = {
+      id: 'a',
+      data: 'b',
+      queuedOn: moment(),
+      processingStartedOn: moment(),
+      processingEndedOn: moment(),
+    };
+    const queuedTask = await putTask({ queue, client, task });
+    expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedOn).toBe(undefined);
+    expect(queuedTask.processingEndedOn).toBe(undefined);
   });
   it('takeTask takes task off a queue and returns task', async () => {
     const task = {
@@ -202,11 +214,16 @@ describe('Tasks', () => {
       client,
       task: theTask,
       asOf: now,
-      handler: () => {
+      handler: ({ task }) => {
+        expect(task.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
     const handledTask = await getTask({ queue, taskId: theTask.id, client });
+    expect(handledTask && typeof handledTask.processingStartedOn).toBe(
+      'object',
+    );
+    expect(handledTask && typeof handledTask.processingEndedOn).toBe('object');
     expect(handledTask && handledTask.status).toBe(TaskStatuses.Failed);
     expect(handledTask && handledTask.error).toBe('some-error');
     expect(handledTask && handledTask.result).toBe(undefined);
@@ -223,7 +240,8 @@ describe('Tasks', () => {
       client,
       task: theTask,
       asOf: now,
-      handler: () => {
+      handler: ({ task }) => {
+        expect(task.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
@@ -244,7 +262,8 @@ describe('Tasks', () => {
       client,
       task: handledTask!,
       asOf: now,
-      handler: () => {
+      handler: ({ task }) => {
+        expect(task.attemptCount).toBe(2);
         throw new Error('some-error');
       },
     });
@@ -257,5 +276,57 @@ describe('Tasks', () => {
     expect(handledTask2!.error).toBe('some-error');
     expect(handledTask2!.result).toBe(undefined);
     await expect(takeTask({ queue, client })).resolves.toBe(null);
+  });
+  describe('Task', () => {
+    it('Handles successful task', async () => {
+      const handlerClient = client.duplicate();
+      registerHandler({
+        queue,
+        client: handlerClient,
+        handler: async ({ task }: { task?: Task }) => {
+          await expect(task!.status).toBe(TaskStatuses.Processing);
+          await expect(task!.attemptCount).toBe(1);
+          return 'some-task-result';
+        },
+      });
+
+      const task: Task = {
+        id: createUuid(),
+        data: 'some-task-data',
+        maxAttempts: 1,
+      };
+      await putTask({ queue, client, task });
+
+      await sleep(50);
+      const completedTask = await getTask({ queue, taskId: task.id, client });
+      await expect(completedTask!.status).toBe(TaskStatuses.Success);
+      await expect(completedTask!.result).toBe('some-task-result');
+      await expect(completedTask!.error).toBe(undefined);
+    });
+    it.skip('Handles failed task', async () => {
+      const handlerClient = client.duplicate();
+      registerHandler({
+        queue,
+        client: handlerClient,
+        handler: async ({ task }: { task?: Task }) => {
+          await expect(task!.status).toBe(TaskStatuses.Processing);
+          await expect(task!.attemptCount).toBe(1);
+          throw new Error('some-error');
+        },
+      });
+
+      const task: Task = {
+        id: createUuid(),
+        data: 'some-task-data',
+        maxAttempts: 0,
+      };
+      await putTask({ queue, client, task });
+
+      await sleep(50);
+      const completedTask = await getTask({ queue, taskId: task.id, client });
+      await expect(completedTask!.status).toBe(TaskStatuses.Failed);
+      await expect(completedTask!.result).toBe(undefined);
+      await expect(completedTask!.error).toBe('some-error');
+    });
   });
 });
