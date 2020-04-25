@@ -1,4 +1,5 @@
 import { RedisClient } from 'redis';
+import moment from 'moment';
 import { Task } from '../domain/task';
 import { brpop, getQueuedListKey, getTaskKey, set } from '../utils';
 import { getTask } from './get-task';
@@ -25,7 +26,11 @@ export const takeTaskBlocking = async ({
   const task = await getTask({ queue, taskId, client });
   if (task === null) return null;
   const taskKey = getTaskKey({ taskId: task.id, queue });
-  const processingTask = { ...task, status: TaskStatuses.Processing };
+  const processingTask: Task = {
+    ...task,
+    processingStartedOn: moment(),
+    status: TaskStatuses.Processing,
+  };
   await set({
     key: taskKey,
     value: serializeTask(processingTask),

@@ -20,7 +20,7 @@ export const putTask = async ({
     processingStartedOn: undefined,
     processingEndedOn: undefined,
     status: TaskStatuses.Queued,
-    attemptCount: task.attemptCount || 0,
+    attemptCount: (task.attemptCount || 0) + 1,
   };
   const taskString = serializeTask(queuedTask);
   const taskKey = getTaskKey({ taskId: task.id, queue });

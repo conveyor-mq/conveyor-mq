@@ -15,10 +15,7 @@ import { getTask } from './actions/get-task';
 import { registerHandler } from './actions/register-handler';
 
 describe('Tasks', () => {
-  const client = redis.createClient({
-    host: '127.0.0.1',
-    port: 9004,
-  });
+  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
   const queue = 'myQueue';
 
   beforeEach(async () => {
@@ -26,10 +23,7 @@ describe('Tasks', () => {
   });
 
   it('putTask adds task to a queue', async () => {
-    const task: Task = {
-      id: 'a',
-      data: 'b',
-    };
+    const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await putTask({ queue, client, task });
     expect(queuedTask.data).toBe(task.data);
     expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
@@ -37,6 +31,7 @@ describe('Tasks', () => {
     expect(queuedTask.processingEndedOn).toBe(undefined);
     expect(queuedTask.status).toBe(TaskStatuses.Queued);
     expect(queuedTask.data).toBe(task.data);
+    expect(queuedTask.attemptCount).toBe(1);
   });
   it('putTask resets processing dates', async () => {
     const task: Task = {
@@ -52,59 +47,44 @@ describe('Tasks', () => {
     expect(queuedTask.processingEndedOn).toBe(undefined);
   });
   it('takeTask takes task off a queue and returns task', async () => {
-    const task = {
-      id: 'b',
-      data: 'c',
-    };
+    const task = { id: 'b', data: 'c' };
     await putTask({ queue, client, task });
-    const acquireTaskPromise = takeTask({ queue, client });
-    await expect(acquireTaskPromise).resolves.toHaveProperty('id', task.id);
-    await expect(acquireTaskPromise).resolves.toHaveProperty(
+    const processingTask = await takeTask({ queue, client });
+    await expect(processingTask).toHaveProperty('id', task.id);
+    await expect(processingTask).toHaveProperty(
       'status',
       TaskStatuses.Processing,
     );
-    const retrievedTask = await takeTask({ queue, client });
-    expect(retrievedTask).toBe(null);
+    expect(await takeTask({ queue, client })).toBe(null);
   });
   it('takeTask returns null when there is no task to take', async () => {
-    const acquireTaskPromise = takeTask({ queue, client });
-    await expect(acquireTaskPromise).resolves.toBe(null);
+    const task = await takeTask({ queue, client });
+    await expect(task).toBe(null);
   });
   it('takeTaskBlocking takes task off a queue and returns task', async () => {
-    const task = {
-      id: 'e',
-      data: 'f',
-    };
+    const task = { id: 'e', data: 'f' };
     await putTask({ queue, client, task });
-    const acquireTaskPromise = takeTaskBlocking({ queue, client });
-    await expect(acquireTaskPromise).resolves.toHaveProperty('id', task.id);
-    await expect(acquireTaskPromise).resolves.toHaveProperty(
+    const processingTask = await takeTaskBlocking({ queue, client });
+    await expect(processingTask).toHaveProperty('id', task.id);
+    await expect(processingTask).toHaveProperty(
       'status',
       TaskStatuses.Processing,
     );
-    const retrievedTask = await takeTask({ queue, client });
-    expect(retrievedTask).toBe(null);
+    expect(await takeTask({ queue, client })).toBe(null);
   });
   it('takeTaskBlocking returns null after timeout when there is no task to take', async () => {
     const blockingClient = client.duplicate();
-    const acquireTaskPromise = takeTaskBlocking({
+    const task = await takeTaskBlocking({
       queue,
       client: blockingClient,
       timeout: 1,
     });
-    await expect(acquireTaskPromise).resolves.toBe(null);
+    expect(task).toBe(null);
   });
   it('markTaskSuccessful marks task successful', async () => {
-    const task = {
-      id: 'g',
-      data: 'h',
-    };
+    const task = { id: 'g', data: 'h' };
     await putTask({ queue, client, task });
-    const acquiredTask = await takeTask({ queue, client });
-    if (!acquiredTask) {
-      expect(acquiredTask).toHaveProperty('id', task.id);
-      return;
-    }
+    const acquiredTask = (await takeTask({ queue, client })) as Task;
     const successfulTask = await markTaskSuccess({
       task: acquiredTask,
       queue,
@@ -116,16 +96,9 @@ describe('Tasks', () => {
     expect(successfulTask).toHaveProperty('result', 'horaay!');
   });
   it('markTaskFailed marks task failed', async () => {
-    const task = {
-      id: 'i',
-      data: 'j',
-    };
+    const task = { id: 'i', data: 'j' };
     await putTask({ queue, client, task });
-    const acquiredTask = await takeTask({ queue, client });
-    if (!acquiredTask) {
-      expect(acquiredTask).toHaveProperty('id', task.id);
-      return;
-    }
+    const acquiredTask = (await takeTask({ queue, client })) as Task;
     const failedTask = await markTaskFailed({
       task: acquiredTask,
       queue,
@@ -138,41 +111,26 @@ describe('Tasks', () => {
   });
   it('hasTaskExpired returns false for task with no expiresOn', () => {
     const thePast = moment('2020-01-01');
-    const task: Task = {
-      id: 'i',
-      data: 'j',
-    };
+    const task: Task = { id: 'i', data: 'j' };
     expect(hasTaskExpired({ task, asOf: thePast })).toBe(false);
   });
   it('hasTaskExpired returns false for not expired task', () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const task: Task = {
-      id: 'i',
-      expiresOn: theFuture,
-      data: 'j',
-    };
+    const task: Task = { id: 'i', expiresOn: theFuture, data: 'j' };
     expect(hasTaskExpired({ task, asOf: thePast })).toBe(false);
   });
   it('hasTaskExpired returns true for expired task', () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const task: Task = {
-      id: 'i',
-      expiresOn: thePast,
-      data: 'j',
-    };
+    const task: Task = { id: 'i', expiresOn: thePast, data: 'j' };
     expect(hasTaskExpired({ task, asOf: theFuture })).toBe(true);
   });
   it('handleTask returns null for expired task', async () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const expiredTask: Task = {
-      id: 'i',
-      expiresOn: thePast,
-      data: 'j',
-    };
-    expect(hasTaskExpired({ task: expiredTask, asOf: theFuture }));
+    const expiredTask: Task = { id: 'i', expiresOn: thePast, data: 'j' };
+    expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
     const result = await handleTask({
       queue,
       client,
@@ -184,14 +142,13 @@ describe('Tasks', () => {
   });
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02');
-    const theTask: Task = {
-      id: 'i',
-      data: 'j',
-    };
+    const theTask: Task = { id: 'i', data: 'j' };
+    await putTask({ queue, task: theTask, client });
+    const processingTask = (await takeTask({ queue, client })) as Task;
     const result = await handleTask({
       queue,
       client,
-      task: theTask,
+      task: processingTask,
       asOf: now,
       handler: ({ task }: { task: Task }) => {
         expect(task.attemptCount).toBe(1);
@@ -199,82 +156,89 @@ describe('Tasks', () => {
         return 'some-result';
       },
     });
-    const handledTask = await getTask({ queue, taskId: theTask.id, client });
+    const handledTask = (await getTask({
+      queue,
+      taskId: theTask.id,
+      client,
+    })) as Task;
     expect(result).toBe('some-result');
-    expect(handledTask && handledTask.status).toBe(TaskStatuses.Success);
-    expect(handledTask && handledTask.result).toBe('some-result');
-    expect(handledTask && handledTask.error).toBe(undefined);
+    expect(handledTask.status).toBe(TaskStatuses.Success);
+    expect(handledTask.result).toBe('some-result');
+    expect(handledTask.error).toBe(undefined);
   });
   it('handleTask handles task failure case', async () => {
     const now = moment('2020-01-02');
-    const theTask: Task = {
-      id: 'i',
-      data: 'j',
-    };
+    const theTask: Task = { id: 'i', data: 'j' };
+    await putTask({ queue, task: theTask, client });
+    const processingTask = (await takeTask({ queue, client })) as Task;
     await handleTask({
       queue,
       client,
-      task: theTask,
+      task: processingTask,
       asOf: now,
       handler: ({ task }) => {
         expect(task.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
-    const handledTask = await getTask({ queue, taskId: theTask.id, client });
-    expect(typeof handledTask!.processingStartedOn).toBe('object');
-    expect(typeof handledTask!.processingEndedOn).toBe('object');
-    expect(handledTask!.status).toBe(TaskStatuses.Failed);
-    expect(handledTask!.error).toBe('some-error');
-    expect(handledTask!.result).toBe(undefined);
+    const handledTask = (await getTask({
+      queue,
+      taskId: theTask.id,
+      client,
+    })) as Task;
+    expect(typeof handledTask.processingStartedOn).toBe('object');
+    expect(typeof handledTask.processingEndedOn).toBe('object');
+    expect(handledTask.status).toBe(TaskStatuses.Failed);
+    expect(handledTask.error).toBe('some-error');
+    expect(handledTask.result).toBe(undefined);
   });
   it('handleTask retires task', async () => {
     const now = moment('2020-01-02');
-    const theTask: Task = {
-      id: 'i',
-      data: 'j',
-      maxAttempts: 2,
-    };
+    const task: Task = { id: 'i', data: 'j', maxAttempts: 2 };
+    await putTask({ queue, task, client });
+    const processingTask = (await takeTask({ queue, client })) as Task;
     await handleTask({
       queue,
       client,
-      task: theTask,
+      task: processingTask,
       asOf: now,
-      handler: ({ task }) => {
-        expect(task.attemptCount).toBe(1);
+      handler: ({ task: taskToHandle }) => {
+        expect(taskToHandle.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
-    const handledTask = await getTask({ queue, taskId: theTask.id, client });
-    if (handledTask === null) {
-      expect(handledTask).not.toBe(null);
-    }
-    expect(handledTask!.attemptCount).toBe(1);
-    expect(handledTask!.status).toBe(TaskStatuses.Queued);
-    expect(handledTask!.error).toBe(undefined);
-    expect(handledTask!.result).toBe(undefined);
+    const handledTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(handledTask.attemptCount).toBe(2);
+    expect(handledTask.status).toBe(TaskStatuses.Queued);
+    expect(handledTask.error).toBe(undefined);
+    expect(handledTask.result).toBe(undefined);
     await expect(takeTask({ queue, client })).resolves.toHaveProperty(
       'id',
-      theTask.id,
+      task.id,
     );
     await handleTask({
       queue,
       client,
       task: handledTask!,
       asOf: now,
-      handler: ({ task }) => {
-        expect(task.attemptCount).toBe(2);
+      handler: ({ task: taskToHandle }) => {
+        expect(taskToHandle.attemptCount).toBe(2);
         throw new Error('some-error');
       },
     });
-    const handledTask2 = await getTask({ queue, taskId: theTask.id, client });
-    if (handledTask2 === null) {
-      expect(handledTask2).not.toBe(null);
-    }
-    expect(handledTask2!.attemptCount).toBe(2);
-    expect(handledTask2!.status).toBe(TaskStatuses.Failed);
-    expect(handledTask2!.error).toBe('some-error');
-    expect(handledTask2!.result).toBe(undefined);
+    const handledTask2 = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(handledTask2.attemptCount).toBe(2);
+    expect(handledTask2.status).toBe(TaskStatuses.Failed);
+    expect(handledTask2.error).toBe('some-error');
+    expect(handledTask2.result).toBe(undefined);
     await expect(takeTask({ queue, client })).resolves.toBe(null);
   });
   describe('Task', () => {
