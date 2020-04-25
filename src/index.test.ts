@@ -202,6 +202,7 @@ describe('Tasks', () => {
       client,
       task: processingTask,
       asOf: now,
+      getRetryDelay: () => 0,
       handler: ({ task: taskToHandle }) => {
         expect(taskToHandle.attemptCount).toBe(1);
         throw new Error('some-error');
@@ -225,6 +226,7 @@ describe('Tasks', () => {
       client,
       task: handledTask!,
       asOf: now,
+      getRetryDelay: () => 0,
       handler: ({ task: taskToHandle }) => {
         expect(taskToHandle.attemptCount).toBe(2);
         throw new Error('some-error');
@@ -241,7 +243,7 @@ describe('Tasks', () => {
     expect(handledTask2.result).toBe(undefined);
     await expect(takeTask({ queue, client })).resolves.toBe(null);
   });
-  describe('Task', () => {
+  describe.skip('Task', () => {
     it('Handles successful task', async () => {
       const handlerClient = client.duplicate();
       registerHandler({
@@ -267,7 +269,7 @@ describe('Tasks', () => {
       await expect(completedTask!.result).toBe('some-task-result');
       await expect(completedTask!.error).toBe(undefined);
     });
-    it.skip('Handles failed task', async () => {
+    it('Handles failed task', async () => {
       const handlerClient = client.duplicate();
       registerHandler({
         queue,
