@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import redis from 'redis';
 import { map } from 'lodash';
-import { flushAll, quit, lrange } from '../utils/redis';
+import { flushAll, quit } from '../utils/redis';
 import { createUuid, sleep } from '../utils/general';
 import { putTasks } from '../actions/put-tasks';
 import { Task } from '../domain/task';
 import { takeTask } from '../actions/take-task';
 import { getStalledTasks } from '../actions/get-stalled-tasks';
-import { getProcessingListKey } from '../utils/keys';
 
 describe('getStalledTasks', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });

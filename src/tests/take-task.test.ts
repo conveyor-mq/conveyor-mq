@@ -4,8 +4,9 @@ import { putTask } from '../actions/put-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { takeTask } from '../actions/take-task';
 import { isTaskStalled } from '../actions/is-task-stalled';
-import { flushAll, quit } from '../utils/redis';
+import { flushAll, quit, lrange } from '../utils/redis';
 import { createUuid } from '../utils/general';
+import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 
 describe('takeTask', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
@@ -28,6 +29,23 @@ describe('takeTask', () => {
       'status',
       TaskStatuses.Processing,
     );
+
+    const queuedTaskIds = await lrange({
+      key: getQueuedListKey({ queue }),
+      start: 0,
+      stop: -1,
+      client,
+    });
+    expect(queuedTaskIds.length).toBe(0);
+
+    const processingTaskIds = await lrange({
+      key: getProcessingListKey({ queue }),
+      start: 0,
+      stop: -1,
+      client,
+    });
+    expect(processingTaskIds.length).toBe(1);
+
     expect(await takeTask({ queue, client })).toBe(null);
   });
   it('takeTask acknowledges task', async () => {
