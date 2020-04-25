@@ -34,7 +34,13 @@ export const set = ({
     }
   });
 
-export const exists = ({ key, client }: { key: string; client: RedisClient }) =>
+export const exists = ({
+  key,
+  client,
+}: {
+  key: string;
+  client: RedisClient;
+}): Promise<number> =>
   new Promise((resolve, reject) => {
     client.exists(key, (err, result) => (err ? reject(err) : resolve(result)));
   });
