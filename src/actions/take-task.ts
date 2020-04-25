@@ -5,8 +5,8 @@ import { getTask } from './get-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { updateTask } from './update-task';
 import { acknowledgeTask } from './acknowledge-task';
-import { rpop } from '../utils/redis';
-import { getQueuedListKey } from '../utils/keys';
+import { rpoplpush } from '../utils/redis';
+import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 
 // TODO: rpop, get and set in a multi.
 // TODO: Dedup with takeTaskBlocking.
@@ -19,8 +19,9 @@ export const takeTask = async ({
   client: RedisClient;
   stallDuration?: number;
 }): Promise<Task | null> => {
-  const taskId = await rpop({
-    key: getQueuedListKey({ queue }),
+  const taskId = await rpoplpush({
+    fromKey: getQueuedListKey({ queue }),
+    toKey: getProcessingListKey({ queue }),
     client,
   });
   if (taskId === null) return null;
