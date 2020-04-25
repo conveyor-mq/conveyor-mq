@@ -26,7 +26,7 @@ export const putTask = async ({
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const queuedListKey = getQueuedListKey({ queue });
   return new Promise((resolve, reject) => {
-    client.watch(taskKey, err => {
+    client.watch(taskKey, (err) => {
       if (err) reject(err);
       client
         .multi()

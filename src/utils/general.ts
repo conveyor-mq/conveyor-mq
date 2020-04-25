@@ -16,5 +16,5 @@ export const createUuid = () => {
 };
 
 export const sleep = async (n: number) => {
-  await new Promise(r => setTimeout(r, n));
+  await new Promise((r) => setTimeout(r, n));
 };
