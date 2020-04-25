@@ -121,3 +121,20 @@ export const quit = ({ client }: { client: RedisClient }) =>
   new Promise((resolve, reject) => {
     client.quit((err, result) => (err ? reject(err) : resolve(result)));
   });
+
+export const lrange = ({
+  start,
+  stop,
+  key,
+  client,
+}: {
+  start: number;
+  stop: number;
+  key: string;
+  client: RedisClient;
+}): Promise<string[]> =>
+  new Promise((resolve, reject) => {
+    client.lrange(key, start, stop, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
+  });
