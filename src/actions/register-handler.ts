@@ -15,7 +15,7 @@ export const registerHandler = ({
   concurrency = 1,
   getRetryDelay = linear(),
   stallDuration = 1000,
-  stalledCheckInterval = 10000,
+  stalledCheckInterval = 1000,
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
@@ -41,11 +41,14 @@ export const registerHandler = ({
         queue,
         client: adminClient,
       });
-      await putStalledTasks({
-        queue,
-        tasks: stalledTasks,
-        client: adminClient,
-      });
+      if (stalledTasks.length > 0) {
+        console.log(`Re-queuing ${stalledTasks.length} stalled tasks.`);
+        await putStalledTasks({
+          queue,
+          tasks: stalledTasks,
+          client: adminClient,
+        });
+      }
     } catch (e) {
       console.error(e.toString());
     } finally {

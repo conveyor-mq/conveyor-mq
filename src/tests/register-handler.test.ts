@@ -31,7 +31,7 @@ describe.skip('', () => {
     const task: Task = {
       id: createUuid(),
       data: 'some-task-data',
-      maxAttempts: 1,
+      maxAttemptCount: 1,
     };
     await putTask({ queue, client, task });
 
@@ -46,9 +46,9 @@ describe.skip('', () => {
     registerHandler({
       queue,
       client: handlerClient,
-      handler: async ({ task }: { task?: Task }) => {
-        await expect(task!.status).toBe(TaskStatuses.Processing);
-        await expect(task!.attemptCount).toBe(1);
+      handler: async ({ task }: { task: Task }) => {
+        await expect(task.status).toBe(TaskStatuses.Processing);
+        await expect(task.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
@@ -56,7 +56,7 @@ describe.skip('', () => {
     const task: Task = {
       id: createUuid(),
       data: 'some-task-data',
-      maxAttempts: 0,
+      maxAttemptCount: 0,
     };
     await putTask({ queue, client, task });
 

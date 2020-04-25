@@ -38,9 +38,11 @@ export const handleTask = async ({
   if (hasTaskExpired({ task, asOf })) {
     return null;
   }
-  const maxAttemptsExceeded =
-    task.maxAttempts && (task.attemptCount || 1) > task.maxAttempts;
-  if (maxAttemptsExceeded) {
+  const maxAttemptCountExceeded =
+    task.maxAttemptCount && (task.attemptCount || 1) > task.maxAttemptCount;
+  const maxErrorCountExceeded =
+    task.maxErrorCount && (task.errorCount || 0) > task.maxErrorCount;
+  if (maxAttemptCountExceeded || maxErrorCountExceeded) {
     return null;
   }
   try {
@@ -56,16 +58,22 @@ export const handleTask = async ({
     return result;
   } catch (e) {
     if (onTaskError) onTaskError({ task });
-    const shouldRetryTask =
-      task.maxAttempts &&
+    const willMaxAttemptCountBeExceeded =
+      task.maxAttemptCount &&
       task.attemptCount &&
-      task.attemptCount < task.maxAttempts;
-    if (shouldRetryTask) {
+      task.attemptCount >= task.maxAttemptCount;
+    const willMaxErrorCountBeExceeded =
+      task.maxErrorCount && (task.errorCount || 0) >= task.maxErrorCount;
+    if (!willMaxErrorCountBeExceeded && !willMaxAttemptCountBeExceeded) {
       const delay = await getRetryDelay({ task });
       // Use delayed task instead of sleeping.
       await sleep(delay);
       await putTask({
-        task: { ...task, processingEndedOn: moment() },
+        task: {
+          ...task,
+          errorCount: (task.errorCount || 0) + 1,
+          processingEndedOn: moment(),
+        },
         queue,
         client,
       });

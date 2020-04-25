@@ -21,7 +21,9 @@ export const putTasks = async ({
     processingStartedOn: undefined,
     processingEndedOn: undefined,
     status: TaskStatuses.Queued,
+    maxAttemptCount: task.maxAttemptCount || 1,
     attemptCount: (task.attemptCount || 0) + 1,
+    errorCount: task.errorCount || 0,
   }));
   const queuedListKey = getQueuedListKey({ queue });
   const taskKeys = map(tasksToQueue, (task) =>

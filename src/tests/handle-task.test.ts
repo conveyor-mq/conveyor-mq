@@ -91,7 +91,7 @@ describe('handleTask', () => {
   });
   it('handleTask retires error task', async () => {
     const now = moment('2020-01-02');
-    const task: Task = { id: 'i', data: 'j', maxAttempts: 2 };
+    const task: Task = { id: 'i', data: 'j', maxAttemptCount: 2 };
     await putTask({ queue, task, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     await handleTask({
