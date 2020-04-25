@@ -5,8 +5,8 @@ import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
 import { putTask } from './put-task';
 import { markTaskFailed } from './mark-task-failed';
-import { sleep } from '../utils';
 import { linear } from '../utils/retry-strategies';
+import { sleep } from '../utils/general';
 
 export type getRetryDelayType = ({
   task,

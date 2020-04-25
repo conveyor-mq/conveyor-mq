@@ -1,11 +1,12 @@
 import { RedisClient } from 'redis';
 import moment from 'moment';
 import { Task } from '../domain/task';
-import { rpop, getQueuedListKey } from '../utils';
 import { getTask } from './get-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { updateTask } from './update-task';
 import { acknowledgeTask } from './acknowledge-task';
+import { rpop } from '../utils/redis';
+import { getQueuedListKey } from '../utils/keys';
 
 // TODO: rpop, get and set in a multi.
 // TODO: Dedup with takeTaskBlocking.

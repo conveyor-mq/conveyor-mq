@@ -1,24 +1,4 @@
-import { v4 as uuid } from 'uuid';
 import { RedisClient } from 'redis';
-
-export const asyncForEach = async (
-  array: any[],
-  callback: (...args: any) => any,
-) => {
-  // eslint-disable-next-line no-plusplus
-  for (let index = 0; index < array.length; index++) {
-    // eslint-disable-next-line no-await-in-loop
-    await callback(array[index], index, array);
-  }
-};
-
-export const createUuid = () => {
-  return uuid();
-};
-
-export const sleep = async (n: number) => {
-  await new Promise(r => setTimeout(r, n));
-};
 
 export const get = ({
   client,
@@ -136,29 +116,3 @@ export const flushAll = ({ client }: { client: RedisClient }) =>
   new Promise((resolve, reject) => {
     client.flushall((err, result) => (err ? reject(err) : resolve(result)));
   });
-
-export const getTaskKey = ({
-  taskId,
-  queue,
-}: {
-  taskId: string;
-  queue: string;
-}) => {
-  return `${queue}:tasks:${taskId}`;
-};
-
-export const getTaskStalledKey = ({
-  taskId,
-  queue,
-}: {
-  taskId: string;
-  queue: string;
-}) => {
-  return `${queue}:active-tasks:${taskId}`;
-};
-
-export const getQueuedListKey = ({ queue }: { queue: string }) =>
-  `${queue}:lists:queued`;
-
-export const getProcessingListKey = ({ queue }: { queue: string }) =>
-  `${queue}:lists:processing`;

@@ -1,6 +1,7 @@
 import { RedisClient } from 'redis';
 import moment from 'moment';
-import { getTaskStalledKey, set } from '../utils';
+import { set } from '../utils/redis';
+import { getTaskAcknowledgedKey } from '../utils/keys';
 
 export const acknowledgeTask = async ({
   taskId,
@@ -13,7 +14,7 @@ export const acknowledgeTask = async ({
   client: RedisClient;
   ttl?: number;
 }) => {
-  const taskStalledKey = getTaskStalledKey({ taskId, queue });
+  const taskStalledKey = getTaskAcknowledgedKey({ taskId, queue });
   await set({
     key: taskStalledKey,
     value: moment()

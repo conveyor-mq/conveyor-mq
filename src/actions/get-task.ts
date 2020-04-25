@@ -1,7 +1,8 @@
 import { RedisClient } from 'redis';
-import { getTaskKey, get } from '../utils';
 import { deSerializeTask } from '../domain/deserialize-task';
 import { Task } from '../domain/task';
+import { get } from '../utils/redis';
+import { getTaskKey } from '../utils/keys';
 
 export const getTask = async ({
   queue,

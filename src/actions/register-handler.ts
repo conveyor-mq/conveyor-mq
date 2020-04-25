@@ -4,7 +4,7 @@ import { Task } from '../domain/task';
 import { takeTaskBlocking } from './take-task-blocking';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { linear } from '../utils/retry-strategies';
-import { sleep } from '../utils';
+import { sleep } from '../utils/general';
 
 export const registerHandler = ({
   queue,

@@ -1,7 +1,8 @@
 import { RedisClient } from 'redis';
 import { Task } from '../domain/task';
-import { getTaskKey, set } from '../utils';
 import { serializeTask } from '../domain/serialize-task';
+import { set } from '../utils/redis';
+import { getTaskKey } from '../utils/keys';
 
 export const updateTask = async ({
   task,

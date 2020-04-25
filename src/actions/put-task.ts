@@ -3,7 +3,7 @@ import moment from 'moment';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { serializeTask } from '../domain/serialize-task';
-import { getTaskKey, getQueuedListKey } from '../utils';
+import { getTaskKey, getQueuedListKey } from '../utils/keys';
 
 export const putTask = async ({
   queue,

@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import redis from 'redis';
 import moment from 'moment';
-import { flushAll, createUuid, sleep } from './utils';
-import { Task } from './domain/task';
-import { putTask } from './actions/put-task';
-import { TaskStatuses } from './domain/task-statuses';
-import { takeTask } from './actions/take-task';
-import { takeTaskBlocking } from './actions/take-task-blocking';
-import { markTaskSuccess } from './actions/mark-task-success';
-import { markTaskFailed } from './actions/mark-task-failed';
-import { hasTaskExpired } from './actions/has-task-expired';
-import { handleTask } from './actions/handle-task';
-import { getTask } from './actions/get-task';
-import { registerHandler } from './actions/register-handler';
-import { isTaskStalled } from './actions/is-task-stalled';
-import { acknowledgeTask } from './actions/acknowledge-task';
+import { Task } from '../domain/task';
+import { putTask } from '../actions/put-task';
+import { TaskStatuses } from '../domain/task-statuses';
+import { takeTask } from '../actions/take-task';
+import { takeTaskBlocking } from '../actions/take-task-blocking';
+import { markTaskSuccess } from '../actions/mark-task-success';
+import { markTaskFailed } from '../actions/mark-task-failed';
+import { hasTaskExpired } from '../actions/has-task-expired';
+import { handleTask } from '../actions/handle-task';
+import { getTask } from '../actions/get-task';
+import { registerHandler } from '../actions/register-handler';
+import { isTaskStalled } from '../actions/is-task-stalled';
+import { acknowledgeTask } from '../actions/acknowledge-task';
+import { flushAll } from '../utils/redis';
+import { sleep, createUuid } from '../utils/general';
 
 describe('Tasks', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });

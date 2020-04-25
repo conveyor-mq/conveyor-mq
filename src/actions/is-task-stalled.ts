@@ -1,5 +1,6 @@
 import { RedisClient } from 'redis';
-import { getTaskStalledKey, exists } from '../utils';
+import { exists } from '../utils/redis';
+import { getTaskAcknowledgedKey } from '../utils/keys';
 
 export const isTaskStalled = async ({
   taskId,
@@ -10,7 +11,7 @@ export const isTaskStalled = async ({
   queue: string;
   client: RedisClient;
 }) => {
-  const taskStalledKey = getTaskStalledKey({ taskId, queue });
-  const isTaskAcknowledged = await exists({ key: taskStalledKey, client });
+  const taskAcknowledgedKey = getTaskAcknowledgedKey({ taskId, queue });
+  const isTaskAcknowledged = await exists({ key: taskAcknowledgedKey, client });
   return !isTaskAcknowledged;
 };
