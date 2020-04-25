@@ -6,6 +6,7 @@ import { putTask } from '../actions/put-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { flushAll, quit } from '../utils/redis';
 import { createUuid } from '../utils/general';
+import { getTask } from '../actions/get-task';
 
 describe('putTask', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
@@ -22,6 +23,12 @@ describe('putTask', () => {
   it('putTask adds task to a queue', async () => {
     const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await putTask({ queue, client, task });
+    const fetchedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(fetchedTask.id).toBe(task.id);
     expect(queuedTask.data).toBe(task.data);
     expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedOn).toBe(undefined);

@@ -1,14 +1,12 @@
 import { RedisClient } from 'redis';
 import moment from 'moment';
-import { map } from 'lodash';
 import { Task } from '../domain/task';
 import { takeTaskBlocking } from './take-task-blocking';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { linear } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
 import { getStalledTasks } from './get-stalled-tasks';
-import { putTask } from './put-task';
-import { putTasks } from './put-tasks';
+import { putStalledTasks } from './put-stalled-tasks';
 
 export const registerHandler = ({
   queue,
@@ -17,6 +15,7 @@ export const registerHandler = ({
   concurrency = 1,
   getRetryDelay = linear(),
   stallDuration = 1000,
+  stalledCheckInterval = 10000,
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
@@ -28,6 +27,7 @@ export const registerHandler = ({
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
   stallDuration?: number;
+  stalledCheckInterval?: number;
   onTaskSuccess?: ({ task }: { task: Task }) => any;
   onTaskError?: ({ task }: { task: Task }) => any;
   onTaskFailed?: ({ task }: { task: Task }) => any;
@@ -36,10 +36,22 @@ export const registerHandler = ({
   const adminClient = client.duplicate();
 
   const reQueueStalledTasks = async () => {
-    const stalledTasks = await getStalledTasks({ queue, client: adminClient });
-    await putTasks({ queue, tasks: stalledTasks, client: adminClient });
-    await sleep(1000);
-    reQueueStalledTasks();
+    try {
+      const stalledTasks = await getStalledTasks({
+        queue,
+        client: adminClient,
+      });
+      await putStalledTasks({
+        queue,
+        tasks: stalledTasks,
+        client: adminClient,
+      });
+    } catch (e) {
+      console.error(e.toString());
+    } finally {
+      await sleep(stalledCheckInterval);
+      reQueueStalledTasks();
+    }
   };
   reQueueStalledTasks();
 
@@ -62,7 +74,6 @@ export const registerHandler = ({
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
-      await sleep(1000);
     } finally {
       checkForAndHandleTask(localClient);
     }

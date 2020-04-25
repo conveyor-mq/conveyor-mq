@@ -21,4 +21,5 @@ export const acknowledgeTask = async ({
     ttl,
     client,
   });
+  return true;
 };

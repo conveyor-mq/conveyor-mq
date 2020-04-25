@@ -15,14 +15,14 @@ export const getStalledTasks = async ({
   client: RedisClient;
 }): Promise<Task[]> => {
   const taskIds = await lrange({
+    key: getProcessingListKey({ queue }),
     start: 0,
     stop: -1,
     client,
-    key: getProcessingListKey({ queue }),
   });
   const results = await areTasksStalled({ taskIds, queue, client });
   const stalledTasksIds = map(
-    filter(results, (result) => result.isStalled),
+    filter(results, (result) => !!result.isStalled),
     (result) => result.taskId,
   );
   const stalledTasks = await getTasks({

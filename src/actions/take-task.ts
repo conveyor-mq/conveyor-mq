@@ -5,7 +5,7 @@ import { getTask } from './get-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { updateTask } from './update-task';
 import { acknowledgeTask } from './acknowledge-task';
-import { rpoplpush } from '../utils/redis';
+import { rpoplpush, lrange } from '../utils/redis';
 import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 
 // TODO: rpop, get and set in a multi.

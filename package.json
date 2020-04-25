@@ -4,8 +4,8 @@
   "description": "Tasks",
   "main": "./src/index.ts",
   "scripts": {
-    "test": "jest ./src",
-    "test:watch": "jest --watch ./src",
+    "test": "jest --runInBand ./src",
+    "test:watch": "jest --runInBand --watch ./src",
     "start": "ts-node ./src/index.ts",
     "shell": "ts-node"
   },

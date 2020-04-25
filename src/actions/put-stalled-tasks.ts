@@ -4,9 +4,13 @@ import { map, forEach } from 'lodash';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { serializeTask } from '../domain/serialize-task';
-import { getTaskKey, getQueuedListKey } from '../utils/keys';
+import {
+  getTaskKey,
+  getQueuedListKey,
+  getProcessingListKey,
+} from '../utils/keys';
 
-export const putTasks = async ({
+export const putStalledTasks = async ({
   queue,
   tasks,
   client,
@@ -24,6 +28,7 @@ export const putTasks = async ({
     attemptCount: (task.attemptCount || 0) + 1,
   }));
   const queuedListKey = getQueuedListKey({ queue });
+  const processingListKey = getProcessingListKey({ queue });
   const taskKeys = map(tasksToQueue, (task) =>
     getTaskKey({ taskId: task.id, queue }),
   );
@@ -35,6 +40,7 @@ export const putTasks = async ({
         const taskKey = getTaskKey({ taskId: task.id, queue });
         const taskString = serializeTask(task);
         multi.set(taskKey, taskString);
+        multi.lrem(processingListKey, 1, task.id);
         multi.lpush(queuedListKey, task.id);
       });
       multi.exec((error, result) =>
