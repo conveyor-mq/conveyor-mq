@@ -21,6 +21,9 @@ export const handleTask = async ({
   handler,
   asOf,
   getRetryDelay = linear(),
+  onTaskSuccess,
+  onTaskError,
+  onTaskFailed,
 }: {
   task: Task;
   queue: string;
@@ -28,6 +31,9 @@ export const handleTask = async ({
   handler: ({ task }: { task: Task }) => any;
   asOf: Moment;
   getRetryDelay?: getRetryDelayType;
+  onTaskSuccess?: ({ task }: { task: Task }) => any;
+  onTaskError?: ({ task }: { task: Task }) => any;
+  onTaskFailed?: ({ task }: { task: Task }) => any;
 }): Promise<any | null> => {
   if (hasTaskExpired({ task, asOf })) {
     return null;
@@ -46,8 +52,10 @@ export const handleTask = async ({
       result,
       asOf: moment(),
     });
+    if (onTaskSuccess) onTaskSuccess({ task });
     return result;
   } catch (e) {
+    if (onTaskError) onTaskError({ task });
     const shouldRetryTask =
       task.maxAttempts &&
       task.attemptCount &&
@@ -70,6 +78,7 @@ export const handleTask = async ({
       error: e.message,
       asOf: moment(),
     });
+    if (onTaskFailed) onTaskFailed({ task });
     return e;
   }
 };

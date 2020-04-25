@@ -13,6 +13,10 @@ export const registerHandler = ({
   concurrency = 1,
   getRetryDelay = linear(),
   stallDuration = 1000,
+  onTaskSuccess,
+  onTaskError,
+  onTaskFailed,
+  onHandlerError,
 }: {
   queue: string;
   handler: ({ task }: { task: Task }) => any;
@@ -20,6 +24,10 @@ export const registerHandler = ({
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
   stallDuration?: number;
+  onTaskSuccess?: ({ task }: { task: Task }) => any;
+  onTaskError?: ({ task }: { task: Task }) => any;
+  onTaskFailed?: ({ task }: { task: Task }) => any;
+  onHandlerError?: (error: any) => any;
 }) => {
   const checkForAndHandleTask = async (localClient: RedisClient) => {
     try {
@@ -32,9 +40,13 @@ export const registerHandler = ({
           asOf: moment(),
           handler,
           getRetryDelay,
+          onTaskSuccess,
+          onTaskError,
+          onTaskFailed,
         });
       }
     } catch (e) {
+      if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
     } finally {
