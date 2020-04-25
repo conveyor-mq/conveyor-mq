@@ -139,20 +139,49 @@ export const updateTask = async ({
   return task;
 };
 
+export const markTaskProcessing = async ({
+  task,
+  queue,
+  client,
+  asOf,
+  attemptNumber,
+}: {
+  task: Task;
+  queue: string;
+  client: RedisClient;
+  asOf: Moment;
+  attemptNumber: number;
+}) => {
+  return updateTask({
+    task: {
+      ...task,
+      attemptCount: attemptNumber,
+      processingStartedOn: asOf,
+      processingEndedOn: undefined,
+      status: TaskStatuses.Processing,
+    },
+    queue,
+    client,
+  });
+};
+
 export const markTaskSuccess = async ({
   task,
   queue,
   client,
   result,
+  asOf,
 }: {
   task: Task;
   queue: string;
   client: RedisClient;
   result?: any;
+  asOf: Moment;
 }) => {
   return updateTask({
     task: {
       ...task,
+      processingEndedOn: asOf,
       status: TaskStatuses.Success,
       result,
     },
@@ -166,15 +195,18 @@ export const markTaskFailed = async ({
   queue,
   client,
   error,
+  asOf,
 }: {
   task: Task;
   queue: string;
   client: RedisClient;
   error?: any;
+  asOf: Moment;
 }) => {
   return updateTask({
     task: {
       ...task,
+      processingEndedOn: asOf,
       status: TaskStatuses.Failed,
       error,
     },
@@ -183,6 +215,7 @@ export const markTaskFailed = async ({
   });
 };
 
+// TODO: rpop, get and set in a multi.
 export const takeTask = async ({
   queue,
   client,
@@ -207,6 +240,7 @@ export const takeTask = async ({
   return processingTask;
 };
 
+// TODO: rpop, get and set in a multi.
 export const takeTaskBlocking = async ({
   timeout = 0,
   queue,
@@ -266,32 +300,37 @@ export const handleTask = async ({
     console.warn('Not handling expired task.');
     return null;
   }
-  if (task.maxAttempts && (task.attemptCount || 0) >= task.maxAttempts) {
+  const maxAttemptsExceeded =
+    task.maxAttempts && (task.attemptCount || 0) >= task.maxAttempts;
+  if (maxAttemptsExceeded) {
     console.warn('Task has exceeded its maxAttempts.');
     return null;
   }
-  const updatedTask: Task = {
-    ...task,
-    processingStartedOn: moment(),
-    attemptCount: (task.attemptCount || 0) + 1,
-  };
+  const processingTask = await markTaskProcessing({
+    task,
+    queue,
+    client,
+    asOf: moment(),
+    attemptNumber: (task.attemptCount || 0) + 1,
+  });
   try {
-    const result = await handler({ task: updatedTask });
+    const result = await handler({ task: processingTask });
     await markTaskSuccess({
-      task: { ...updatedTask, processingEndedOn: moment() },
+      task: processingTask,
       queue,
       client,
       result,
+      asOf: moment(),
     });
     return result;
   } catch (e) {
-    if (
-      updatedTask.maxAttempts &&
-      updatedTask.attemptCount &&
-      updatedTask.attemptCount < updatedTask.maxAttempts
-    ) {
+    const maxAttemptsExceededAfterProcessing =
+      processingTask.maxAttempts &&
+      processingTask.attemptCount &&
+      processingTask.attemptCount < processingTask.maxAttempts;
+    if (maxAttemptsExceededAfterProcessing) {
       await putTask({
-        task: { ...updatedTask, processingEndedOn: moment() },
+        task: { ...processingTask, processingEndedOn: moment() },
         queue,
         client,
       });
@@ -299,10 +338,11 @@ export const handleTask = async ({
     }
 
     await markTaskFailed({
-      task: { ...updatedTask, processingEndedOn: moment() },
+      task: processingTask,
       queue,
       client,
       error: e.message,
+      asOf: moment(),
     });
     return e;
   }
@@ -312,19 +352,27 @@ export const registerHandler = ({
   queue,
   handler,
   client,
+  concurrency = 1,
 }: {
   queue: string;
   handler: ({ task, ...other }: { task: Task; other?: any }) => any;
   client: RedisClient;
+  concurrency?: number;
 }) => {
-  const checkForAndHandleTask = async () => {
+  const checkForAndHandleTask = async (localClient: RedisClient) => {
     const task = await takeTaskBlocking({ queue, client });
     if (task) {
-      await handleTask({ task, queue, client, asOf: moment(), handler });
+      await handleTask({
+        task,
+        queue,
+        client: localClient,
+        asOf: moment(),
+        handler,
+      });
     }
-    checkForAndHandleTask();
-    return true;
+    checkForAndHandleTask(localClient);
   };
-  checkForAndHandleTask();
-  return handler;
+  Array.from({ length: concurrency }).forEach(() => {
+    checkForAndHandleTask(client.duplicate());
+  });
 };

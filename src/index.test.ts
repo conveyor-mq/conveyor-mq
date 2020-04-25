@@ -112,6 +112,7 @@ describe('Tasks', () => {
       queue,
       client,
       result: 'horaay!',
+      asOf: moment(),
     });
     expect(successfulTask).toHaveProperty('status', TaskStatuses.Success);
     expect(successfulTask).toHaveProperty('result', 'horaay!');
@@ -132,6 +133,7 @@ describe('Tasks', () => {
       queue,
       client,
       error: 'aww :(',
+      asOf: moment(),
     });
     expect(failedTask).toHaveProperty('status', TaskStatuses.Failed);
     expect(failedTask).toHaveProperty('error', 'aww :(');
@@ -172,6 +174,7 @@ describe('Tasks', () => {
       expiresOn: thePast,
       data: 'j',
     };
+    expect(hasTaskExpired({ task: expiredTask, asOf: theFuture }));
     const result = await handleTask({
       queue,
       client,
@@ -193,6 +196,7 @@ describe('Tasks', () => {
       task: theTask,
       asOf: now,
       handler: ({ task }: { task: Task }) => {
+        expect(task.attemptCount).toBe(1);
         expect(task.id).toBe(theTask.id);
         return 'some-result';
       },
@@ -220,13 +224,11 @@ describe('Tasks', () => {
       },
     });
     const handledTask = await getTask({ queue, taskId: theTask.id, client });
-    expect(handledTask && typeof handledTask.processingStartedOn).toBe(
-      'object',
-    );
-    expect(handledTask && typeof handledTask.processingEndedOn).toBe('object');
-    expect(handledTask && handledTask.status).toBe(TaskStatuses.Failed);
-    expect(handledTask && handledTask.error).toBe('some-error');
-    expect(handledTask && handledTask.result).toBe(undefined);
+    expect(typeof handledTask!.processingStartedOn).toBe('object');
+    expect(typeof handledTask!.processingEndedOn).toBe('object');
+    expect(handledTask!.status).toBe(TaskStatuses.Failed);
+    expect(handledTask!.error).toBe('some-error');
+    expect(handledTask!.result).toBe(undefined);
   });
   it('handleTask retires task', async () => {
     const now = moment('2020-01-02');
