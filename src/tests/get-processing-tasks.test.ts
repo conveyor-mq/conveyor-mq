@@ -4,9 +4,10 @@ import { map } from 'lodash';
 import { flushAll, quit } from '../utils/redis';
 import { createUuid } from '../utils/general';
 import { putTask } from '../actions/put-task';
-import { getTasks } from '../actions/get-tasks';
+import { takeTask } from '../actions/take-task';
+import { getProcessingTasks } from '../actions/get-processing-tasks';
 
-describe('getTasks', () => {
+describe('getProcessingTasks', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
   const queue = createUuid();
 
@@ -18,7 +19,7 @@ describe('getTasks', () => {
     await quit({ client });
   });
 
-  it('getTasks gets tasks', async () => {
+  it('getProcessingTasks gets tasks', async () => {
     const puttedTasks = await Promise.all(
       map(Array.from({ length: 10 }), async (i, index) => {
         return putTask({
@@ -28,11 +29,12 @@ describe('getTasks', () => {
         });
       }),
     );
-    const tasks = await getTasks({
-      queue,
-      taskIds: map(puttedTasks, (task) => task.id),
-      client,
-    });
-    expect(tasks.length).toBe(10);
+    await Promise.all(
+      map(puttedTasks, () => {
+        return takeTask({ queue, client });
+      }),
+    );
+    const processingTasks = await getProcessingTasks({ queue, client });
+    expect(processingTasks.length).toBe(10);
   });
 });
