@@ -3,8 +3,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import redis from 'redis';
-import { registerHandler, putTask, Task } from '../src';
 import { createUuid } from '../src/utils';
+import { Task } from '../src/domain/task';
+import { putTask } from '../src/actions/put-task';
+import { registerHandler } from '../src/actions/register-handler';
 
 const main = async () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });

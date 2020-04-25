@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import uuid from 'uuid/v4';
 import { RedisClient } from 'redis';
 
@@ -129,3 +127,19 @@ export const flushAll = ({ client }: { client: RedisClient }) =>
       }
     });
   });
+
+export const getTaskKey = ({
+  taskId,
+  queue,
+}: {
+  taskId: string;
+  queue: string;
+}) => {
+  return `${queue}:tasks:${taskId}`;
+};
+
+export const getQueuedListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:queued`;
+
+export const getProcessingListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:processing`;

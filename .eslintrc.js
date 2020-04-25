@@ -31,5 +31,8 @@ module.exports = {
   rules: {
     'import/prefer-default-export': 0,
     'prettier/prettier': 'error',
+    '@typescript-eslint/explicit-function-return-type': 0,
+    '@typescript-eslint/no-explicit-any': 0,
+    'no-console': 0,
   },
 };

@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import redis from 'redis';
 import moment from 'moment';
-import {
-  putTask,
-  getTask,
-  TaskStatuses,
-  takeTask,
-  markTaskSuccess,
-  markTaskFailed,
-  takeTaskBlocking,
-  Task,
-  hasTaskExpired,
-  handleTask,
-  registerHandler,
-} from '.';
 import { flushAll, createUuid, sleep } from './utils';
+import { Task } from './domain/task';
+import { putTask } from './actions/put-task';
+import { TaskStatuses } from './domain/task-statuses';
+import { takeTask } from './actions/take-task';
+import { takeTaskBlocking } from './actions/take-task-blocking';
+import { markTaskSuccess } from './actions/mark-task-success';
+import { markTaskFailed } from './actions/mark-task-failed';
+import { hasTaskExpired } from './actions/has-task-expired';
+import { handleTask } from './actions/handle-task';
+import { getTask } from './actions/get-task';
+import { registerHandler } from './actions/register-handler';
 
 describe('Tasks', () => {
   const client = redis.createClient({
