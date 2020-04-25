@@ -116,3 +116,8 @@ export const flushAll = ({ client }: { client: RedisClient }) =>
   new Promise((resolve, reject) => {
     client.flushall((err, result) => (err ? reject(err) : resolve(result)));
   });
+
+export const quit = ({ client }: { client: RedisClient }) =>
+  new Promise((resolve, reject) => {
+    client.quit((err, result) => (err ? reject(err) : resolve(result)));
+  });
