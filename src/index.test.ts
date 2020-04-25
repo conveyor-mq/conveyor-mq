@@ -13,6 +13,8 @@ import { hasTaskExpired } from './actions/has-task-expired';
 import { handleTask } from './actions/handle-task';
 import { getTask } from './actions/get-task';
 import { registerHandler } from './actions/register-handler';
+import { isTaskStalled } from './actions/is-task-stalled';
+import { acknowledgeTask } from './actions/acknowledge-task';
 
 describe('Tasks', () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
@@ -57,6 +59,13 @@ describe('Tasks', () => {
     );
     expect(await takeTask({ queue, client })).toBe(null);
   });
+  it('takeTask acknowledges task', async () => {
+    const task = { id: 'b', data: 'c' };
+    await putTask({ queue, client, task });
+    await takeTask({ queue, client });
+    const isStalled = await isTaskStalled({ taskId: task.id, queue, client });
+    expect(isStalled).toBe(false);
+  });
   it('takeTask returns null when there is no task to take', async () => {
     const task = await takeTask({ queue, client });
     await expect(task).toBe(null);
@@ -72,6 +81,13 @@ describe('Tasks', () => {
     );
     expect(await takeTask({ queue, client })).toBe(null);
   });
+  it('takeTaskBlocking acknowledges task', async () => {
+    const task = { id: 'b', data: 'c' };
+    await putTask({ queue, client, task });
+    await takeTaskBlocking({ queue, client });
+    const isStalled = await isTaskStalled({ taskId: task.id, queue, client });
+    expect(isStalled).toBe(false);
+  });
   it('takeTaskBlocking returns null after timeout when there is no task to take', async () => {
     const blockingClient = client.duplicate();
     const task = await takeTaskBlocking({
@@ -80,6 +96,14 @@ describe('Tasks', () => {
       timeout: 1,
     });
     expect(task).toBe(null);
+  });
+  it('acknowledgeTask acknowledges task', async () => {
+    const task = { id: 'b', data: 'c' };
+    expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(true);
+    await acknowledgeTask({ taskId: task.id, queue, client, ttl: 50 });
+    expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(false);
+    await sleep(50);
+    expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(true);
   });
   it('markTaskSuccessful marks task successful', async () => {
     const task = { id: 'g', data: 'h' };

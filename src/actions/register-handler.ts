@@ -12,16 +12,18 @@ export const registerHandler = ({
   client,
   concurrency = 1,
   getRetryDelay = linear(),
+  stallDuration = 1000,
 }: {
   queue: string;
   handler: ({ task }: { task: Task }) => any;
   client: RedisClient;
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
+  stallDuration?: number;
 }) => {
   const checkForAndHandleTask = async (localClient: RedisClient) => {
     try {
-      const task = await takeTaskBlocking({ queue, client });
+      const task = await takeTaskBlocking({ queue, client, stallDuration });
       if (task) {
         await handleTask({
           task,

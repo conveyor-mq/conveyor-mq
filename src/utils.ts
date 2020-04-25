@@ -27,21 +27,36 @@ export const get = ({
   client: RedisClient;
   key: string;
 }): Promise<string | null> =>
-  new Promise(resolve => {
-    client.get(key, (err, result) => resolve(result));
+  new Promise((resolve, reject) => {
+    client.get(key, (err, result) => (err ? reject(err) : resolve(result)));
   });
 
 export const set = ({
   key,
   value,
   client,
+  ttl,
 }: {
   key: string;
   value: string;
   client: RedisClient;
+  ttl?: number;
 }) =>
-  new Promise(resolve => {
-    client.set(key, value, (err, result) => resolve(result));
+  new Promise((resolve, reject) => {
+    if (ttl) {
+      client.set(key, value, 'px', ttl, (err, result) =>
+        err ? reject(err) : resolve(result),
+      );
+    } else {
+      client.set(key, value, (err, result) =>
+        err ? reject(err) : resolve(result),
+      );
+    }
+  });
+
+export const exists = ({ key, client }: { key: string; client: RedisClient }) =>
+  new Promise((resolve, reject) => {
+    client.exists(key, (err, result) => (err ? reject(err) : resolve(result)));
   });
 
 export const lpush = ({
@@ -53,8 +68,10 @@ export const lpush = ({
   elements: string[];
   client: RedisClient;
 }) =>
-  new Promise(resolve => {
-    client.lpush(key, ...elements, (err, result) => resolve(result));
+  new Promise((resolve, reject) => {
+    client.lpush(key, ...elements, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
   });
 
 export const rpop = ({
@@ -64,8 +81,8 @@ export const rpop = ({
   key: string;
   client: RedisClient;
 }): Promise<string | null> =>
-  new Promise(resolve => {
-    client.rpop(key, (err, result) => resolve(result));
+  new Promise((resolve, reject) => {
+    client.rpop(key, (err, result) => (err ? reject(err) : resolve(result)));
   });
 
 export const rpoplpush = ({
@@ -77,8 +94,10 @@ export const rpoplpush = ({
   toKey: string;
   client: RedisClient;
 }): Promise<string | null> =>
-  new Promise(resolve => {
-    client.rpoplpush(fromKey, toKey, (err, result) => resolve(result));
+  new Promise((resolve, reject) => {
+    client.rpoplpush(fromKey, toKey, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
   });
 
 export const brpop = ({
@@ -91,13 +110,9 @@ export const brpop = ({
   client: RedisClient;
 }): Promise<string[] | null[]> =>
   new Promise((resolve, reject) => {
-    client.brpop(key, timeout || 0, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
+    client.brpop(key, timeout || 0, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
   });
 
 export const brpoplpush = ({
@@ -111,21 +126,15 @@ export const brpoplpush = ({
   timeout?: number;
   client: RedisClient;
 }): Promise<string | null> =>
-  new Promise(resolve => {
+  new Promise((resolve, reject) => {
     client.brpoplpush(fromKey, toKey, timeout, (err, result) =>
-      resolve(result),
+      err ? reject(err) : resolve(result),
     );
   });
 
 export const flushAll = ({ client }: { client: RedisClient }) =>
   new Promise((resolve, reject) => {
-    client.flushall((err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
+    client.flushall((err, result) => (err ? reject(err) : resolve(result)));
   });
 
 export const getTaskKey = ({
@@ -136,6 +145,16 @@ export const getTaskKey = ({
   queue: string;
 }) => {
   return `${queue}:tasks:${taskId}`;
+};
+
+export const getTaskStalledKey = ({
+  taskId,
+  queue,
+}: {
+  taskId: string;
+  queue: string;
+}) => {
+  return `${queue}:active-tasks:${taskId}`;
 };
 
 export const getQueuedListKey = ({ queue }: { queue: string }) =>
