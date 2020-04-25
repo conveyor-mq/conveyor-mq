@@ -19,7 +19,11 @@ export const areTasksStalled = async ({
     multi.exists(key);
   });
   const promise = new Promise((resolve, reject) => {
-    multi.exec((err, result) => (err ? reject(err) : resolve(result)));
+    multi.exec((err, result) =>
+      err || result === null
+        ? reject(err || 'Multi command failed.')
+        : resolve(result),
+    );
   }) as Promise<number[]>;
   const results = await promise;
   return zipWith(taskIds, results, (taskId, result) => ({

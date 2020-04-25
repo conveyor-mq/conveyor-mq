@@ -18,7 +18,11 @@ export const getTasks = async ({
     multi.get(getTaskKey({ taskId, queue }));
   });
   const promise = new Promise((resolve, reject) => {
-    multi.exec((err, result) => (err ? reject(err) : resolve(result)));
+    multi.exec((err, result) =>
+      err || result === null
+        ? reject(err || 'Multi command failed.')
+        : resolve(result),
+    );
   }) as Promise<(string | null)[]>;
   const results = await promise;
   const nonNullResults = filter(results, (result) => !!result) as string[];

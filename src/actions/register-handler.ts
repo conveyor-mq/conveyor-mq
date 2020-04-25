@@ -1,10 +1,14 @@
 import { RedisClient } from 'redis';
 import moment from 'moment';
+import { map } from 'lodash';
 import { Task } from '../domain/task';
 import { takeTaskBlocking } from './take-task-blocking';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { linear } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
+import { getStalledTasks } from './get-stalled-tasks';
+import { putTask } from './put-task';
+import { putTasks } from './put-tasks';
 
 export const registerHandler = ({
   queue,
@@ -29,6 +33,16 @@ export const registerHandler = ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
 }) => {
+  const adminClient = client.duplicate();
+
+  const reQueueStalledTasks = async () => {
+    const stalledTasks = await getStalledTasks({ queue, client: adminClient });
+    await putTasks({ queue, tasks: stalledTasks, client: adminClient });
+    await sleep(1000);
+    reQueueStalledTasks();
+  };
+  reQueueStalledTasks();
+
   const checkForAndHandleTask = async (localClient: RedisClient) => {
     try {
       const task = await takeTaskBlocking({ queue, client, stallDuration });
