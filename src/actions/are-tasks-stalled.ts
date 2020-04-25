@@ -2,6 +2,7 @@ import { RedisClient } from 'redis';
 import { map, forEach, zipWith } from 'lodash';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 
+// TODO: Check that tasks are in processing queue.
 export const areTasksStalled = async ({
   taskIds,
   queue,
