@@ -8,12 +8,6 @@ export const createClient = async (config: { host: string; port: number }) => {
   return updatedClient;
 };
 
-export const duplicateClient = async (client: Redis) => {
-  const newClient = client.duplicate();
-  const updatedClient = await loadScripts({ client: newClient });
-  return updatedClient;
-};
-
 export const callLuaScript = ({
   client,
   script,
@@ -33,17 +27,6 @@ export const exec = (multi_: Pipeline) => {
     );
   }) as Promise<(string | number)[]>;
 };
-
-export const get = ({
-  client,
-  key,
-}: {
-  client: Redis;
-  key: string;
-}): Promise<string | null> =>
-  new Promise((resolve, reject) => {
-    client.get(key, (err, result) => (err ? reject(err) : resolve(result)));
-  });
 
 export const set = ({
   key,
@@ -68,27 +51,6 @@ export const set = ({
     }
   });
 
-export const exists = ({
-  key,
-  client,
-}: {
-  key: string;
-  client: Redis;
-}): Promise<number> =>
-  new Promise((resolve, reject) => {
-    client.exists(key, (err, result) => (err ? reject(err) : resolve(result)));
-  });
-
-export const lpush = ({
-  key,
-  elements,
-  client,
-}: {
-  key: string;
-  elements: string[];
-  client: Redis;
-}) => client.lpush(key, ...elements);
-
 export const rpop = ({
   key,
   client,
@@ -98,21 +60,6 @@ export const rpop = ({
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
     client.rpop(key, (err, result) => (err ? reject(err) : resolve(result)));
-  });
-
-export const rpoplpush = ({
-  fromKey,
-  toKey,
-  client,
-}: {
-  fromKey: string;
-  toKey: string;
-  client: Redis;
-}): Promise<string | null> =>
-  new Promise((resolve, reject) => {
-    client.rpoplpush(fromKey, toKey, (err, result) =>
-      err ? reject(err) : resolve(result),
-    );
   });
 
 export const brpoplpush = ({

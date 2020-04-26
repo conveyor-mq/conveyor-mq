@@ -1,11 +1,9 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { Task } from '../domain/task';
-import { getTask } from './get-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { updateTask } from './update-task';
-import { acknowledgeTask } from './acknowledge-task';
-import { rpoplpush, callLuaScript } from '../utils/redis';
+import { callLuaScript } from '../utils/redis';
 import {
   getQueuedListKey,
   getProcessingListKey,
