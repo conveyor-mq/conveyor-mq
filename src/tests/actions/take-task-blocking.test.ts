@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
-import { putTask } from '../actions/put-task';
-import { TaskStatuses } from '../domain/task-statuses';
-import { takeTask } from '../actions/take-task';
-import { takeTaskBlocking } from '../actions/take-task-blocking';
-import { isTaskStalled } from '../actions/is-task-stalled';
-import { flushAll, quit } from '../utils/redis';
-import { createUuid } from '../utils/general';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { putTask } from '../../actions/put-task';
+import { TaskStatuses } from '../../domain/task-statuses';
+import { takeTask } from '../../actions/take-task';
+import { takeTaskBlocking } from '../../actions/take-task-blocking';
+import { isTaskStalled } from '../../actions/is-task-stalled';
+import { flushAll, quit, createClient } from '../../utils/redis';
+import { createUuid } from '../../utils/general';
+import { redisConfig } from '../config';
 
 describe('takeTaskBlocking', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });

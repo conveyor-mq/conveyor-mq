@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { map, filter } from 'lodash';
 import moment from 'moment';
 import { Task } from '../domain/task';
@@ -11,7 +11,7 @@ export const handleStalledTasks = async ({
   tasks,
 }: {
   queue: string;
-  client: RedisClient;
+  client: Redis;
   tasks: Task[];
 }) => {
   const results = map(tasks, (task) => {

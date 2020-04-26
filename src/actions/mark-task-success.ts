@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { Moment } from 'moment';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
@@ -14,7 +14,7 @@ export const markTaskSuccess = async ({
 }: {
   task: Task;
   queue: string;
-  client: RedisClient;
+  client: Redis;
   result?: any;
   asOf: Moment;
 }) => {

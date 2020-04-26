@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { map, forEach, zipWith } from 'lodash';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 
@@ -10,7 +10,7 @@ export const areTasksStalled = async ({
 }: {
   taskIds: string[];
   queue: string;
-  client: RedisClient;
+  client: Redis;
 }) => {
   const taskAcknowledgeKeys = map(taskIds, (taskId) =>
     getTaskAcknowledgedKey({ taskId, queue }),
@@ -20,10 +20,10 @@ export const areTasksStalled = async ({
     multi.exists(key);
   });
   const promise = new Promise((resolve, reject) => {
-    multi.exec((err, result) =>
-      err || result === null
+    multi.exec((err, results) =>
+      err
         ? reject(err || 'Multi command failed.')
-        : resolve(result),
+        : resolve(map(results, (result) => result[1])),
     );
   }) as Promise<number[]>;
   const results = await promise;

@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import moment from 'moment';
 import { Task } from '../domain/task';
 import { getTask } from './get-task';
@@ -18,7 +18,7 @@ export const takeTaskBlocking = async ({
 }: {
   timeout?: number;
   queue: string;
-  client: RedisClient;
+  client: Redis;
   stallDuration?: number;
 }): Promise<Task | null> => {
   const taskId = await brpoplpush({

@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import moment from 'moment';
 import { map, forEach } from 'lodash';
 import { Task } from '../domain/task';
@@ -13,7 +13,7 @@ export const putTasks = async ({
 }: {
   queue: string;
   tasks: Task[];
-  client: RedisClient;
+  client: Redis;
 }): Promise<Task[]> => {
   const tasksToQueue = map(tasks, (task) => ({
     ...task,
@@ -26,9 +26,6 @@ export const putTasks = async ({
     errorCount: task.errorCount || 0,
   }));
   const queuedListKey = getQueuedListKey({ queue });
-  const taskKeys = map(tasksToQueue, (task) =>
-    getTaskKey({ taskId: task.id, queue }),
-  );
   const multi = client.multi();
   forEach(tasksToQueue, (task) => {
     const taskKey = getTaskKey({ taskId: task.id, queue });
@@ -37,13 +34,10 @@ export const putTasks = async ({
     multi.lpush(queuedListKey, task.id);
   });
   return new Promise((resolve, reject) => {
-    client.watch(...taskKeys, (err) => {
-      if (err) reject(err);
-      multi.exec((error, result) =>
-        error || result === null
-          ? reject(error || 'Multi command failed.')
-          : resolve(tasksToQueue),
-      );
-    });
+    multi.exec((error, [resultError]) =>
+      error || resultError === null
+        ? reject(error || 'Multi command failed.')
+        : resolve(tasksToQueue),
+    );
   });
 };

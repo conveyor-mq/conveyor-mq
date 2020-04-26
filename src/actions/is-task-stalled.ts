@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { areTasksStalled } from './are-tasks-stalled';
 
 export const isTaskStalled = async ({
@@ -8,7 +8,7 @@ export const isTaskStalled = async ({
 }: {
   taskId: string;
   queue: string;
-  client: RedisClient;
+  client: Redis;
 }) => {
   const [result] = await areTasksStalled({
     taskIds: [taskId],

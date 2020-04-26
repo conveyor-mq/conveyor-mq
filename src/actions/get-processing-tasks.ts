@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { Task } from '../domain/task';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';
@@ -10,7 +10,7 @@ export const getProcessingTasks = async ({
   client,
 }: {
   queue: string;
-  client: RedisClient;
+  client: Redis;
 }): Promise<Task[]> => {
   const taskIds = await lrange({
     start: 0,

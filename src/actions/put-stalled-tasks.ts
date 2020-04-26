@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import moment from 'moment';
 import { map, forEach } from 'lodash';
 import { Task } from '../domain/task';
@@ -17,7 +17,7 @@ export const putStalledTasks = async ({
 }: {
   queue: string;
   tasks: Task[];
-  client: RedisClient;
+  client: Redis;
 }): Promise<Task[]> => {
   const tasksToQueue = map(tasks, (task) => ({
     ...task,

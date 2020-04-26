@@ -1,10 +1,16 @@
-import { RedisClient } from 'redis';
+import RedisClient, { Redis } from 'ioredis';
+import { loadScripts } from '../scripts';
+
+export const createClient = (config: { host: string; port: number }) => {
+  const client = new RedisClient(config);
+  return loadScripts({ client });
+};
 
 export const get = ({
   client,
   key,
 }: {
-  client: RedisClient;
+  client: Redis;
   key: string;
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
@@ -19,7 +25,7 @@ export const set = ({
 }: {
   key: string;
   value: string;
-  client: RedisClient;
+  client: Redis;
   ttl?: number;
 }) =>
   new Promise((resolve, reject) => {
@@ -39,7 +45,7 @@ export const exists = ({
   client,
 }: {
   key: string;
-  client: RedisClient;
+  client: Redis;
 }): Promise<number> =>
   new Promise((resolve, reject) => {
     client.exists(key, (err, result) => (err ? reject(err) : resolve(result)));
@@ -52,20 +58,15 @@ export const lpush = ({
 }: {
   key: string;
   elements: string[];
-  client: RedisClient;
-}) =>
-  new Promise((resolve, reject) => {
-    client.lpush(key, ...elements, (err, result) =>
-      err ? reject(err) : resolve(result),
-    );
-  });
+  client: Redis;
+}) => client.lpush(key, ...elements);
 
 export const rpop = ({
   key,
   client,
 }: {
   key: string;
-  client: RedisClient;
+  client: Redis;
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
     client.rpop(key, (err, result) => (err ? reject(err) : resolve(result)));
@@ -78,25 +79,10 @@ export const rpoplpush = ({
 }: {
   fromKey: string;
   toKey: string;
-  client: RedisClient;
+  client: Redis;
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
     client.rpoplpush(fromKey, toKey, (err, result) =>
-      err ? reject(err) : resolve(result),
-    );
-  });
-
-export const brpop = ({
-  key,
-  timeout,
-  client,
-}: {
-  key: string;
-  timeout?: number;
-  client: RedisClient;
-}): Promise<string[] | null[]> =>
-  new Promise((resolve, reject) => {
-    client.brpop(key, timeout || 0, (err, result) =>
       err ? reject(err) : resolve(result),
     );
   });
@@ -110,7 +96,7 @@ export const brpoplpush = ({
   fromKey: string;
   toKey: string;
   timeout?: number;
-  client: RedisClient;
+  client: Redis;
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
     client.brpoplpush(fromKey, toKey, timeout, (err, result) =>
@@ -118,12 +104,12 @@ export const brpoplpush = ({
     );
   });
 
-export const flushAll = ({ client }: { client: RedisClient }) =>
+export const flushAll = ({ client }: { client: Redis }) =>
   new Promise((resolve, reject) => {
     client.flushall((err, result) => (err ? reject(err) : resolve(result)));
   });
 
-export const quit = ({ client }: { client: RedisClient }) =>
+export const quit = ({ client }: { client: Redis }) =>
   new Promise((resolve, reject) => {
     client.quit((err, result) => (err ? reject(err) : resolve(result)));
   });
@@ -137,7 +123,7 @@ export const lrange = ({
   start: number;
   stop: number;
   key: string;
-  client: RedisClient;
+  client: Redis;
 }): Promise<string[]> =>
   new Promise((resolve, reject) => {
     client.lrange(key, start, stop, (err, result) =>

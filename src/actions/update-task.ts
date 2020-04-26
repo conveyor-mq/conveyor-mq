@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { Task } from '../domain/task';
 import { serializeTask } from '../domain/serialize-task';
 import { set } from '../utils/redis';
@@ -11,7 +11,7 @@ export const updateTask = async ({
 }: {
   task: Task;
   queue: string;
-  client: RedisClient;
+  client: Redis;
 }) => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
   await set({

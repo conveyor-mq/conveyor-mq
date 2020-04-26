@@ -33,13 +33,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@types/ioredis": "^4.14.9",
     "@types/lodash": "^4.14.150",
-    "@types/redis": "^2.8.18",
     "@types/set-interval-async": "^1.0.0",
     "@types/uuid": "^7.0.3",
+    "ioredis": "^4.16.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "redis": "^3.0.2",
     "set-interval-async": "^1.0.32",
     "uuid": "^7.0.3"
   },

@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
 import { map } from 'lodash';
-import { flushAll, quit } from '../utils/redis';
-import { createUuid } from '../utils/general';
-import { putTask } from '../actions/put-task';
-import { getTasks } from '../actions/get-tasks';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { flushAll, quit, createClient } from '../../utils/redis';
+import { createUuid } from '../../utils/general';
+import { putTask } from '../../actions/put-task';
+import { getTasks } from '../../actions/get-tasks';
+import { redisConfig } from '../config';
 
 describe('getTasks', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });

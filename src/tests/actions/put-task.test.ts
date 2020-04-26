@@ -1,18 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
 import moment from 'moment';
-import { Task } from '../domain/task';
-import { putTask } from '../actions/put-task';
-import { TaskStatuses } from '../domain/task-statuses';
-import { flushAll, quit, lrange } from '../utils/redis';
-import { createUuid } from '../utils/general';
-import { getTask } from '../actions/get-task';
-import { getQueuedListKey } from '../utils/keys';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { Task } from '../../domain/task';
+import { putTask } from '../../actions/put-task';
+import { TaskStatuses } from '../../domain/task-statuses';
+import { flushAll, quit, lrange, createClient } from '../../utils/redis';
+import { createUuid } from '../../utils/general';
+import { getTask } from '../../actions/get-task';
+import { getQueuedListKey } from '../../utils/keys';
+import { redisConfig } from '../config';
 
 describe('putTask', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });

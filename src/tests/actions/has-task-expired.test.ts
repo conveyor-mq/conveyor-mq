@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import moment from 'moment';
-import { Task } from '../domain/task';
-import { hasTaskExpired } from '../actions/has-task-expired';
+import { Task } from '../../domain/task';
+import { hasTaskExpired } from '../../actions/has-task-expired';
 
 describe('hasTaskExpired', () => {
   it('hasTaskExpired returns false for task with no expiresOn', () => {

@@ -1,18 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
-import { isTaskStalled } from '../actions/is-task-stalled';
-import { flushAll, quit } from '../utils/redis';
-import { sleep, createUuid } from '../utils/general';
-import { putTask } from '../actions/put-task';
-import { takeTask } from '../actions/take-task';
-import { getStalledTasks } from '../actions/get-stalled-tasks';
-import { putStalledTasks } from '../actions/put-stalled-tasks';
-import { getProcessingTasks } from '../actions/get-processing-tasks';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { isTaskStalled } from '../../actions/is-task-stalled';
+import { flushAll, quit, createClient } from '../../utils/redis';
+import { sleep, createUuid } from '../../utils/general';
+import { putTask } from '../../actions/put-task';
+import { takeTask } from '../../actions/take-task';
+import { getStalledTasks } from '../../actions/get-stalled-tasks';
+import { putStalledTasks } from '../../actions/put-stalled-tasks';
+import { getProcessingTasks } from '../../actions/get-processing-tasks';
+import { redisConfig } from '../config';
 
 describe('putStalledTask', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });

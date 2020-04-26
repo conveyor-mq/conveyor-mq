@@ -1,6 +1,6 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import { Moment } from 'moment';
-import { forEach, map } from 'lodash';
+import { map } from 'lodash';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { getTaskKey, getProcessingListKey } from '../utils/keys';
@@ -14,7 +14,7 @@ export const markTasksFailed = async ({
 }: {
   tasksAndErrors: { task: Task; error: any }[];
   queue: string;
-  client: RedisClient;
+  client: Redis;
   asOf: Moment;
 }): Promise<Task[]> => {
   const processingListKey = getProcessingListKey({ queue });

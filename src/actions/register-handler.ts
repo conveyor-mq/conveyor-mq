@@ -1,15 +1,16 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import moment from 'moment';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { clearIntervalAsync, SetIntervalAsyncTimer } from 'set-interval-async';
 import { map } from 'lodash';
 import { Task } from '../domain/task';
-import { takeTaskBlocking } from './take-task-blocking';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { linear } from '../utils/retry-strategies';
 import { getStalledTasks } from './get-stalled-tasks';
 import { quit } from '../utils/redis';
 import { handleStalledTasks } from './handle-stalled-tasks';
+import { takeTask } from './take-task';
+import { sleep } from '../utils/general';
 
 export const registerHandler = async ({
   queue,
@@ -17,8 +18,8 @@ export const registerHandler = async ({
   client,
   concurrency = 1,
   getRetryDelay = linear(),
-  stallDuration = 100000,
-  stalledCheckInterval = 1000,
+  stallDuration = 1000,
+  stalledCheckInterval = 5000,
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
@@ -26,7 +27,7 @@ export const registerHandler = async ({
 }: {
   queue: string;
   handler: ({ task }: { task: Task }) => any;
-  client: RedisClient;
+  client: Redis;
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
   stallDuration?: number;
@@ -36,13 +37,14 @@ export const registerHandler = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
 }) => {
-  const clients: RedisClient[] = [];
+  const clients: Redis[] = [];
   const intervalTimers: SetIntervalAsyncTimer[] = [];
 
   const adminClient = client.duplicate();
   clients.push(adminClient);
 
   const reQueueStalledTasks = async () => {
+    console.log('Checking for stalled tasks.');
     try {
       const stalledTasks = await getStalledTasks({
         queue,
@@ -55,10 +57,12 @@ export const registerHandler = async ({
       });
       if (failedTasks.length > 0) {
         console.log(`Failed ${stalledTasks.length} stalled tasks.`);
-        console.log(failedTasks);
       }
       if (reQueueStalledTasks.length > 0) {
         console.log(`ReQueued ${reQueuedTasks.length} stalled tasks.`);
+      }
+      if (stalledTasks.length === 0) {
+        console.log('No stalled tasks.');
       }
     } catch (e) {
       console.error(e.toString());
@@ -70,9 +74,9 @@ export const registerHandler = async ({
   );
   intervalTimers.push(stalledTimer);
 
-  const checkForAndHandleTask = async (localClient: RedisClient) => {
+  const checkForAndHandleTask = async (localClient: Redis) => {
     try {
-      const task = await takeTaskBlocking({ queue, client, stallDuration });
+      const task = await takeTask({ queue, client, stallDuration });
       if (task) {
         await handleTask({
           task,
@@ -85,24 +89,25 @@ export const registerHandler = async ({
           onTaskError,
           onTaskFailed,
         });
+        checkForAndHandleTask(localClient);
       }
+      await sleep(1000);
+      checkForAndHandleTask(localClient);
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
+      checkForAndHandleTask(localClient);
     }
   };
-  const timersAndClients = await Promise.all(
+
+  const localClients = await Promise.all(
     map(Array.from({ length: concurrency }), async () => {
       const localClient = client.duplicate();
-      const timer = await setIntervalAsync(
-        () => checkForAndHandleTask(localClient),
-        10,
-      );
-      return { timer, client: localClient };
+      checkForAndHandleTask(localClient);
+      return localClient;
     }),
   );
-  clients.push(...map(timersAndClients, (t) => t.client));
-  intervalTimers.push(...map(timersAndClients, (t) => t.timer));
+  clients.push(...localClients);
 
   return {
     quit: async () => {

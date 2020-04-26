@@ -1,4 +1,4 @@
-import { RedisClient } from 'redis';
+import { Redis } from 'ioredis';
 import moment, { Moment } from 'moment';
 import { Task } from '../domain/task';
 import { hasTaskExpired } from './has-task-expired';
@@ -27,7 +27,7 @@ export const handleTask = async ({
 }: {
   task: Task;
   queue: string;
-  client: RedisClient;
+  client: Redis;
   handler: ({ task }: { task: Task }) => any;
   asOf: Moment;
   getRetryDelay?: getRetryDelayType;

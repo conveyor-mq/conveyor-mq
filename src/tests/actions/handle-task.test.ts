@@ -1,20 +1,24 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
 import moment from 'moment';
-import { Task } from '../domain/task';
-import { putTask } from '../actions/put-task';
-import { TaskStatuses } from '../domain/task-statuses';
-import { takeTask } from '../actions/take-task';
-import { hasTaskExpired } from '../actions/has-task-expired';
-import { handleTask } from '../actions/handle-task';
-import { getTask } from '../actions/get-task';
-import { flushAll, quit } from '../utils/redis';
-import { createUuid } from '../utils/general';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { Task } from '../../domain/task';
+import { putTask } from '../../actions/put-task';
+import { TaskStatuses } from '../../domain/task-statuses';
+import { takeTask } from '../../actions/take-task';
+import { hasTaskExpired } from '../../actions/has-task-expired';
+import { handleTask } from '../../actions/handle-task';
+import { getTask } from '../../actions/get-task';
+import { flushAll, quit, createClient } from '../../utils/redis';
+import { createUuid } from '../../utils/general';
+import { redisConfig } from '../config';
 
 describe('handleTask', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });
@@ -25,6 +29,7 @@ describe('handleTask', () => {
   });
 
   it('handleTask returns null for expired task', async () => {
+    console.warn = jest.fn();
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
     const expiredTask: Task = { id: 'i', expiresOn: thePast, data: 'j' };
@@ -37,6 +42,7 @@ describe('handleTask', () => {
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
+    expect(console.warn).toHaveBeenCalled();
   });
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02');
@@ -90,7 +96,7 @@ describe('handleTask', () => {
     expect(handledTask.error).toBe('some-error');
     expect(handledTask.result).toBe(undefined);
   });
-  it('handleTask retires error task', async () => {
+  it('handleTask retires errored task', async () => {
     const now = moment('2020-01-02');
     const task: Task = { id: 'i', data: 'j', maxAttemptCount: 2 };
     await putTask({ queue, task, client });

@@ -1,18 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import redis from 'redis';
 import moment from 'moment';
-import { Task } from '../domain/task';
-import { putTask } from '../actions/put-task';
-import { TaskStatuses } from '../domain/task-statuses';
-import { takeTask } from '../actions/take-task';
-import { markTaskSuccess } from '../actions/mark-task-success';
-import { flushAll, quit } from '../utils/redis';
-import { createUuid } from '../utils/general';
-import { redisConfig } from './config';
+import { Redis } from 'ioredis';
+import { Task } from '../../domain/task';
+import { putTask } from '../../actions/put-task';
+import { TaskStatuses } from '../../domain/task-statuses';
+import { takeTask } from '../../actions/take-task';
+import { markTaskSuccess } from '../../actions/mark-task-success';
+import { flushAll, quit, createClient } from '../../utils/redis';
+import { createUuid } from '../../utils/general';
+import { redisConfig } from '../config';
 
 describe('markTaskSuccessful', () => {
-  const client = redis.createClient(redisConfig);
   const queue = createUuid();
+  let client: Redis;
+
+  beforeAll(async () => {
+    client = await createClient(redisConfig);
+  });
 
   beforeEach(async () => {
     await flushAll({ client });
