@@ -7,8 +7,34 @@ on:
     branches: [ master ]
 
 jobs:
+  coveralls:
+    runs-on: ubuntu-latest
+    steps:     
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1.4.2
+        with:
+          node-version: 13
+
+      - name: Setup Redis
+        uses: zhulik/redis-action@1.1.0
+        with:
+          redis version: 5
+          
+      - name: Install dependencies
+        run: npm i
+          
+      - name: Run Coveralls
+        run: npx jest --coverage && coveralls < coverage/lcov.info
+
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v1.1.0
+        with:
+          github-token: HOCq2kSBqS8WE8KMSdWejcENtfhZ3TlSw
+     
   test:
-    name: Test on Node ${{ matrix.node_version }} with Redis ${{ matrix.redis_version }}
+    name: Node ${{ matrix.node_version }} Redis ${{ matrix.redis_version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -17,20 +43,20 @@ jobs:
         redis_version: ['4', '5']
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup Node.js ${{ matrix.node_version }}
-      uses: actions/setup-node@v1.4.2
-      with:
-        node-version: ${{ matrix.node_version }}
+      - uses: actions/checkout@v2
 
-    - name: Setup Redis ${{ matrix.redis_version }}
-      uses: zhulik/redis-action@1.1.0
-      with:
-        redis version: ${{ matrix.redis_version }}
+      - name: Setup Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1.4.2
+        with:
+          node-version: ${{ matrix.node_version }}
 
-    - name: Install dependencies
-      run: npm i
+      - name: Setup Redis ${{ matrix.redis_version }}
+        uses: zhulik/redis-action@1.1.0
+        with:
+          redis version: ${{ matrix.redis_version }}
 
-    - name: Run tests
-      run: npm run test
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run tests
+        run: npm run test
