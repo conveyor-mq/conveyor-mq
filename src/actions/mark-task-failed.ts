@@ -1,8 +1,7 @@
 import { RedisClient } from 'redis';
 import { Moment } from 'moment';
 import { Task } from '../domain/task';
-import { updateTask } from './update-task';
-import { TaskStatuses } from '../domain/task-statuses';
+import { markTasksFailed } from './mark-tasks-failed';
 
 export const markTaskFailed = async ({
   task,
@@ -17,14 +16,11 @@ export const markTaskFailed = async ({
   error?: any;
   asOf: Moment;
 }) => {
-  return updateTask({
-    task: {
-      ...task,
-      processingEndedOn: asOf,
-      status: TaskStatuses.Failed,
-      error,
-    },
+  const [failedTask] = await markTasksFailed({
+    tasksAndErrors: [{ task, error }],
     queue,
     client,
+    asOf,
   });
+  return failedTask;
 };

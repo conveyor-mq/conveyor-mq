@@ -10,7 +10,6 @@ import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 
 // TODO: rpop, get and set in a multi.
 // TODO: Dedup with takeTask.
-// TODO: Use brpoplpush.
 export const takeTaskBlocking = async ({
   timeout = 0,
   queue,

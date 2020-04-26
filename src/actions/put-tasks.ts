@@ -29,16 +29,16 @@ export const putTasks = async ({
   const taskKeys = map(tasksToQueue, (task) =>
     getTaskKey({ taskId: task.id, queue }),
   );
+  const multi = client.multi();
+  forEach(tasksToQueue, (task) => {
+    const taskKey = getTaskKey({ taskId: task.id, queue });
+    const taskString = serializeTask(task);
+    multi.set(taskKey, taskString);
+    multi.lpush(queuedListKey, task.id);
+  });
   return new Promise((resolve, reject) => {
     client.watch(...taskKeys, (err) => {
       if (err) reject(err);
-      const multi = client.multi();
-      forEach(tasksToQueue, (task) => {
-        const taskKey = getTaskKey({ taskId: task.id, queue });
-        const taskString = serializeTask(task);
-        multi.set(taskKey, taskString);
-        multi.lpush(queuedListKey, task.id);
-      });
       multi.exec((error, result) =>
         error || result === null
           ? reject(error || 'Multi command failed.')

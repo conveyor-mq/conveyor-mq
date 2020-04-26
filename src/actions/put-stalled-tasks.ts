@@ -29,25 +29,19 @@ export const putStalledTasks = async ({
   }));
   const queuedListKey = getQueuedListKey({ queue });
   const processingListKey = getProcessingListKey({ queue });
-  const taskKeys = map(tasksToQueue, (task) =>
-    getTaskKey({ taskId: task.id, queue }),
-  );
+  const multi = client.multi();
+  forEach(tasksToQueue, (task) => {
+    const taskKey = getTaskKey({ taskId: task.id, queue });
+    const taskString = serializeTask(task);
+    multi.set(taskKey, taskString);
+    multi.lrem(processingListKey, 1, task.id);
+    multi.lpush(queuedListKey, task.id);
+  });
   return new Promise((resolve, reject) => {
-    client.watch(...taskKeys, (err) => {
-      if (err) reject(err);
-      const multi = client.multi();
-      forEach(tasksToQueue, (task) => {
-        const taskKey = getTaskKey({ taskId: task.id, queue });
-        const taskString = serializeTask(task);
-        multi.set(taskKey, taskString);
-        multi.lrem(processingListKey, 1, task.id);
-        multi.lpush(queuedListKey, task.id);
-      });
-      multi.exec((error, result) =>
-        error || result === null
-          ? reject(error || 'Multi command failed.')
-          : resolve(tasksToQueue),
-      );
-    });
+    multi.exec((error, result) =>
+      error || result === null
+        ? reject(error || 'Multi command failed.')
+        : resolve(tasksToQueue),
+    );
   });
 };

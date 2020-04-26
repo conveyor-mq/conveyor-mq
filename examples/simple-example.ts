@@ -12,7 +12,7 @@ const main = async () => {
   const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
   const queue = 'mainQueue';
 
-  registerHandler({
+  const handler = await registerHandler({
     queue,
     client: client.duplicate(),
     concurrency: 2,
