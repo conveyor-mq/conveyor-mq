@@ -7,7 +7,7 @@ import { Task } from '../domain/task';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { linear } from '../utils/retry-strategies';
 import { getStalledTasks } from './get-stalled-tasks';
-import { quit } from '../utils/redis';
+import { quit, duplicateClient } from '../utils/redis';
 import { handleStalledTasks } from './handle-stalled-tasks';
 import { takeTask } from './take-task';
 import { sleep } from '../utils/general';
@@ -19,7 +19,7 @@ export const registerHandler = async ({
   concurrency = 1,
   getRetryDelay = linear(),
   stallDuration = 1000,
-  stalledCheckInterval = 5000,
+  stalledCheckInterval = 10000,
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
@@ -40,7 +40,7 @@ export const registerHandler = async ({
   const clients: Redis[] = [];
   const intervalTimers: SetIntervalAsyncTimer[] = [];
 
-  const adminClient = client.duplicate();
+  const adminClient = await duplicateClient(client);
   clients.push(adminClient);
 
   const reQueueStalledTasks = async () => {
@@ -52,7 +52,7 @@ export const registerHandler = async ({
       });
       const { failedTasks, reQueuedTasks } = await handleStalledTasks({
         queue,
-        client,
+        client: adminClient,
         tasks: stalledTasks,
       });
       if (failedTasks.length > 0) {
@@ -76,7 +76,11 @@ export const registerHandler = async ({
 
   const checkForAndHandleTask = async (localClient: Redis) => {
     try {
-      const task = await takeTask({ queue, client, stallDuration });
+      const task = await takeTask({
+        queue,
+        client: localClient,
+        stallDuration,
+      });
       if (task) {
         await handleTask({
           task,
@@ -102,7 +106,7 @@ export const registerHandler = async ({
 
   const localClients = await Promise.all(
     map(Array.from({ length: concurrency }), async () => {
-      const localClient = client.duplicate();
+      const localClient = await duplicateClient(client);
       checkForAndHandleTask(localClient);
       return localClient;
     }),

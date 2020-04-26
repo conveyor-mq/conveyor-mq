@@ -1,9 +1,16 @@
 import RedisClient, { Redis } from 'ioredis';
 import { loadScripts } from '../scripts';
 
-export const createClient = (config: { host: string; port: number }) => {
+export const createClient = async (config: { host: string; port: number }) => {
   const client = new RedisClient(config);
-  return loadScripts({ client });
+  const updatedClient = await loadScripts({ client });
+  return updatedClient;
+};
+
+export const duplicateClient = async (client: Redis) => {
+  const newClient = client.duplicate();
+  const updatedClient = await loadScripts({ client: newClient });
+  return updatedClient;
 };
 
 export const callLuaScript = ({
