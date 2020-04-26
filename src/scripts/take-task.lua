@@ -1,8 +1,8 @@
-local jobId = redis.call("RPOPLPUSH", KEYS[1], KEYS[2])
+local taskId = redis.call("RPOPLPUSH", KEYS[1], KEYS[2])
 
-if jobId then
-    local jobKey = ARGV[1] .. jobId
-    local lockKey = jobKey .. ':lock'
-    rcall("SET", lockKey, ARGV[2], "PX", ARGV[3])
-    return {rcall("GET", jobKey), jobId}
+if taskId then
+    local lockKey = KEYS[5] .. ':acknowledged-tasks:' .. taskId
+    redis.call("SET", lockKey, '', "PX", KEYS[4])
+    local taskKey = KEYS[3] .. taskId
+    return redis.call("GET", taskKey)
 end

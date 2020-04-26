@@ -6,6 +6,18 @@ export const createClient = (config: { host: string; port: number }) => {
   return loadScripts({ client });
 };
 
+export const callLuaScript = ({
+  client,
+  script,
+  args,
+}: {
+  client: any;
+  script: string;
+  args: (string | number)[];
+}) => {
+  return client[script](...args) as Promise<string>;
+};
+
 export const get = ({
   client,
   key,
