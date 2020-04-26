@@ -9,6 +9,7 @@ import {
   getQueuedListKey,
   getProcessingListKey,
 } from '../utils/keys';
+import { exec } from '../utils/redis';
 
 export const putStalledTasks = async ({
   queue,
@@ -37,11 +38,6 @@ export const putStalledTasks = async ({
     multi.lrem(processingListKey, 1, task.id);
     multi.lpush(queuedListKey, task.id);
   });
-  return new Promise((resolve, reject) => {
-    multi.exec((error, result) =>
-      error || result === null
-        ? reject(error || 'Multi command failed.')
-        : resolve(tasksToQueue),
-    );
-  });
+  await exec(multi);
+  return tasksToQueue;
 };

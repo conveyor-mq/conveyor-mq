@@ -1,4 +1,5 @@
-import RedisClient, { Redis } from 'ioredis';
+import RedisClient, { Redis, Pipeline } from 'ioredis';
+import { map } from 'lodash';
 import { loadScripts } from '../scripts';
 
 export const createClient = async (config: { host: string; port: number }) => {
@@ -23,6 +24,14 @@ export const callLuaScript = ({
   args: (string | number)[];
 }) => {
   return client[script](...args) as Promise<string>;
+};
+
+export const exec = (multi_: Pipeline) => {
+  return new Promise((resolve, reject) => {
+    multi_.exec((err, results) =>
+      err ? reject(err) : resolve(map(results, (result) => result[1])),
+    );
+  }) as Promise<(string | number)[]>;
 };
 
 export const get = ({

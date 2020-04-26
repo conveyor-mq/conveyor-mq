@@ -5,6 +5,7 @@ import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { getTaskKey, getProcessingListKey } from '../utils/keys';
 import { serializeTask } from '../domain/serialize-task';
+import { exec } from '../utils/redis';
 
 export const markTasksFailed = async ({
   tasksAndErrors,
@@ -31,11 +32,6 @@ export const markTasksFailed = async ({
     multi.lrem(processingListKey, 1, task.id);
     return failedTask;
   });
-  return new Promise((resolve, reject) => {
-    multi.exec((multiError, multiResult) =>
-      multiError || multiResult === null
-        ? reject(multiError || 'Multi command failed.')
-        : resolve(failedTasks),
-    );
-  });
+  await exec(multi);
+  return failedTasks;
 };

@@ -5,6 +5,7 @@ import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { serializeTask } from '../domain/serialize-task';
 import { getTaskKey, getQueuedListKey } from '../utils/keys';
+import { exec } from '../utils/redis';
 
 export const putTasks = async ({
   queue,
@@ -33,11 +34,6 @@ export const putTasks = async ({
     multi.set(taskKey, taskString);
     multi.lpush(queuedListKey, task.id);
   });
-  return new Promise((resolve, reject) => {
-    multi.exec((error, [resultError]) =>
-      error || resultError === null
-        ? reject(error || 'Multi command failed.')
-        : resolve(tasksToQueue),
-    );
-  });
+  await exec(multi);
+  return tasksToQueue;
 };

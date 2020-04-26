@@ -3,6 +3,7 @@ import { forEach, map, filter } from 'lodash';
 import { deSerializeTask } from '../domain/deserialize-task';
 import { Task } from '../domain/task';
 import { getTaskKey } from '../utils/keys';
+import { exec } from '../utils/redis';
 
 export const getTasks = async ({
   queue,
@@ -17,14 +18,7 @@ export const getTasks = async ({
   forEach(taskIds, (taskId) => {
     multi.get(getTaskKey({ taskId, queue }));
   });
-  const promise = new Promise((resolve, reject) => {
-    multi.exec((err, resultError) =>
-      err
-        ? reject(err || 'Multi command failed.')
-        : resolve(map(resultError, (result) => result[1])),
-    );
-  }) as Promise<(string | null)[]>;
-  const results = await promise;
+  const results = await exec(multi);
   const nonNullResults = filter(results, (result) => !!result) as string[];
   const tasks = map(nonNullResults, (taskString) =>
     deSerializeTask(taskString),

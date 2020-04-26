@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
 import { map, forEach, zipWith } from 'lodash';
 import { getTaskAcknowledgedKey } from '../utils/keys';
+import { exec } from '../utils/redis';
 
 // TODO: Check that tasks are in processing queue.
 export const areTasksStalled = async ({
@@ -19,14 +20,7 @@ export const areTasksStalled = async ({
   forEach(taskAcknowledgeKeys, (key) => {
     multi.exists(key);
   });
-  const promise = new Promise((resolve, reject) => {
-    multi.exec((err, results) =>
-      err
-        ? reject(err || 'Multi command failed.')
-        : resolve(map(results, (result) => result[1])),
-    );
-  }) as Promise<number[]>;
-  const results = await promise;
+  const results = await exec(multi);
   return zipWith(taskIds, results, (taskId, result) => ({
     taskId,
     isStalled: result === 0,
