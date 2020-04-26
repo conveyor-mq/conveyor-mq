@@ -8,9 +8,10 @@ import { takeTask } from '../actions/take-task';
 import { markTaskFailed } from '../actions/mark-task-failed';
 import { flushAll, quit } from '../utils/redis';
 import { createUuid } from '../utils/general';
+import { redisConfig } from './config';
 
 describe('markTaskFailed', () => {
-  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
+  const client = redis.createClient(redisConfig);
   const queue = createUuid();
 
   beforeEach(async () => {

@@ -8,9 +8,10 @@ import { flushAll, quit, lrange } from '../utils/redis';
 import { createUuid } from '../utils/general';
 import { getTask } from '../actions/get-task';
 import { getQueuedListKey } from '../utils/keys';
+import { redisConfig } from './config';
 
 describe('putTask', () => {
-  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
+  const client = redis.createClient(redisConfig);
   const queue = createUuid();
 
   beforeEach(async () => {

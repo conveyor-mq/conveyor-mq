@@ -7,9 +7,10 @@ import { takeTaskBlocking } from '../actions/take-task-blocking';
 import { isTaskStalled } from '../actions/is-task-stalled';
 import { flushAll, quit } from '../utils/redis';
 import { createUuid } from '../utils/general';
+import { redisConfig } from './config';
 
 describe('takeTaskBlocking', () => {
-  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
+  const client = redis.createClient(redisConfig);
   const queue = createUuid();
 
   beforeEach(async () => {

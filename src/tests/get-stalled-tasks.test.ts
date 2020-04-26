@@ -7,9 +7,10 @@ import { putTasks } from '../actions/put-tasks';
 import { Task } from '../domain/task';
 import { takeTask } from '../actions/take-task';
 import { getStalledTasks } from '../actions/get-stalled-tasks';
+import { redisConfig } from './config';
 
 describe('getStalledTasks', () => {
-  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
+  const client = redis.createClient(redisConfig);
   const queue = createUuid();
 
   beforeEach(async () => {

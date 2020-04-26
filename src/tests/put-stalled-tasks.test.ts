@@ -8,9 +8,10 @@ import { takeTask } from '../actions/take-task';
 import { getStalledTasks } from '../actions/get-stalled-tasks';
 import { putStalledTasks } from '../actions/put-stalled-tasks';
 import { getProcessingTasks } from '../actions/get-processing-tasks';
+import { redisConfig } from './config';
 
 describe('putStalledTask', () => {
-  const client = redis.createClient({ host: '127.0.0.1', port: 9004 });
+  const client = redis.createClient(redisConfig);
   const queue = createUuid();
 
   beforeEach(async () => {
