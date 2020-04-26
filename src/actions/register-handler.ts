@@ -18,7 +18,7 @@ export const registerHandler = async ({
   client,
   concurrency = 1,
   getRetryDelay = linear(),
-  stallDuration = 1000,
+  stallDuration = 10000,
   stalledCheckInterval = 10000,
   onTaskSuccess,
   onTaskError,
