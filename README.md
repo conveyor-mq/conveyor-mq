@@ -1,7 +1,3 @@
-# Queuey
+# Conveyor
 
-A simple, fast, robust and extensible task queue for Node.js
-
-## Features
-- Task timeouts
-- TODO: Task retries
+A simple, fast, robust and extensible distributed task queue for Node.js.

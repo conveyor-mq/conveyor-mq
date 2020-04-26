@@ -1,7 +1,7 @@
 {
-  "name": "tasks",
+  "name": "conveyor",
   "version": "0.0.1",
-  "description": "Tasks",
+  "description": "A simple, fast, robust and extensible distributed task queue for Node.js",
   "main": "./src/index.ts",
   "scripts": {
     "test": "jest --runInBand ./src",
@@ -11,14 +11,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jasrusable/tasks.git"
+    "url": "git+https://github.com/jasrusable/conveyor.git"
   },
-  "author": "Nicol & Jason",
+  "author": "Jason Russell",
   "license": "ISC",
+  "keywords": [
+    "distributed",
+    "queue",
+    "task-queue",
+    "tasks",
+    "job-queue",
+    "jobs",
+    "worker",
+    "worker-queue",
+    "redis"
+  ],
   "bugs": {
-    "url": "https://github.com/jasrusable/tasks/issues"
+    "url": "https://github.com/jasrusable/conveyor/issues"
   },
-  "homepage": "https://github.com/jasrusable/tasks#readme",
+  "homepage": "https://github.com/jasrusable/conveyor#readme",
   "dependencies": {
     "@types/lodash": "^4.14.150",
     "@types/moment": "^2.13.0",
