@@ -4,6 +4,10 @@
     "lib": ["ES2015", "dom"],
     "module": "commonjs",
     "strict": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "dist"
+  },
+  "include": ["./src/"],
+  "exclude": ["node_modules", "**/tests/*"]
 }
