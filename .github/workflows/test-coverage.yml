@@ -26,9 +26,9 @@ jobs:
         run: npm i
 
       - name: Run Coveralls
-        run: npx jest --forceExit --coverage && npx coveralls < coverage/lcov.info
+        run: npx jest --forceExit --coverage
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v1.1.0
         with:
-          github-token: HOCq2kSBqS8WE8KMSdWejcENtfhZ3TlSw
+          github-token: ${{ secrets.coverall_key }}
