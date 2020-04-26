@@ -34,5 +34,7 @@ describe('acknowledgeTask', () => {
     expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(false);
     await sleep(50);
     expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(true);
+    await acknowledgeTask({ taskId: task.id, queue, client });
+    expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(false);
   });
 });
