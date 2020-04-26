@@ -4,7 +4,7 @@
   "description": "A simple, fast, robust and extensible distributed task queue for Node.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest --runInBand ./src",
+    "test": "jest --runInBand --forceExit ./src",
     "test:watch": "jest --runInBand --watch ./src",
     "start": "ts-node ./src/index.ts",
     "shell": "ts-node"
