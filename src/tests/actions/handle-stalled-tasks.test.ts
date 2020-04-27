@@ -31,13 +31,7 @@ describe('handleStalledTasks', () => {
       data: 'c',
       maxAttemptCount: 2,
     };
-    const taskToFail: Task = {
-      id: 'b',
-      data: 'c',
-      maxAttemptCount: 1,
-    };
     await putTask({ queue, task: taskToRequeue, client });
-    await putTask({ queue, task: taskToFail, client });
 
     const retrievedTaskToRequeue = (await getTask({
       queue,
@@ -47,19 +41,12 @@ describe('handleStalledTasks', () => {
     expect(retrievedTaskToRequeue.attemptCount).toBe(1);
     expect(retrievedTaskToRequeue.maxAttemptCount).toBe(2);
 
-    const retrievedTaskToFail = (await getTask({
-      queue,
-      client,
-      taskId: taskToFail.id,
-    })) as Task;
-    expect(retrievedTaskToFail.attemptCount).toBe(1);
-    expect(retrievedTaskToFail.maxAttemptCount).toBe(1);
-
     const { failedTasks, reQueuedTasks } = await handleStalledTasks({
       queue,
       client,
-      tasks: [retrievedTaskToRequeue, retrievedTaskToFail],
+      tasks: [retrievedTaskToRequeue],
     });
+    expect(failedTasks.length).toBe(0);
 
     expect(reQueuedTasks.length).toBe(1);
     expect(reQueuedTasks[0].id).toBe(taskToRequeue.id);
@@ -74,6 +61,30 @@ describe('handleStalledTasks', () => {
     expect(retriedTask.processingEndedOn).toBe(undefined);
     expect(retriedTask.error).toBe(undefined);
     expect(retriedTask.result).toBe(undefined);
+  });
+  it('handleStalledTasks fails task exceeding maxAttemptCount', async () => {
+    const taskToFail: Task = {
+      id: 'b',
+      data: 'c',
+      maxAttemptCount: 1,
+    };
+    await putTask({ queue, task: taskToFail, client });
+
+    const retrievedTaskToFail = (await getTask({
+      queue,
+      client,
+      taskId: taskToFail.id,
+    })) as Task;
+    expect(retrievedTaskToFail.attemptCount).toBe(1);
+    expect(retrievedTaskToFail.maxAttemptCount).toBe(1);
+
+    const { failedTasks, reQueuedTasks } = await handleStalledTasks({
+      queue,
+      client,
+      tasks: [retrievedTaskToFail],
+    });
+
+    expect(reQueuedTasks.length).toBe(0);
 
     expect(failedTasks.length).toBe(1);
     expect(failedTasks[0].id).toBe(taskToFail.id);
@@ -87,5 +98,44 @@ describe('handleStalledTasks', () => {
     expect(failedTask.maxAttemptCount).toBe(1);
     expect(failedTask.errorCount).toBe(0);
     expect(failedTask.error).toBe('Max attempt count exceeded');
+  });
+  it('handleStalledTasks fails task exceeding maxErrorCount', async () => {
+    const taskToFail: Task = {
+      id: 'b',
+      data: 'c',
+      errorCount: 1,
+      maxErrorCount: 1,
+      maxAttemptCount: 2,
+    };
+    await putTask({ queue, task: taskToFail, client });
+
+    const retrievedTaskToFail = (await getTask({
+      queue,
+      client,
+      taskId: taskToFail.id,
+    })) as Task;
+    expect(retrievedTaskToFail.errorCount).toBe(1);
+    expect(retrievedTaskToFail.maxErrorCount).toBe(1);
+
+    const { failedTasks, reQueuedTasks } = await handleStalledTasks({
+      queue,
+      client,
+      tasks: [retrievedTaskToFail],
+    });
+
+    expect(reQueuedTasks.length).toBe(0);
+
+    expect(failedTasks.length).toBe(1);
+    expect(failedTasks[0].id).toBe(taskToFail.id);
+    const failedTask = (await getTask({
+      queue,
+      client,
+      taskId: taskToFail.id,
+    })) as Task;
+    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.attemptCount).toBe(1);
+    expect(failedTask.maxAttemptCount).toBe(2);
+    expect(failedTask.errorCount).toBe(1);
+    expect(failedTask.error).toBe('Max error count exceeded');
   });
 });

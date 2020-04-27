@@ -43,7 +43,7 @@ export const handleStalledTasks = async ({
       const error = maxAttemptCountExceeded
         ? 'Max attempt count exceeded'
         : maxErrorCountExceeded
-        ? 'Max error count exceed'
+        ? 'Max error count exceeded'
         : '';
       return { task, error };
     },
