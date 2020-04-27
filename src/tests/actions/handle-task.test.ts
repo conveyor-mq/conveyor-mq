@@ -43,6 +43,42 @@ describe('handleTask', () => {
     expect(result).toBe(null);
     expect(console.warn).toHaveBeenCalled();
   });
+  it('handleTask returns null for attempt count exceeded', async () => {
+    console.warn = jest.fn();
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+      maxAttemptCount: 2,
+      attemptCount: 3,
+    };
+    const result = await handleTask({
+      queue,
+      client,
+      task,
+      asOf: moment(),
+      handler: () => 'some-result',
+    });
+    expect(result).toBe(null);
+    expect(console.warn).toHaveBeenCalled();
+  });
+  it('handleTask returns null for error count exceeded', async () => {
+    console.warn = jest.fn();
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+      maxErrorCount: 1,
+      errorCount: 2,
+    };
+    const result = await handleTask({
+      queue,
+      client,
+      task,
+      asOf: moment(),
+      handler: () => 'some-result',
+    });
+    expect(result).toBe(null);
+    expect(console.warn).toHaveBeenCalled();
+  });
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j' };

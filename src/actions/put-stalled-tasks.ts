@@ -26,7 +26,7 @@ export const putStalledTasks = async ({
     processingStartedOn: undefined,
     processingEndedOn: undefined,
     status: TaskStatuses.Queued,
-    attemptCount: (task.attemptCount || 0) + 1,
+    attemptCount: (task.attemptCount || 1) + 1,
   }));
   const queuedListKey = getQueuedListKey({ queue });
   const processingListKey = getProcessingListKey({ queue });
