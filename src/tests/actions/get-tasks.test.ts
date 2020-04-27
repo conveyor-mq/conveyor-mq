@@ -39,4 +39,12 @@ describe('getTasks', () => {
     });
     expect(tasks.length).toBe(10);
   });
+  it('getTasks returns empty array for non-existant tasks', async () => {
+    const tasks = await getTasks({
+      queue,
+      taskIds: ['non-existant-id', 'another-non-existant-id'],
+      client,
+    });
+    expect(tasks.length).toBe(0);
+  });
 });

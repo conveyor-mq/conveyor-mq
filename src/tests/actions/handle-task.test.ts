@@ -48,11 +48,17 @@ describe('handleTask', () => {
     const theTask: Task = { id: 'i', data: 'j' };
     await putTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const onFailure = jest.fn();
     const result = await handleTask({
       queue,
       client,
       task: processingTask,
       asOf: now,
+      onTaskSuccess: onSuccess,
+      onTaskError: onError,
+      onTaskFailed: onFailure,
       handler: ({ task }: { task: Task }) => {
         expect(task.attemptCount).toBe(1);
         expect(task.id).toBe(theTask.id);
@@ -68,17 +74,26 @@ describe('handleTask', () => {
     expect(handledTask.status).toBe(TaskStatuses.Success);
     expect(handledTask.result).toBe('some-result');
     expect(handledTask.error).toBe(undefined);
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledTimes(0);
+    expect(onFailure).toHaveBeenCalledTimes(0);
   });
   it('handleTask handles task failure case', async () => {
     const now = moment('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j' };
     await putTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const onFailure = jest.fn();
     await handleTask({
       queue,
       client,
       task: processingTask,
       asOf: now,
+      onTaskSuccess: onSuccess,
+      onTaskError: onError,
+      onTaskFailed: onFailure,
       handler: ({ task }) => {
         expect(task.attemptCount).toBe(1);
         throw new Error('some-error');
@@ -94,23 +109,36 @@ describe('handleTask', () => {
     expect(handledTask.status).toBe(TaskStatuses.Failed);
     expect(handledTask.error).toBe('some-error');
     expect(handledTask.result).toBe(undefined);
+    expect(onSuccess).toHaveBeenCalledTimes(0);
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onFailure).toHaveBeenCalledTimes(1);
   });
   it('handleTask retires errored task', async () => {
     const now = moment('2020-01-02');
     const task: Task = { id: 'i', data: 'j', maxAttemptCount: 2 };
     await putTask({ queue, task, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const onFailure = jest.fn();
     await handleTask({
       queue,
       client,
       task: processingTask,
       asOf: now,
       getRetryDelay: () => 0,
+      onTaskSuccess: onSuccess,
+      onTaskError: onError,
+      onTaskFailed: onFailure,
       handler: ({ task: taskToHandle }) => {
         expect(taskToHandle.attemptCount).toBe(1);
         throw new Error('some-error');
       },
     });
+    expect(onSuccess).toHaveBeenCalledTimes(0);
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onFailure).toHaveBeenCalledTimes(0);
+
     const handledTask = (await getTask({
       queue,
       taskId: task.id,
@@ -120,6 +148,7 @@ describe('handleTask', () => {
     expect(handledTask.status).toBe(TaskStatuses.Queued);
     expect(handledTask.error).toBe(undefined);
     expect(handledTask.result).toBe(undefined);
+
     await expect(takeTask({ queue, client })).resolves.toHaveProperty(
       'id',
       task.id,
@@ -127,7 +156,7 @@ describe('handleTask', () => {
     await handleTask({
       queue,
       client,
-      task: handledTask!,
+      task: handledTask,
       asOf: now,
       getRetryDelay: () => 0,
       handler: ({ task: taskToHandle }) => {

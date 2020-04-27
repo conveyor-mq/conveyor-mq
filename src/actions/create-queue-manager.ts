@@ -1,7 +1,7 @@
 import { putTask } from './put-task';
 import { Task } from '../domain/task';
 import { putTasks } from './put-tasks';
-import { createClient } from '../utils/redis';
+import { createClient, quit } from '../utils/redis';
 import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
 import { RedisConfig } from '../utils/general';
@@ -23,5 +23,8 @@ export const createQueueManager = async ({
       getTask({ taskId, queue, client }),
     getTasks: ({ taskIds }: { taskIds: string[] }) =>
       getTasks({ taskIds, queue, client }),
+    quit: async () => {
+      await quit({ client });
+    },
   };
 };

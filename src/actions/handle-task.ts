@@ -53,14 +53,14 @@ export const handleTask = async ({
   }
   try {
     const result = await handler({ task });
-    await markTaskSuccess({
+    const successfulTask = await markTaskSuccess({
       task,
       queue,
       client,
       result,
       asOf: moment(),
     });
-    if (onTaskSuccess) onTaskSuccess({ task });
+    if (onTaskSuccess) onTaskSuccess({ task: successfulTask });
     return result;
   } catch (e) {
     if (onTaskError) onTaskError({ task });

@@ -12,5 +12,5 @@ export const getTask = async ({
   client: Redis;
 }): Promise<Task | null> => {
   const [task] = await getTasks({ queue, taskIds: [taskId], client });
-  return task;
+  return task || null;
 };
