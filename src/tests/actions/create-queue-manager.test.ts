@@ -1,11 +1,8 @@
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
-import { sleep, createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { createUuid } from '../../utils/general';
 import { createQueueManager } from '../../actions/create-queue-manager';
 import { redisConfig } from '../config';
-import { TaskStatuses } from '../../domain/task-statuses';
-import { getTask } from '../../actions/get-task';
 import { Task } from '../../domain/task';
 
 describe('createQueueManager', () => {
