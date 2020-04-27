@@ -6,7 +6,7 @@ A fast, robust and extensible distributed task/job queue for Node.js.
 ![npm](https://img.shields.io/npm/v/@jasrusable/conveyor)
 [![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor?branch=master)
 
-```
+```js
 const { createQueueManager, createQueueHandler } = require("@jasrusable/conveyor");
 
 const main = async () => {
@@ -21,7 +21,7 @@ const main = async () => {
     redisConfig,
     handler: ({ task }) => {
       console.log(`Processing task: ${task.id}`);
-      return "done";
+      return "some-result";
     },
   });
 };
