@@ -1,46 +1,27 @@
 import { putTask } from './put-task';
 import { Task } from '../domain/task';
 import { putTasks } from './put-tasks';
-import { registerHandler } from './register-handler';
 import { createClient } from '../utils/redis';
 import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
+import { RedisConfig } from '../utils/general';
 
 export const createQueueManager = async ({
   queue,
-  redis,
+  redisConfig,
 }: {
   queue: string;
-  redis: { host: string; port: number };
+  redisConfig: RedisConfig;
 }) => {
-  const [producerClient, consumerClient] = await Promise.all([
-    createClient(redis),
-    createClient(redis),
-  ]);
+  const client = await createClient(redisConfig);
+
   return {
-    registerHandler: ({
-      handler,
-      concurrency = 1,
-      stallDuration = 10000,
-    }: {
-      handler: ({ task }: { task: Task }) => any | Promise<any>;
-      concurrency?: number;
-      stallDuration?: number;
-    }) =>
-      registerHandler({
-        queue,
-        handler,
-        client: consumerClient,
-        concurrency,
-        stallDuration,
-      }),
-    putTask: ({ task }: { task: Task }) =>
-      putTask({ task, queue, client: producerClient }),
+    putTask: ({ task }: { task: Task }) => putTask({ task, queue, client }),
     putTasks: ({ tasks }: { tasks: Task[] }) =>
-      putTasks({ tasks, queue, client: producerClient }),
+      putTasks({ tasks, queue, client }),
     getTask: ({ taskId }: { taskId: string }) =>
-      getTask({ taskId, queue, client: producerClient }),
+      getTask({ taskId, queue, client }),
     getTasks: ({ taskIds }: { taskIds: string[] }) =>
-      getTasks({ taskIds, queue, client: producerClient }),
+      getTasks({ taskIds, queue, client }),
   };
 };

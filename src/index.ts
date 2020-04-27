@@ -14,7 +14,6 @@ export { markTasksFailed } from './actions/mark-tasks-failed';
 export { putStalledTasks } from './actions/put-stalled-tasks';
 export { putTask } from './actions/put-task';
 export { putTasks } from './actions/put-tasks';
-export { registerHandler } from './actions/register-handler';
 export { takeTaskBlocking } from './actions/take-task-blocking';
 export { takeTask } from './actions/take-task';
 export { updateTask } from './actions/update-task';

@@ -5,18 +5,28 @@
 import { Task } from '../src/domain/task';
 import { createUuid, sleep } from '../src/utils/general';
 import { createQueueManager } from '../src/actions/create-queue-manager';
+import { createQueueHandler } from '../src/actions/create-queue-handler';
+import { createQueueOrchestrator } from '../src/actions/create-queue-orchestrator';
 
 const main = async () => {
-  const manager = await createQueueManager({
-    queue: 'myQueue',
-    redis: { host: '127.0.0.1', port: 6379 },
-  });
+  const redisConfig = { host: '127.0.0.1', port: 6379 };
+  const queue = 'myQueue';
 
-  manager.registerHandler({
+  const manager = await createQueueManager({
+    queue,
+    redisConfig,
+  });
+  const handler = await createQueueHandler({
+    queue,
+    redisConfig,
     handler: ({ task }) => {
       console.log('Handling task: ', task.id);
-      return 'some-task-result';
+      return 'some-data';
     },
+  });
+  const orchestrator = await createQueueOrchestrator({
+    queue,
+    redisConfig,
   });
 
   const addTasks = async () => {
@@ -26,7 +36,7 @@ const main = async () => {
     };
     await manager.putTask({ task });
     console.log('Adding task ', task.id);
-    await sleep(1);
+    await sleep(1000);
     addTasks();
   };
   addTasks();
