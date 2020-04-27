@@ -1,6 +1,6 @@
 {
   "name": "@jasrusable/conveyor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A fast, robust and extensible distributed task/job queue for Node.js",
   "scripts": {
     "clean": "rm -rf ./dist",
