@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import moment from 'moment';
 import { Task } from '../../domain/task';
 import { hasTaskExpired } from '../../actions/has-task-expired';

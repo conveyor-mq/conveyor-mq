@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Redis } from 'ioredis';
 import { putTask } from '../../actions/put-task';
 import { TaskStatuses } from '../../domain/task-statuses';

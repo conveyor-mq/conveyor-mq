@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Redis } from 'ioredis';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import { acknowledgeTask } from '../../actions/acknowledge-task';

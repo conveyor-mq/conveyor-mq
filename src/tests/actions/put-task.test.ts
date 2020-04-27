@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { Task } from '../../domain/task';
