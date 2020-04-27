@@ -2,7 +2,7 @@ import { Moment } from 'moment';
 import { TaskStatuses } from './task-statuses';
 
 export interface Task {
-  id: string;
+  id?: string;
   status?: TaskStatuses;
   data?: any;
   queuedOn?: Moment;

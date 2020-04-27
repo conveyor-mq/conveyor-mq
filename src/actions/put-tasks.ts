@@ -6,6 +6,7 @@ import { TaskStatuses } from '../domain/task-statuses';
 import { serializeTask } from '../domain/serialize-task';
 import { getTaskKey, getQueuedListKey } from '../utils/keys';
 import { exec } from '../utils/redis';
+import { createUuid } from '../utils/general';
 
 export const putTasks = async ({
   queue,
@@ -18,6 +19,7 @@ export const putTasks = async ({
 }): Promise<Task[]> => {
   const tasksToQueue = map(tasks, (task) => ({
     ...task,
+    id: task.id || createUuid(),
     queuedOn: moment(),
     processingStartedOn: undefined,
     processingEndedOn: undefined,
