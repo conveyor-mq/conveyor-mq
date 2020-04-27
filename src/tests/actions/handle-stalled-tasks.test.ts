@@ -4,7 +4,6 @@ import { createUuid } from '../../utils/general';
 import { putTask } from '../../actions/put-task';
 import { getTask } from '../../actions/get-task';
 import { handleStalledTasks } from '../../actions/handle-stalled-tasks';
-import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/task';
 import { TaskStatuses } from '../../domain/task-statuses';
