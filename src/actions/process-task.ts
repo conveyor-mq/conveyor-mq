@@ -1,8 +1,8 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
-import { takeTask, handleTask } from '..';
+import { takeTask } from './take-task';
+import { handleTask, getRetryDelayType } from './handle-task';
 import { Task } from '../domain/task';
-import { getRetryDelayType } from './handle-task';
 
 export const processTask = async ({
   queue,
