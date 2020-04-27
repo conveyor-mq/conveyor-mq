@@ -14,7 +14,7 @@ export const putTasks = async ({
   client,
 }: {
   queue: string;
-  tasks: Task[];
+  tasks: Partial<Task>[];
   client: Redis;
 }): Promise<Task[]> => {
   const tasksToQueue = map(tasks, (task) => ({

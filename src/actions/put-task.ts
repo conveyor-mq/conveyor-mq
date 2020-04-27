@@ -8,7 +8,7 @@ export const putTask = async ({
   client,
 }: {
   queue: string;
-  task: Task;
+  task: Partial<Task>;
   client: Redis;
 }): Promise<Task> => {
   const [queuedTask] = await putTasks({ queue, tasks: [task], client });

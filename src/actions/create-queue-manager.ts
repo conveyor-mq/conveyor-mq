@@ -16,8 +16,9 @@ export const createQueueManager = async ({
   const client = await createClient(redisConfig);
 
   return {
-    putTask: ({ task }: { task: Task }) => putTask({ task, queue, client }),
-    putTasks: ({ tasks }: { tasks: Task[] }) =>
+    putTask: ({ task }: { task: Partial<Task> }) =>
+      putTask({ task, queue, client }),
+    putTasks: ({ tasks }: { tasks: Partial<Task>[] }) =>
       putTasks({ tasks, queue, client }),
     getTask: ({ taskId }: { taskId: string }) =>
       getTask({ taskId, queue, client }),
