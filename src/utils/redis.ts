@@ -51,17 +51,6 @@ export const set = ({
     }
   });
 
-export const rpop = ({
-  key,
-  client,
-}: {
-  key: string;
-  client: Redis;
-}): Promise<string | null> =>
-  new Promise((resolve, reject) => {
-    client.rpop(key, (err, result) => (err ? reject(err) : resolve(result)));
-  });
-
 export const brpoplpush = ({
   fromKey,
   toKey,
