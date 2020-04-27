@@ -34,7 +34,7 @@ const main = async () => {
       id: createUuid(),
       data: 'some-task-data',
     };
-    await manager.putTask({ task });
+    await manager.putTask(task);
     console.log('Adding task ', task.id);
     await sleep(1000);
     addTasks();
