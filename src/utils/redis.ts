@@ -1,6 +1,6 @@
 import RedisClient, { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
-import { loadScripts } from '../scripts';
+import { loadScripts } from '../lua';
 
 export const createClient = async (config: { host: string; port: number }) => {
   const client = new RedisClient(config);
