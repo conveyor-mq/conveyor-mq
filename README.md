@@ -36,8 +36,6 @@ main();
 
 Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by Redis. Conveyor is a general purpose task queue designed for both short lived, and long running tasks.
 
-Conveyor is:
-
 ## Installation
 
 npm:
@@ -58,7 +56,7 @@ You will also need Redis >=3.2
 
 - Create and process tasks/jobs
   - Task retries
-  - Task expiries
+  - Task expiry
   - Task retry strategies
 - Concurrent handler/worker processing
 - Simple and extensible design
