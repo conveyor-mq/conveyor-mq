@@ -1,8 +1,13 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
+import {
+  setIntervalAsync,
+  clearIntervalAsync,
+} from 'set-interval-async/dynamic';
 import { takeTask } from './take-task';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { Task } from '../domain/task';
+import { acknowledgeTask } from './acknowledge-task';
 
 export const processTask = async ({
   queue,
@@ -30,6 +35,14 @@ export const processTask = async ({
     stallDuration,
   });
   if (task) {
+    const timer = setIntervalAsync(async () => {
+      await acknowledgeTask({
+        taskId: task.id,
+        queue,
+        client,
+        ttl: stallDuration,
+      });
+    }, stallDuration / 2);
     await handleTask({
       task,
       queue,
@@ -41,6 +54,7 @@ export const processTask = async ({
       onTaskError,
       onTaskFailed,
     });
+    await clearIntervalAsync(timer);
   }
   return task;
 };
