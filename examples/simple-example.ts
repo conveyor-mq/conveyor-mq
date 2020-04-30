@@ -7,6 +7,7 @@ import { createUuid, sleep } from '../src/utils/general';
 import { createQueueManager } from '../src/actions/create-queue-manager';
 import { createQueueHandler } from '../src/actions/create-queue-handler';
 import { createQueueOrchestrator } from '../src/actions/create-queue-orchestrator';
+import { createQueueListener } from '../src/actions/create-queue-listener';
 
 const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
@@ -16,6 +17,10 @@ const main = async () => {
     queue,
     redisConfig,
   });
+  const listener = await createQueueListener({ queue, redisConfig });
+  await listener.onTaskQueued(() => console.log('task queued'));
+  await listener.onTaskProcessing(() => console.log('task processing'));
+
   const handler = await createQueueHandler({
     queue,
     redisConfig,

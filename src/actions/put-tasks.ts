@@ -4,7 +4,11 @@ import { map, forEach } from 'lodash';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { serializeTask } from '../domain/serialize-task';
-import { getTaskKey, getQueuedListKey } from '../utils/keys';
+import {
+  getTaskKey,
+  getQueuedListKey,
+  getTaskQueuedChannel,
+} from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createUuid } from '../utils/general';
 
@@ -35,6 +39,7 @@ export const putTasks = async ({
     const taskString = serializeTask(task);
     multi.set(taskKey, taskString);
     multi.lpush(queuedListKey, task.id);
+    multi.publish(getTaskQueuedChannel({ queue }), taskString);
   });
   await exec(multi);
   return tasksToQueue;

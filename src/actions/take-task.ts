@@ -8,8 +8,10 @@ import {
   getQueuedListKey,
   getProcessingListKey,
   getTaskKey,
+  getTaskProcessingChannel,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/deserialize-task';
+import { serializeTask } from '../domain/serialize-task';
 
 // TODO: Dedup with takeTaskBlocking.
 export const takeTask = async ({
@@ -39,6 +41,10 @@ export const takeTask = async ({
     processingStartedOn: moment(),
     status: TaskStatuses.Processing,
   };
+  client.publish(
+    getTaskProcessingChannel({ queue }),
+    serializeTask(processingTask),
+  );
   const updatedTask = await updateTask({ task: processingTask, queue, client });
   return updatedTask;
 };

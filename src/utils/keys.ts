@@ -1,3 +1,9 @@
+export const getTaskQueuedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-queued`;
+
+export const getTaskProcessingChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-processing`;
+
 export const getTaskKey = ({
   taskId,
   queue,
