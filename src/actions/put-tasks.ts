@@ -7,7 +7,7 @@ import { serializeTask } from '../domain/serialize-task';
 import {
   getTaskKey,
   getQueuedListKey,
-  getTaskQueuedChannel,
+  getQueueTaskQueuedChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createUuid } from '../utils/general';
@@ -39,7 +39,7 @@ export const putTasks = async ({
     const taskString = serializeTask(task);
     multi.set(taskKey, taskString);
     multi.lpush(queuedListKey, task.id);
-    multi.publish(getTaskQueuedChannel({ queue }), taskString);
+    multi.publish(getQueueTaskQueuedChannel({ queue }), taskString);
   });
   await exec(multi);
   return tasksToQueue;

@@ -7,6 +7,8 @@ import { putTask } from './put-task';
 import { markTaskFailed } from './mark-task-failed';
 import { linear } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
+import { getQueueTaskErrorChannel } from '../utils/keys';
+import { serializeTask } from '../domain/serialize-task';
 
 export type getRetryDelayType = ({
   task,
@@ -64,6 +66,7 @@ export const handleTask = async ({
     return result;
   } catch (e) {
     if (onTaskError) onTaskError({ task });
+    client.publish(getQueueTaskErrorChannel({ queue }), serializeTask(task));
     const willMaxAttemptCountBeExceeded =
       task.maxAttemptCount &&
       task.attemptCount &&

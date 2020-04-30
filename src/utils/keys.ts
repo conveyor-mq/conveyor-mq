@@ -1,8 +1,23 @@
-export const getTaskQueuedChannel = ({ queue }: { queue: string }) =>
+export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 
-export const getTaskProcessingChannel = ({ queue }: { queue: string }) =>
+export const getQueueTaskProcessingChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-processing`;
+
+export const getQueueTaskSuccessChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-success`;
+
+export const getQueueTaskErrorChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-error`;
+
+export const getQueueTaskStalledChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-stalled`;
+
+export const getQueueTaskFailedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-fail`;
+
+export const getQueueTaskCompleteChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-complete`;
 
 export const getTaskKey = ({
   taskId,

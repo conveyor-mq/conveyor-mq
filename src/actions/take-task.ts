@@ -8,7 +8,7 @@ import {
   getQueuedListKey,
   getProcessingListKey,
   getTaskKey,
-  getTaskProcessingChannel,
+  getQueueTaskProcessingChannel,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/deserialize-task';
 import { serializeTask } from '../domain/serialize-task';
@@ -42,7 +42,7 @@ export const takeTask = async ({
     status: TaskStatuses.Processing,
   };
   client.publish(
-    getTaskProcessingChannel({ queue }),
+    getQueueTaskProcessingChannel({ queue }),
     serializeTask(processingTask),
   );
   const updatedTask = await updateTask({ task: processingTask, queue, client });

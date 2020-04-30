@@ -8,6 +8,7 @@ import {
   getTaskKey,
   getQueuedListKey,
   getProcessingListKey,
+  getQueueTaskStalledChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 
@@ -37,6 +38,7 @@ export const putStalledTasks = async ({
     multi.set(taskKey, taskString);
     multi.lrem(processingListKey, 1, task.id);
     multi.lpush(queuedListKey, task.id);
+    multi.publish(getQueueTaskStalledChannel({ queue }), serializeTask(task));
   });
   await exec(multi);
   return tasksToQueue;

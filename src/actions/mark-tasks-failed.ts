@@ -3,7 +3,12 @@ import { Moment } from 'moment';
 import { map } from 'lodash';
 import { Task } from '../domain/task';
 import { TaskStatuses } from '../domain/task-statuses';
-import { getTaskKey, getProcessingListKey } from '../utils/keys';
+import {
+  getTaskKey,
+  getProcessingListKey,
+  getQueueTaskCompleteChannel,
+  getQueueTaskFailedChannel,
+} from '../utils/keys';
 import { serializeTask } from '../domain/serialize-task';
 import { exec } from '../utils/redis';
 
@@ -30,6 +35,14 @@ export const markTasksFailed = async ({
     };
     multi.set(taskKey, serializeTask(failedTask));
     multi.lrem(processingListKey, 1, task.id);
+    multi.publish(
+      getQueueTaskFailedChannel({ queue }),
+      serializeTask(failedTask),
+    );
+    multi.publish(
+      getQueueTaskCompleteChannel({ queue }),
+      serializeTask(failedTask),
+    );
     return failedTask;
   });
   await exec(multi);
