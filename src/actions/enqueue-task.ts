@@ -1,8 +1,8 @@
 import { Redis } from 'ioredis';
 import { Task } from '../domain/task';
-import { putTasks } from './put-tasks';
+import { enqueueTasks } from './enqueue-tasks';
 
-export const putTask = async ({
+export const enqueueTask = async ({
   queue,
   task,
   client,
@@ -11,6 +11,6 @@ export const putTask = async ({
   task: Partial<Task>;
   client: Redis;
 }): Promise<Task> => {
-  const [queuedTask] = await putTasks({ queue, tasks: [task], client });
+  const [queuedTask] = await enqueueTasks({ queue, tasks: [task], client });
   return queuedTask;
 };

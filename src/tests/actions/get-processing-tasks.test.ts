@@ -2,7 +2,7 @@ import { map } from 'lodash';
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
@@ -26,7 +26,7 @@ describe('getProcessingTasks', () => {
   it('getProcessingTasks gets tasks', async () => {
     const puttedTasks = await Promise.all(
       map(Array.from({ length: 10 }), async (i, index) => {
-        return putTask({
+        return enqueueTask({
           queue,
           task: { id: `task ${index}`, data: 'some-data' },
           client,

@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { getTask } from '../../actions/get-task';
 import { redisConfig } from '../config';
 import { takeTask } from '../../actions/take-task';
@@ -26,7 +26,7 @@ describe('getTask', () => {
 
   it('getTask gets tasks', async () => {
     const task = { id: 'b', data: 'c' };
-    await putTask({ queue, task, client });
+    await enqueueTask({ queue, task, client });
     const retrievedTask = (await getTask({
       queue,
       client,

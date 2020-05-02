@@ -12,7 +12,7 @@ import {
 import { exec } from '../utils/redis';
 import { createUuid } from '../utils/general';
 
-export const putTasks = async ({
+export const enqueueTasks = async ({
   queue,
   tasks,
   client,

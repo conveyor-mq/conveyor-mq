@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import moment from 'moment';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { areTasksStalled } from '../../actions/are-tasks-stalled';
@@ -29,8 +29,8 @@ describe('areTasksStalled', () => {
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
 
-    await putTask({ queue, task: taskA, client });
-    await putTask({ queue, task: taskB, client });
+    await enqueueTask({ queue, task: taskA, client });
+    await enqueueTask({ queue, task: taskB, client });
 
     const [resultA, resultB] = await areTasksStalled({
       taskIds: [taskA.id, taskB.id],
@@ -58,7 +58,7 @@ describe('areTasksStalled', () => {
   });
   it('areTasksStalled returns false for failed tasks', async () => {
     const taskA = { id: 'a', data: 'c' };
-    await putTask({ queue, task: taskA, client });
+    await enqueueTask({ queue, task: taskA, client });
     const [result] = await areTasksStalled({
       taskIds: [taskA.id],
       queue,
@@ -94,7 +94,7 @@ describe('areTasksStalled', () => {
   });
   it('areTasksStalled returns false for success tasks', async () => {
     const taskA = { id: 'a', data: 'c' };
-    await putTask({ queue, task: taskA, client });
+    await enqueueTask({ queue, task: taskA, client });
     const [result] = await areTasksStalled({
       taskIds: [taskA.id],
       queue,

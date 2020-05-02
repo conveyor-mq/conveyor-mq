@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { Task } from '../../domain/task';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { TaskStatuses } from '../../domain/task-statuses';
 import { flushAll, quit, lrange, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
@@ -27,7 +27,7 @@ describe('putTask', () => {
 
   it('putTask adds task to a queue', async () => {
     const task: Task = { id: 'a', data: 'b' };
-    const queuedTask = await putTask({ queue, client, task });
+    const queuedTask = await enqueueTask({ queue, client, task });
     expect(queuedTask.data).toBe(task.data);
     expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedOn).toBe(undefined);
@@ -60,7 +60,7 @@ describe('putTask', () => {
       processingStartedOn: moment(),
       processingEndedOn: moment(),
     };
-    const queuedTask = await putTask({ queue, client, task });
+    const queuedTask = await enqueueTask({ queue, client, task });
     expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedOn).toBe(undefined);
     expect(queuedTask.processingEndedOn).toBe(undefined);

@@ -25,7 +25,7 @@ describe('createQueueManager', () => {
     const manager = await createQueueManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const task = { id: 'b', data: 'c' };
-    await manager.putTask(task);
+    await manager.enqueueTask(task);
     const retrievedTask = (await manager.getTask(task.id)) as Task;
     expect(retrievedTask.id).toBe(task.id);
     await manager.quit();
@@ -35,7 +35,7 @@ describe('createQueueManager', () => {
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
-    await manager.putTasks([taskA, taskB]);
+    await manager.enqueueTasks([taskA, taskB]);
     const [retrievedTaskA, retrievedTaskB] = await manager.getTasks([
       taskA.id,
       taskB.id,

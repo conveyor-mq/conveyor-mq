@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { TaskStatuses } from '../../domain/task-statuses';
 import { takeTask } from '../../actions/take-task';
 import { isTaskStalled } from '../../actions/is-task-stalled';
@@ -26,7 +26,7 @@ describe('takeTask', () => {
 
   it('takeTask takes task off a queue and returns task', async () => {
     const task = { id: 'b', data: 'c' };
-    await putTask({ queue, client, task });
+    await enqueueTask({ queue, client, task });
     const processingTask = await takeTask({ queue, client });
     await expect(processingTask).toHaveProperty('id', task.id);
     await expect(processingTask).toHaveProperty(
@@ -54,7 +54,7 @@ describe('takeTask', () => {
   });
   it('takeTask acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };
-    await putTask({ queue, client, task });
+    await enqueueTask({ queue, client, task });
     await takeTask({ queue, client });
     const isStalled = await isTaskStalled({ taskId: task.id, queue, client });
     expect(isStalled).toBe(false);

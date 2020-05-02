@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { getTask } from '../../actions/get-task';
 import { handleStalledTasks } from '../../actions/handle-stalled-tasks';
 import { redisConfig } from '../config';
@@ -30,7 +30,7 @@ describe('handleStalledTasks', () => {
       data: 'c',
       maxAttemptCount: 2,
     };
-    await putTask({ queue, task: taskToRequeue, client });
+    await enqueueTask({ queue, task: taskToRequeue, client });
 
     const retrievedTaskToRequeue = (await getTask({
       queue,
@@ -67,7 +67,7 @@ describe('handleStalledTasks', () => {
       data: 'c',
       maxAttemptCount: 1,
     };
-    await putTask({ queue, task: taskToFail, client });
+    await enqueueTask({ queue, task: taskToFail, client });
 
     const retrievedTaskToFail = (await getTask({
       queue,
@@ -106,7 +106,7 @@ describe('handleStalledTasks', () => {
       maxErrorCount: 1,
       maxAttemptCount: 2,
     };
-    await putTask({ queue, task: taskToFail, client });
+    await enqueueTask({ queue, task: taskToFail, client });
 
     const retrievedTaskToFail = (await getTask({
       queue,

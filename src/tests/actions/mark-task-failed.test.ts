@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { Task } from '../../domain/task';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { TaskStatuses } from '../../domain/task-statuses';
 import { takeTask } from '../../actions/take-task';
 import { markTaskFailed } from '../../actions/mark-task-failed';
@@ -27,7 +27,7 @@ describe('markTaskFailed', () => {
 
   it('markTaskFailed marks task failed', async () => {
     const task = { id: 'i', data: 'j' };
-    await putTask({ queue, client, task });
+    await enqueueTask({ queue, client, task });
     const acquiredTask = (await takeTask({ queue, client })) as Task;
     const failedTask = await markTaskFailed({
       task: acquiredTask,

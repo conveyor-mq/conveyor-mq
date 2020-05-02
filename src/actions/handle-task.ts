@@ -3,7 +3,7 @@ import moment, { Moment } from 'moment';
 import { Task } from '../domain/task';
 import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
-import { putTask } from './put-task';
+import { enqueueTask } from './enqueue-task';
 import { markTaskFailed } from './mark-task-failed';
 import { linear } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
@@ -77,7 +77,7 @@ export const handleTask = async ({
       const delay = await getRetryDelay({ task });
       // Use delayed task instead of sleeping.
       await sleep(delay);
-      await putTask({
+      await enqueueTask({
         task: {
           ...task,
           errorCount: (task.errorCount || 0) + 1,

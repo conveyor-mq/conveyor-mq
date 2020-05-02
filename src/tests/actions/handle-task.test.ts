@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { Task } from '../../domain/task';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { TaskStatuses } from '../../domain/task-statuses';
 import { takeTask } from '../../actions/take-task';
 import { hasTaskExpired } from '../../actions/has-task-expired';
@@ -82,7 +82,7 @@ describe('handleTask', () => {
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j' };
-    await putTask({ queue, task: theTask, client });
+    await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();
@@ -117,7 +117,7 @@ describe('handleTask', () => {
   it('handleTask handles task failure case', async () => {
     const now = moment('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j' };
-    await putTask({ queue, task: theTask, client });
+    await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();
@@ -152,7 +152,7 @@ describe('handleTask', () => {
   it('handleTask retires errored task', async () => {
     const now = moment('2020-01-02');
     const task: Task = { id: 'i', data: 'j', maxAttemptCount: 2 };
-    await putTask({ queue, task, client });
+    await enqueueTask({ queue, task, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();

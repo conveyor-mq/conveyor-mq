@@ -2,7 +2,7 @@ import { map } from 'lodash';
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
-import { putTasks } from '../../actions/put-tasks';
+import { enqueueTasks } from '../../actions/enqueue-tasks';
 import { Task } from '../../domain/task';
 import { takeTask } from '../../actions/take-task';
 import { getStalledTasks } from '../../actions/get-stalled-tasks';
@@ -33,7 +33,7 @@ describe('getStalledTasks', () => {
           data: 'some-data',
         } as Task),
     );
-    await putTasks({ queue, tasks, client });
+    await enqueueTasks({ queue, tasks, client });
     const takenTasks = await Promise.all(
       map(tasks, () => takeTask({ queue, client, stallDuration: 100 })),
     );

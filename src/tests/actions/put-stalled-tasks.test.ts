@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
-import { putTask } from '../../actions/put-task';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { putStalledTasks } from '../../actions/put-stalled-tasks';
@@ -28,8 +28,8 @@ describe('putStalledTask', () => {
   it('putStalledTask re queues stalled tasks', async () => {
     const taskA = { id: 'a', data: 'f' };
     const taskB = { id: 'b', data: 'g' };
-    await putTask({ queue, task: taskA, client });
-    await putTask({ queue, task: taskB, client });
+    await enqueueTask({ queue, task: taskA, client });
+    await enqueueTask({ queue, task: taskB, client });
     await takeTask({ queue, client, stallDuration: 100 });
     await takeTask({ queue, client, stallDuration: 10000 });
     expect((await getProcessingTasks({ queue, client })).length).toBe(2);
