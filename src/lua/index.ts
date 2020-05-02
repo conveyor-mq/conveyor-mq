@@ -10,6 +10,6 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     path.join(__dirname, './take-task.lua'),
     'utf8',
   );
-  client.defineCommand('takeTask', { numberOfKeys: 5, lua: takeTaskScript });
+  client.defineCommand('takeTask', { numberOfKeys: 7, lua: takeTaskScript });
   return client;
 };

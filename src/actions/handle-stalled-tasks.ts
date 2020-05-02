@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { map, filter } from 'lodash';
 import moment from 'moment';
 import { Task } from '../domain/task';
-import { putStalledTasks } from './put-stalled-tasks';
+import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
 
 export const handleStalledTasks = async ({
@@ -50,7 +50,7 @@ export const handleStalledTasks = async ({
   );
   const [failedTasks, reQueuedTasks] = await Promise.all([
     markTasksFailed({ tasksAndErrors, queue, client, asOf: moment() }),
-    putStalledTasks({ queue, tasks: tasksToReQueue, client }),
+    enqueueStalledTasks({ queue, tasks: tasksToReQueue, client }),
   ]);
   return { failedTasks, reQueuedTasks };
 };

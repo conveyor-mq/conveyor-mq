@@ -12,7 +12,7 @@ import {
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 
-export const putStalledTasks = async ({
+export const enqueueStalledTasks = async ({
   queue,
   tasks,
   client,

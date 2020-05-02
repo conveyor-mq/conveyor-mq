@@ -5,7 +5,7 @@ import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { getStalledTasks } from '../../actions/get-stalled-tasks';
-import { putStalledTasks } from '../../actions/put-stalled-tasks';
+import { enqueueStalledTasks } from '../../actions/enqueue-stalled-tasks';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
 
@@ -48,7 +48,7 @@ describe('putStalledTask', () => {
     expect(await isTaskStalled({ taskId: taskB.id, queue, client })).toBe(
       false,
     );
-    await putStalledTasks({ queue, tasks: stalledTasks, client });
+    await enqueueStalledTasks({ queue, tasks: stalledTasks, client });
     expect((await getStalledTasks({ queue, client })).length).toBe(0);
     const processingTasks = await getProcessingTasks({ queue, client });
     expect(processingTasks.length).toBe(1);

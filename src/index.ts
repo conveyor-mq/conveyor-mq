@@ -19,7 +19,7 @@ export { markTasksFailed } from './actions/mark-tasks-failed';
 // eslint-disable-next-line import/no-cycle
 export { processStalledTasks } from './actions/process-stalled-tasks';
 export { processTask } from './actions/process-task';
-export { putStalledTasks } from './actions/put-stalled-tasks';
+export { enqueueStalledTasks as putStalledTasks } from './actions/enqueue-stalled-tasks';
 export { enqueueTask as putTask } from './actions/enqueue-task';
 export { enqueueTasks } from './actions/enqueue-tasks';
 export { takeTaskBlocking } from './actions/take-task-blocking';
