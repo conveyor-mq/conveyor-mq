@@ -1,10 +1,12 @@
 import { Redis } from 'ioredis';
 import { map } from 'lodash';
-import { processTask } from './process-task';
-import { sleep, RedisConfig } from '../utils/general';
+import moment from 'moment';
+import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/task';
-import { getRetryDelayType } from './handle-task';
+import { getRetryDelayType, handleTask } from './handle-task';
 import { createClient, quit } from '../utils/redis';
+import { takeTaskBlocking } from './take-task-blocking';
+import { takeTask } from './take-task';
 
 export const createQueueHandler = async ({
   queue,
@@ -29,46 +31,55 @@ export const createQueueHandler = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
 }) => {
-  const clients: Redis[] = [];
+  const [client1, client2] = await Promise.all([
+    createClient(redisConfig),
+    createClient(redisConfig),
+  ]);
 
-  const checkForAndHandleTask = async (localClient: Redis) => {
+  const processTask = async ({ task }: { task: Task }) => {
+    await handleTask({
+      task,
+      queue,
+      client: client2,
+      asOf: moment(),
+      handler,
+      getRetryDelay,
+      onTaskSuccess,
+      onTaskError,
+      onTaskFailed,
+    });
+  };
+
+  const checkForAndHandleTask = async ({
+    block = true,
+  }: {
+    block: boolean;
+  }) => {
     try {
-      const task = await processTask({
+      const taskTaker = block ? takeTaskBlocking : takeTask;
+      const task = await taskTaker({
         queue,
-        client: localClient,
+        client: client1,
         stallDuration,
-        handler,
-        getRetryDelay,
-        onTaskSuccess,
-        onTaskError,
-        onTaskFailed,
       });
       if (task) {
-        checkForAndHandleTask(localClient);
+        checkForAndHandleTask({ block: false });
+        processTask({ task });
       } else {
-        await sleep(1000);
-        checkForAndHandleTask(localClient);
+        checkForAndHandleTask({ block: true });
       }
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
-      checkForAndHandleTask(localClient);
+      checkForAndHandleTask({ block: true });
     }
   };
-
-  const localClients = await Promise.all(
-    map(Array.from({ length: concurrency }), async () => {
-      const localClient = await createClient(redisConfig);
-      checkForAndHandleTask(localClient);
-      return localClient;
-    }),
-  );
-  clients.push(...localClients);
+  checkForAndHandleTask({ block: true });
 
   return {
     quit: async () => {
       await Promise.all(
-        map(clients, (localClient) => quit({ client: localClient })),
+        map([client1, client2], (localClient) => quit({ client: localClient })),
       );
     },
   };
