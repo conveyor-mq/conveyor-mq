@@ -1,12 +1,17 @@
-import { Redis } from 'ioredis';
 import { map } from 'lodash';
 import moment from 'moment';
+import PQueue from 'p-queue';
+import {
+  setIntervalAsync,
+  clearIntervalAsync,
+} from 'set-interval-async/dynamic';
 import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/task';
 import { getRetryDelayType, handleTask } from './handle-task';
-import { createClient, quit } from '../utils/redis';
-import { takeTaskBlocking } from './take-task-blocking';
-import { takeTask } from './take-task';
+import { createClient, quit, brpoplpush } from '../utils/redis';
+import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
+import { markTaskProcessing } from './mark-task-processing';
+import { acknowledgeTask } from './acknowledge-task';
 
 export const createQueueHandler = async ({
   queue,
@@ -31,50 +36,59 @@ export const createQueueHandler = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
 }) => {
+  const promiseQueue = new PQueue({ concurrency });
+
   const [client1, client2] = await Promise.all([
     createClient(redisConfig),
     createClient(redisConfig),
   ]);
 
-  const processTask = async ({ task }: { task: Task }) => {
-    await handleTask({
-      task,
-      queue,
-      client: client2,
-      asOf: moment(),
-      handler,
-      getRetryDelay,
-      onTaskSuccess,
-      onTaskError,
-      onTaskFailed,
-    });
-  };
-
-  const checkForAndHandleTask = async ({
-    block = true,
-  }: {
-    block: boolean;
-  }) => {
+  const checkForAndHandleTask = async () => {
     try {
-      const taskTaker = block ? takeTaskBlocking : takeTask;
-      const task = await taskTaker({
-        queue,
+      const taskId = await brpoplpush({
+        fromKey: getQueuedListKey({ queue }),
+        toKey: getProcessingListKey({ queue }),
         client: client1,
-        stallDuration,
       });
-      if (task) {
-        checkForAndHandleTask({ block: false });
-        processTask({ task });
-      } else {
-        checkForAndHandleTask({ block: true });
+      if (taskId) {
+        const task = await markTaskProcessing({
+          taskId,
+          stallDuration,
+          queue,
+          client: client2,
+        });
+        const timer = setIntervalAsync(async () => {
+          await acknowledgeTask({
+            taskId: task.id,
+            queue,
+            client: client2,
+            ttl: stallDuration,
+          });
+        }, stallDuration / 2);
+        await handleTask({
+          task,
+          queue,
+          handler,
+          client: client2,
+          asOf: moment(),
+          getRetryDelay,
+          onTaskSuccess,
+          onTaskError,
+          onTaskFailed,
+        });
+        await clearIntervalAsync(timer);
       }
+      promiseQueue.add(checkForAndHandleTask);
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
-      checkForAndHandleTask({ block: true });
+      promiseQueue.add(checkForAndHandleTask);
     }
   };
-  checkForAndHandleTask({ block: true });
+
+  promiseQueue.addAll(
+    map(Array.from({ length: concurrency }), () => checkForAndHandleTask),
+  );
 
   return {
     quit: async () => {
