@@ -1,8 +1,9 @@
 import { Redis } from 'ioredis';
 import { map, forEach, zipWith, reduce } from 'lodash';
-import { getTaskAcknowledgedKey } from '../utils/keys';
-import { exec } from '../utils/redis';
+import { getTaskAcknowledgedKey, getStallingHashKey } from '../utils/keys';
+import { exec, hkeys } from '../utils/redis';
 import { getProcessingTasks } from './get-processing-tasks';
+import { getStallingTaskIds } from './get-stalling-task-ids';
 
 // TODO: Optimisation: getProcessingTaskIds.
 export const areTasksStalled = async ({
@@ -14,9 +15,9 @@ export const areTasksStalled = async ({
   queue: string;
   client: Redis;
 }) => {
-  const processingTasks = await getProcessingTasks({ queue, client });
-  const taskAcknowledgeKeys = map(processingTasks, (task) =>
-    getTaskAcknowledgedKey({ taskId: task.id, queue }),
+  const stallingTasksIds = await getStallingTaskIds({ queue, client });
+  const taskAcknowledgeKeys = map(stallingTasksIds, (taskId) =>
+    getTaskAcknowledgedKey({ taskId, queue }),
   );
   const multi = client.multi();
   forEach(taskAcknowledgeKeys, (key) => {
@@ -24,8 +25,8 @@ export const areTasksStalled = async ({
   });
   const results = await exec(multi);
   const isStalledByTaskId: { [key: string]: boolean } = reduce(
-    zipWith(processingTasks, results, ({ id }, result) => ({
-      taskId: id,
+    zipWith(stallingTasksIds, results, (taskId, result) => ({
+      taskId,
       isStalled: result === 0,
     })),
     (acc, { taskId, isStalled }) => ({

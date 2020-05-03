@@ -7,6 +7,7 @@ import {
   getProcessingListKey,
   getTaskKey,
   getQueueTaskProcessingChannel,
+  getStallingHashKey,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/deserialize-task';
 
@@ -30,6 +31,7 @@ export const takeTask = async ({
       queue,
       moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),
+      getStallingHashKey({ queue }),
     ],
   });
   if (!taskString) return null;

@@ -9,7 +9,7 @@ import { RedisConfig } from '../utils/general';
 export const createQueueOrchestrator = async ({
   queue,
   redisConfig,
-  stalledCheckInterval = 10000,
+  stalledCheckInterval = 1000,
 }: {
   queue: string;
   redisConfig: RedisConfig;

@@ -1,3 +1,6 @@
+export const getStallingHashKey = ({ queue }: { queue: string }) =>
+  `queue:${queue}:stalling-tasks`;
+
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 

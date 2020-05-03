@@ -5,11 +5,16 @@ import { getTask } from './get-task';
 import { TaskStatuses } from '../domain/task-statuses';
 import { updateTask } from './update-task';
 import { acknowledgeTask } from './acknowledge-task';
-import { brpoplpush } from '../utils/redis';
-import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
+import { brpoplpush, callLuaScript } from '../utils/redis';
+import {
+  getQueuedListKey,
+  getProcessingListKey,
+  getTaskKey,
+  getQueueTaskProcessingChannel,
+  getStallingHashKey,
+} from '../utils/keys';
+import { deSerializeTask } from '../domain/deserialize-task';
 
-// TODO: rpop, get and set in a multi.
-// TODO: Dedup with takeTask.
 export const takeTaskBlocking = async ({
   timeout = 0,
   queue,
@@ -28,22 +33,19 @@ export const takeTaskBlocking = async ({
     client,
   });
   if (!taskId) return null;
-  const acknowledgePromise = acknowledgeTask({
-    taskId,
-    queue,
+  const taskString = await callLuaScript({
     client,
-    ttl: stallDuration,
+    script: 'markTaskProcessing',
+    args: [
+      taskId,
+      getTaskKey({ taskId: '', queue }),
+      stallDuration,
+      queue,
+      moment().toISOString(),
+      getQueueTaskProcessingChannel({ queue }),
+      getStallingHashKey({ queue }),
+    ],
   });
-  const task = await getTask({ queue, taskId, client });
-  if (task === null) return null;
-  const processingTask: Task = {
-    ...task,
-    processingStartedOn: moment(),
-    status: TaskStatuses.Processing,
-  };
-  const [updatedTask] = await Promise.all([
-    updateTask({ task: processingTask, queue, client }),
-    acknowledgePromise,
-  ]);
-  return updatedTask;
+  const task = deSerializeTask(taskString);
+  return task;
 };

@@ -8,6 +8,7 @@ import { takeTask } from './take-task';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { Task } from '../domain/task';
 import { acknowledgeTask } from './acknowledge-task';
+import { takeTaskBlocking } from './take-task-blocking';
 
 export const processTask = async ({
   queue,
@@ -29,7 +30,7 @@ export const processTask = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
 }) => {
-  const task = await takeTask({
+  const task = await takeTaskBlocking({
     queue,
     client,
     stallDuration,

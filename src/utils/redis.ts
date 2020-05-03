@@ -78,6 +78,17 @@ export const quit = ({ client }: { client: Redis }) =>
     client.quit((err, result) => (err ? reject(err) : resolve(result)));
   });
 
+export const hkeys = ({
+  client,
+  key,
+}: {
+  client: Redis;
+  key: string;
+}): Promise<string[]> =>
+  new Promise((resolve, reject) => {
+    client.hkeys(key, (err, result) => (err ? reject(err) : resolve(result)));
+  });
+
 export const lrange = ({
   start,
   stop,
