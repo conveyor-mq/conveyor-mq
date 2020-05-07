@@ -8,10 +8,10 @@ import {
 import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/task';
 import { getRetryDelayType, handleTask } from './handle-task';
-import { createClient, quit, brpoplpush } from '../utils/redis';
-import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
-import { markTaskProcessing } from './mark-task-processing';
+import { createClient, quit } from '../utils/redis';
 import { acknowledgeTask } from './acknowledge-task';
+import { takeTaskBlocking } from './take-task-blocking';
+import { takeTask } from './take-task';
 
 export const createQueueHandler = async ({
   queue,
@@ -43,20 +43,19 @@ export const createQueueHandler = async ({
     createClient(redisConfig),
   ]);
 
-  const checkForAndHandleTask = async () => {
+  const checkForAndHandleTask = async ({
+    block = true,
+  }: {
+    block?: boolean;
+  }) => {
     try {
-      const taskId = await brpoplpush({
-        fromKey: getQueuedListKey({ queue }),
-        toKey: getProcessingListKey({ queue }),
+      const taskTaker = block ? takeTaskBlocking : takeTask;
+      const task = await taskTaker({
+        queue,
         client: client1,
+        stallDuration,
       });
-      if (taskId) {
-        const task = await markTaskProcessing({
-          taskId,
-          stallDuration,
-          queue,
-          client: client2,
-        });
+      if (task) {
         const timer = setIntervalAsync(async () => {
           await acknowledgeTask({
             taskId: task.id,
@@ -78,16 +77,18 @@ export const createQueueHandler = async ({
         });
         await clearIntervalAsync(timer);
       }
-      promiseQueue.add(checkForAndHandleTask);
+      promiseQueue.add(() => checkForAndHandleTask({ block: !task }));
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
-      promiseQueue.add(checkForAndHandleTask);
+      promiseQueue.add(() => checkForAndHandleTask({ block: false }));
     }
   };
 
   promiseQueue.addAll(
-    map(Array.from({ length: concurrency }), () => checkForAndHandleTask),
+    map(Array.from({ length: concurrency }), () => () =>
+      checkForAndHandleTask({ block: false }),
+    ),
   );
 
   return {
