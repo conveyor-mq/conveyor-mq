@@ -7,19 +7,16 @@ A fast, robust and extensible distributed task/job queue for Node.js.
 [![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor?branch=master)
 
 ```js
-const {
-  createQueueManager,
-  createQueueHandler,
-} = require('@jasrusable/conveyor');
+const { createManager, createWorker } = require('@jasrusable/conveyor');
 
 const main = async () => {
   const queueName = 'my-queue';
   const redisConfig = { host: '127.0.0.1', port: 6379 };
 
-  const manager = await createQueueManager({ queue: queueName, redisConfig });
-  await manager.putTask({ data: { x: 1, y: 2 } });
+  const manager = await createManager({ queue: queueName, redisConfig });
+  await manager.enqueue({ data: { x: 1, y: 2 } });
 
-  const handler = await createQueueHandler({
+  const worker = await createWorker({
     queue: queueName,
     redisConfig,
     handler: ({ task }) => {
