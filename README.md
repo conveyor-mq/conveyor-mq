@@ -37,13 +37,13 @@ Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by R
 
 npm:
 
-```
+```bash
 npm install --save @jasrusable/conveyor
 ```
 
 yarn:
 
-```
+```bash
 yarn add @jasrusable/conveyor
 ```
 
