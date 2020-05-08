@@ -6,7 +6,7 @@ import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
 import { RedisConfig } from '../utils/general';
 
-export const createQueueManager = async ({
+export const createManager = async ({
   queue,
   redisConfig,
 }: {

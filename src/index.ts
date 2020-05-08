@@ -1,10 +1,10 @@
 export { acknowledgeTask } from './actions/acknowledge-task';
 export { areTasksStalled } from './actions/are-tasks-stalled';
 // eslint-disable-next-line import/no-cycle
-export { createQueueHandler } from './actions/create-queue-handler';
-export { createQueueManager } from './actions/create-queue-manager';
+export { createWorker as createQueueWorker } from './actions/create-worker';
+export { createManager as createQueueManager } from './actions/create-manager';
 // eslint-disable-next-line import/no-cycle
-export { createQueueOrchestrator } from './actions/create-queue-orchestrator';
+export { createOrchestrator as createQueueOrchestrator } from './actions/create-orchestrator';
 export { getProcessingTasks } from './actions/get-processing-tasks';
 export { getStalledTasks } from './actions/get-stalled-tasks';
 export { getTask } from './actions/get-task';

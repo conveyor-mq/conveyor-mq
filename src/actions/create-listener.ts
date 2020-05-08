@@ -12,7 +12,7 @@ import {
 import { deSerializeTask } from '../domain/deserialize-task';
 import { Task } from '../domain/task';
 
-export const createQueueListener = ({
+export const createListener = ({
   queue,
   redisConfig,
 }: {

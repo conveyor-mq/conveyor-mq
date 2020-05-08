@@ -8,7 +8,7 @@ import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
 
-export const createQueueHandler = async ({
+export const createWorker = async ({
   queue,
   redisConfig,
   stallDuration = 1000,
@@ -20,6 +20,8 @@ export const createQueueHandler = async ({
   onTaskFailed,
   onHandlerError,
   onIdle,
+  onReady,
+  autoStart = true,
 }: {
   queue: string;
   redisConfig: RedisConfig;
@@ -32,9 +34,11 @@ export const createQueueHandler = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
   onIdle?: () => any;
+  onReady?: () => any;
+  autoStart?: boolean;
 }) => {
-  const takerQueue = new PQueue({ concurrency });
-  const workerQueue = new PQueue({ concurrency });
+  const takerQueue = new PQueue({ concurrency, autoStart });
+  const workerQueue = new PQueue({ concurrency, autoStart });
 
   if (onIdle) workerQueue.on('idle', onIdle);
 
@@ -42,6 +46,8 @@ export const createQueueHandler = async ({
     createClient(redisConfig),
     createClient(redisConfig),
   ]);
+
+  if (onReady) onReady();
 
   const checkForAndHandleTask = async ({
     block = true,
@@ -79,13 +85,19 @@ export const createQueueHandler = async ({
     }
   };
 
-  takerQueue.addAll(
+  await takerQueue.addAll(
     map(Array.from({ length: concurrency }), () => () =>
-      checkForAndHandleTask({ block: false }),
+      checkForAndHandleTask({ block: true }),
     ),
   );
 
   return {
+    pause: async () => {
+      await Promise.all([takerQueue.pause(), workerQueue.pause()]);
+    },
+    resume: async () => {
+      await Promise.all([takerQueue.start(), workerQueue.start()]);
+    },
     quit: async () => {
       await Promise.all(
         map([client1, client2], (localClient) => quit({ client: localClient })),

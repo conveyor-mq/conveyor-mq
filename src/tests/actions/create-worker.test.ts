@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { createQueueHandler } from '../../actions/create-queue-handler';
+import { createWorker } from '../../actions/create-worker';
 import { redisConfig } from '../config';
 import { TaskStatuses } from '../../domain/task-statuses';
 import { getTask } from '../../actions/get-task';
@@ -27,7 +27,7 @@ describe('createQueueHandler', () => {
   it('createQueueHandler creates handler', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
-    const handler = await createQueueHandler({
+    const handler = await createWorker({
       queue,
       redisConfig,
       handler: ({ task }) => {

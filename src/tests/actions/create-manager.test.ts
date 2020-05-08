@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { createQueueManager } from '../../actions/create-queue-manager';
+import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/task';
 
@@ -22,7 +22,7 @@ describe('createQueueManager', () => {
   });
 
   it('createQueueManager puts and gets task', async () => {
-    const manager = await createQueueManager({ queue, redisConfig });
+    const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
@@ -31,7 +31,7 @@ describe('createQueueManager', () => {
     await manager.quit();
   });
   it('createQueueManager puts and gets tasks', async () => {
-    const manager = await createQueueManager({ queue, redisConfig });
+    const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };

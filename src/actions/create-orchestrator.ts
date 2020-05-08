@@ -6,7 +6,7 @@ import { processStalledTasks } from './process-stalled-tasks';
 import { createClient, quit } from '../utils/redis';
 import { RedisConfig } from '../utils/general';
 
-export const createQueueOrchestrator = async ({
+export const createOrchestrator = async ({
   queue,
   redisConfig,
   stalledCheckInterval = 1000,
