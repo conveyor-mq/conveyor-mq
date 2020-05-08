@@ -14,7 +14,7 @@ const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
 
   const manager = await createManager({ queue: queueName, redisConfig });
-  await manager.enqueue({ data: { x: 1, y: 2 } });
+  await manager.enqueueTask({ data: { x: 1, y: 2 } });
 
   const worker = await createWorker({
     queue: queueName,
