@@ -67,6 +67,7 @@ describe('areTasksStalled', () => {
     expect(result.taskId).toBe(taskA.id);
     expect(result.isStalled).toBe(false);
     await takeTask({ queue, client, stallDuration: 1 });
+    await sleep(10);
 
     const [result2] = await areTasksStalled({
       taskIds: [taskA.id],
