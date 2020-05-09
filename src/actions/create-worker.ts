@@ -47,8 +47,6 @@ export const createWorker = async ({
     createClient(redisConfig),
   ]);
 
-  if (onReady) onReady();
-
   const checkForAndHandleTask = async ({
     block = true,
   }: {
@@ -84,6 +82,8 @@ export const createWorker = async ({
       await takerQueue.add(() => checkForAndHandleTask({ block: false }));
     }
   };
+
+  if (onReady) onReady();
 
   await takerQueue.addAll(
     map(Array.from({ length: concurrency }), () => () =>

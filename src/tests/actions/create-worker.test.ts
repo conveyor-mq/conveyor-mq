@@ -8,7 +8,7 @@ import { getTask } from '../../actions/get-task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { Task } from '../../domain/tasks/task';
 
-describe('createQueueHandler', () => {
+describe('createWorker', () => {
   const queue = createUuid();
   let client: Redis;
 
@@ -24,10 +24,10 @@ describe('createQueueHandler', () => {
     await quit({ client });
   });
 
-  it('createQueueHandler creates handler', async () => {
+  it('createWorker processes task', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
-    const handler = await createWorker({
+    const worker = await createWorker({
       queue,
       redisConfig,
       handler: ({ task }) => {
@@ -36,8 +36,7 @@ describe('createQueueHandler', () => {
         return 'some data';
       },
     });
-    expect(typeof handler.quit).toBe('function');
-    await sleep(100);
+    await sleep(10);
     const processedTask = (await getTask({
       queue,
       taskId: theTask.id,
@@ -45,5 +44,44 @@ describe('createQueueHandler', () => {
     })) as Task;
     expect(processedTask.id).toBe(theTask.id);
     expect(processedTask.status).toBe(TaskStatuses.Success);
+    await worker.quit();
+  });
+  it('createWorker onReady fires', async () => {
+    const theTask = { id: 'b', data: 'c' };
+    const promise = new Promise((resolve) => {
+      createWorker({
+        queue,
+        onReady: () => resolve('worker is ready'),
+        redisConfig,
+        handler: ({ task }) => {
+          expect(task.id).toBe(theTask.id);
+          expect(task.status).toBe(TaskStatuses.Processing);
+          return 'some data';
+        },
+      });
+    });
+    expect(promise).resolves.toBe('worker is ready');
+  });
+  it('createWorker onIdle fires', async () => {
+    const theTask = { id: 'b', data: 'c' };
+    const promise = new Promise((resolve) => {
+      return createWorker({
+        queue,
+        onIdle: () => resolve('worker is idle'),
+        redisConfig,
+        handler: ({ task }) => {
+          console.log(task);
+          expect(task.id).toBe(theTask.id);
+          expect(task.status).toBe(TaskStatuses.Processing);
+          return 'some data';
+        },
+      });
+    });
+    await enqueueTask({
+      queue,
+      task: theTask,
+      client,
+    });
+    expect(promise).resolves.toBe('worker is idle');
   });
 });
