@@ -5,7 +5,7 @@ import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 
-describe('createQueueManager', () => {
+describe('createManager', () => {
   const queue = createUuid();
   let client: Redis;
 
@@ -21,7 +21,7 @@ describe('createQueueManager', () => {
     await quit({ client });
   });
 
-  it('createQueueManager puts and gets task', async () => {
+  it('createManager enqueues and gets task', async () => {
     const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const task = { id: 'b', data: 'c' };
@@ -30,7 +30,7 @@ describe('createQueueManager', () => {
     expect(retrievedTask.id).toBe(task.id);
     await manager.quit();
   });
-  it('createQueueManager puts and gets tasks', async () => {
+  it('createManager enqueues and gets tasks', async () => {
     const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
