@@ -70,7 +70,6 @@ describe('createWorker', () => {
         onIdle: () => resolve('worker is idle'),
         redisConfig,
         handler: ({ task }) => {
-          console.log(task);
           expect(task.id).toBe(theTask.id);
           expect(task.status).toBe(TaskStatuses.Processing);
           return 'some data';
@@ -83,5 +82,32 @@ describe('createWorker', () => {
       client,
     });
     expect(promise).resolves.toBe('worker is idle');
+  });
+  it.skip('createWorker handles autoStart false', async () => {
+    const theTask = { id: 'b', data: 'c' };
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      autoStart: false,
+      handler: ({ task }) => {
+        expect(task.id).toBe(theTask.id);
+        expect(task.status).toBe(TaskStatuses.Processing);
+        return 'some data';
+      },
+    });
+    await enqueueTask({
+      queue,
+      task: theTask,
+      client,
+    });
+    await expect(
+      getTask({ queue, taskId: theTask.id, client }),
+    ).resolves.toHaveProperty('status', TaskStatuses.Queued);
+    await worker.resume();
+    await sleep(50);
+    await expect(
+      getTask({ queue, taskId: theTask.id, client }),
+    ).resolves.toHaveProperty('status', TaskStatuses.Success);
+    await worker.quit();
   });
 });

@@ -27,6 +27,7 @@ const main = async () => {
       return 'some-data';
     },
   });
+
   const orchestrator = await createOrchestrator({
     queue,
     redisConfig,

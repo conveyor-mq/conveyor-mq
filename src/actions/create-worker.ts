@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { map, debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
@@ -20,6 +20,7 @@ export const createWorker = async ({
   onTaskFailed,
   onHandlerError,
   onIdle,
+  idleTimeout = 250,
   onReady,
   autoStart = true,
 }: {
@@ -34,13 +35,14 @@ export const createWorker = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
   onHandlerError?: (error: any) => any;
   onIdle?: () => any;
+  idleTimeout?: number;
   onReady?: () => any;
   autoStart?: boolean;
 }) => {
   const takerQueue = new PQueue({ concurrency, autoStart });
-  const workerQueue = new PQueue({ concurrency, autoStart });
+  const workerQueue = new PQueue({ concurrency });
 
-  if (onIdle) workerQueue.on('idle', onIdle);
+  if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
   const [client1, client2] = await Promise.all([
     createClient(redisConfig),
@@ -60,8 +62,8 @@ export const createWorker = async ({
         stallDuration,
       });
       if (task) {
-        workerQueue.add(async () => {
-          await processTask({
+        await workerQueue.add(async () =>
+          processTask({
             task,
             queue,
             client: client2,
@@ -71,21 +73,21 @@ export const createWorker = async ({
             onTaskSuccess,
             onTaskError,
             onTaskFailed,
-          });
-          await takerQueue.add(() => checkForAndHandleTask({ block: !task }));
-        });
+          }),
+        );
       }
+      takerQueue.add(() => checkForAndHandleTask({ block: !task }));
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
-      await takerQueue.add(() => checkForAndHandleTask({ block: false }));
+      takerQueue.add(() => checkForAndHandleTask({ block: false }));
     }
   };
 
   if (onReady) onReady();
 
-  await takerQueue.addAll(
+  takerQueue.addAll(
     map(Array.from({ length: concurrency }), () => () =>
       checkForAndHandleTask({ block: true }),
     ),
@@ -93,15 +95,14 @@ export const createWorker = async ({
 
   return {
     pause: async () => {
-      await Promise.all([takerQueue.pause(), workerQueue.pause()]);
+      await Promise.all([takerQueue.pause()]);
     },
     resume: async () => {
-      await Promise.all([takerQueue.start(), workerQueue.start()]);
+      await Promise.all([takerQueue.start()]);
     },
     quit: async () => {
-      await Promise.all(
-        map([client1, client2], (localClient) => quit({ client: localClient })),
-      );
+      await Promise.all([takerQueue.pause()]);
+      await Promise.all(map([client1, client2], (client) => quit({ client })));
     },
   };
 };
