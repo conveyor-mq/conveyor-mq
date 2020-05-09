@@ -20,7 +20,7 @@ task['processingStartedOn'] = datetime
 
 local processingTaskJson = cjson.encode(task)
 redis.call('SET', taskKey, processingTaskJson)
-local event = {createdAt = datetime, type = eventType, task = taskJson}
+local event = {createdAt = datetime, type = eventType, task = task}
 redis.call('PUBLISH', publishChannel, cjson.encode(event))
 
 return processingTaskJson

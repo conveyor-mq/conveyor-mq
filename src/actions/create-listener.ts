@@ -1,3 +1,4 @@
+import { forEach } from 'lodash';
 import { RedisConfig } from '../utils/general';
 import { createClient } from '../utils/redis';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
+import { EventTypes } from '../domain/events/event-types';
 
 export const createListener = async ({
   queue,
@@ -20,6 +22,9 @@ export const createListener = async ({
   redisConfig: RedisConfig;
 }) => {
   const client = await createClient(redisConfig);
+  const handlers: {
+    [key: string]: (({ event }: { event: Event }) => any)[];
+  } = {};
   const channels = [
     getQueueTaskQueuedChannel({ queue }),
     getQueueTaskProcessingChannel({ queue }),
@@ -31,9 +36,13 @@ export const createListener = async ({
   ];
   client.on('message', (channel, eventString) => {
     const event = deSerializeEvent(eventString);
+    const handlersToCall = handlers[event.type];
+    forEach(handlersToCall, (handler) => handler({ event }));
   });
   await client.subscribe(channels);
   return {
-    on: (f: (event: Event) => any) => f,
+    on: (eventType: EventTypes, f: ({ event }: { event: Event }) => any) => {
+      handlers[eventType] = [...(handlers[eventType] || []), f];
+    },
   };
 };

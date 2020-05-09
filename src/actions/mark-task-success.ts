@@ -41,14 +41,18 @@ export const markTaskSuccess = async ({
   multi.hdel(getStallingHashKey({ queue }), task.id);
   multi.publish(
     getQueueTaskSuccessChannel({ queue }),
-    serializeEvent({ createdAt: moment(), type: EventTypes.TaskSuccess, task }),
+    serializeEvent({
+      createdAt: moment(),
+      type: EventTypes.TaskSuccess,
+      task: successfulTask,
+    }),
   );
   multi.publish(
     getQueueTaskCompleteChannel({ queue }),
     serializeEvent({
       createdAt: moment(),
       type: EventTypes.TaskComplete,
-      task,
+      task: successfulTask,
     }),
   );
   await exec(multi);

@@ -41,11 +41,19 @@ export const markTasksFailed = async ({
     multi.hdel(getStallingHashKey({ queue }), task.id);
     multi.publish(
       getQueueTaskFailedChannel({ queue }),
-      serializeEvent({ createdAt: moment(), type: EventTypes.TaskFail }),
+      serializeEvent({
+        createdAt: moment(),
+        type: EventTypes.TaskFail,
+        task: failedTask,
+      }),
     );
     multi.publish(
       getQueueTaskCompleteChannel({ queue }),
-      serializeEvent({ createdAt: moment(), type: EventTypes.TaskComplete }),
+      serializeEvent({
+        createdAt: moment(),
+        type: EventTypes.TaskComplete,
+        task: failedTask,
+      }),
     );
     return failedTask;
   });
