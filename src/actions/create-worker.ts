@@ -2,7 +2,7 @@ import { map, debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
-import { createClient } from '../utils/redis';
+import { createClient, ensureConnected } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
@@ -39,7 +39,7 @@ export const createWorker = async ({
   onReady?: () => any;
   autoStart?: boolean;
 }) => {
-  let isPaused = autoStart === false;
+  let isPaused = true;
   let isShutdown = false;
   const takerQueue = new PQueue({ concurrency, autoStart });
   const workerQueue = new PQueue({ concurrency });
@@ -47,8 +47,8 @@ export const createWorker = async ({
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
   const [takerClient, workerClient] = await Promise.all([
-    createClient(redisConfig),
-    createClient(redisConfig),
+    createClient({ ...redisConfig, lazy: true }),
+    createClient({ ...redisConfig, lazy: true }),
   ]);
 
   const checkForAndHandleTask = async ({
@@ -89,14 +89,6 @@ export const createWorker = async ({
     }
   };
 
-  if (onReady) onReady();
-
-  takerQueue.addAll(
-    map(Array.from({ length: concurrency }), () => () =>
-      checkForAndHandleTask({ block: true }),
-    ),
-  );
-
   const pause = async () => {
     if (isShutdown) {
       throw new Error('Cannot pause a shutdown worker.');
@@ -116,20 +108,18 @@ export const createWorker = async ({
       throw new Error('Cannot resume a shutdown worker.');
     }
     if (isPaused) {
-      try {
-        await takerClient.connect();
-      } catch (e) {
-        if (e.message !== 'Redis is already connecting/connected') {
-          throw e;
-        }
-      }
+      isPaused = false;
+      await Promise.all(
+        map([takerClient, workerClient], (client) =>
+          ensureConnected({ client }),
+        ),
+      );
       takerQueue.start();
       takerQueue.addAll(
         map(Array.from({ length: concurrency }), () => () =>
           checkForAndHandleTask({ block: true }),
         ),
       );
-      isPaused = false;
     }
   };
 
@@ -154,6 +144,9 @@ export const createWorker = async ({
       await workerClient.disconnect();
     }
   };
+
+  if (onReady) onReady();
+  if (autoStart) await start();
 
   return {
     pause,

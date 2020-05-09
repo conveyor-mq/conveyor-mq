@@ -2,8 +2,16 @@ import RedisClient, { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
 import { loadScripts } from '../lua';
 
-export const createClient = async (config: { host: string; port: number }) => {
-  const client = new RedisClient(config);
+export const createClient = async ({
+  host,
+  port,
+  lazy: lazyConnect,
+}: {
+  host: string;
+  port: number;
+  lazy?: boolean;
+}) => {
+  const client = new RedisClient({ host, port, lazyConnect });
   const updatedClient = await loadScripts({ client });
   return updatedClient;
 };
@@ -18,6 +26,16 @@ export const callLuaScript = ({
   args: (string | number)[];
 }) => {
   return client[script](...args) as Promise<string>;
+};
+
+export const ensureConnected = async ({ client }: { client: Redis }) => {
+  try {
+    await client.connect();
+  } catch (e) {
+    if (e.message !== 'Redis is already connecting/connected') {
+      throw e;
+    }
+  }
 };
 
 export const exec = (multi_: Pipeline) => {
