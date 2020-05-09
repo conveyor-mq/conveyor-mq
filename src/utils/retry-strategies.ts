@@ -1,4 +1,4 @@
-import { Task } from '../domain/task';
+import { Task } from '../domain/tasks/task';
 
 export const linear = (factor = 100) => ({ task }: { task: Task }) =>
   (task.attemptCount || 1) * factor;

@@ -5,8 +5,8 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { getTask } from '../../actions/get-task';
 import { handleStalledTasks } from '../../actions/handle-stalled-tasks';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/task';
-import { TaskStatuses } from '../../domain/task-statuses';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('handleStalledTasks', () => {
   const queue = createUuid();

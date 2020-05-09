@@ -9,72 +9,31 @@ import {
   getQueueTaskFailedChannel,
   getQueueTaskCompleteChannel,
 } from '../utils/keys';
-import { deSerializeTask } from '../domain/deserialize-task';
-import { Task } from '../domain/task';
+import { deSerializeEvent } from '../domain/events/deserialize-event';
+import { Event } from '../domain/events/event';
 
-export const createListener = ({
+export const createListener = async ({
   queue,
   redisConfig,
 }: {
   queue: string;
   redisConfig: RedisConfig;
 }) => {
+  const client = await createClient(redisConfig);
+  const channels = [
+    getQueueTaskQueuedChannel({ queue }),
+    getQueueTaskProcessingChannel({ queue }),
+    getQueueTaskSuccessChannel({ queue }),
+    getQueueTaskErrorChannel({ queue }),
+    getQueueTaskStalledChannel({ queue }),
+    getQueueTaskFailedChannel({ queue }),
+    getQueueTaskCompleteChannel({ queue }),
+  ];
+  client.on('message', (channel, eventString) => {
+    const event = deSerializeEvent(eventString);
+  });
+  await client.subscribe(channels);
   return {
-    onTaskQueued: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskQueuedChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskProcessing: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskProcessingChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskSuccess: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskSuccessChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskError: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskErrorChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskStalled: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskStalledChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskFailed: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskFailedChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
-    onTaskComplete: async (cb: (task?: Task) => any) => {
-      const client = await createClient(redisConfig);
-      client.subscribe(getQueueTaskCompleteChannel({ queue }));
-      client.on('message', (channel, taskString) => {
-        const task = deSerializeTask(taskString);
-        cb(task);
-      });
-    },
+    on: (f: (event: Event) => any) => f,
   };
 };

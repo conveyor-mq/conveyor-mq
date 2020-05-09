@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
-import { Task } from '../domain/task';
 import { enqueueTasks } from './enqueue-tasks';
+import { Task } from '../domain/tasks/task';
 
 export const enqueueTask = async ({
   queue,

@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
-import { Task } from '../domain/task';
 import { callLuaScript } from '../utils/redis';
 import {
   getQueuedListKey,
@@ -9,7 +8,10 @@ import {
   getQueueTaskProcessingChannel,
   getStallingHashKey,
 } from '../utils/keys';
-import { deSerializeTask } from '../domain/deserialize-task';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
+import { Task } from '../domain/tasks/task';
+import { EventTypes } from '../domain/events/event-types';
+import { TaskStatuses } from '../domain/tasks/task-statuses';
 
 export const takeTask = async ({
   queue,
@@ -32,6 +34,8 @@ export const takeTask = async ({
       moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),
       getStallingHashKey({ queue }),
+      EventTypes.TaskProcessing,
+      TaskStatuses.Processing,
     ],
   });
   if (!taskString) return null;

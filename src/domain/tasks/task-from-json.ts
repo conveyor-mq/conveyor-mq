@@ -1,8 +1,7 @@
 import moment from 'moment';
-import { Task } from './tasks/task';
+import { Task } from './task';
 
-export const deSerializeTask = (taskString: string): Task => {
-  const taskJson = JSON.parse(taskString);
+export const taskFromJson = (taskJson: any): Task => {
   return {
     id: taskJson.id,
     status: taskJson.status,

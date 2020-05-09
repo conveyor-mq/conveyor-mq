@@ -1,8 +1,11 @@
 import { Redis } from 'ioredis';
-import { Task } from '../domain/task';
-import { serializeTask } from '../domain/serialize-task';
+import moment from 'moment';
+import { serializeTask } from '../domain/tasks/serialize-task';
 import { set } from '../utils/redis';
-import { getTaskKey } from '../utils/keys';
+import { getTaskKey, getQueueTaskUpdatedChannel } from '../utils/keys';
+import { Task } from '../domain/tasks/task';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
 
 export const updateTask = async ({
   task,
@@ -13,7 +16,13 @@ export const updateTask = async ({
   queue: string;
   client: Redis;
 }) => {
+  const multi = client.multi();
   const taskKey = getTaskKey({ taskId: task.id, queue });
+  multi.set(taskKey, serializeTask(task));
+  multi.publish(
+    getQueueTaskUpdatedChannel({ queue }),
+    serializeEvent({ createdAt: moment(), type: EventTypes.TaskUpdated, task }),
+  );
   await set({
     key: taskKey,
     value: serializeTask(task),

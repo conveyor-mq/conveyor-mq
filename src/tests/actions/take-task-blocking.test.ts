@@ -1,12 +1,12 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { TaskStatuses } from '../../domain/task-statuses';
 import { takeTask } from '../../actions/take-task';
 import { takeTaskBlocking } from '../../actions/take-task-blocking';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('takeTaskBlocking', () => {
   const queue = createUuid();
@@ -28,11 +28,8 @@ describe('takeTaskBlocking', () => {
     const task = { id: 'e', data: 'f' };
     await enqueueTask({ queue, client, task });
     const processingTask = await takeTaskBlocking({ queue, client });
-    await expect(processingTask).toHaveProperty('id', task.id);
-    await expect(processingTask).toHaveProperty(
-      'status',
-      TaskStatuses.Processing,
-    );
+    expect(processingTask).toHaveProperty('id', task.id);
+    expect(processingTask).toHaveProperty('status', TaskStatuses.Processing);
     expect(await takeTask({ queue, client })).toBe(null);
   });
   it('takeTaskBlocking acknowledges task', async () => {

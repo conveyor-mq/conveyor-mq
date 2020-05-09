@@ -4,6 +4,9 @@ export const getStallingHashKey = ({ queue }: { queue: string }) =>
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 
+export const getQueueTaskUpdatedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-updated`;
+
 export const getQueueTaskProcessingChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-processing`;
 

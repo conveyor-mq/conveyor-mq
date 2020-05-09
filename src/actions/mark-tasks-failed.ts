@@ -1,8 +1,6 @@
 import { Redis } from 'ioredis';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { map } from 'lodash';
-import { Task } from '../domain/task';
-import { TaskStatuses } from '../domain/task-statuses';
 import {
   getTaskKey,
   getProcessingListKey,
@@ -10,8 +8,12 @@ import {
   getQueueTaskFailedChannel,
   getStallingHashKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/serialize-task';
+import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
+import { Task } from '../domain/tasks/task';
+import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
 
 export const markTasksFailed = async ({
   tasksAndErrors,
@@ -39,11 +41,11 @@ export const markTasksFailed = async ({
     multi.hdel(getStallingHashKey({ queue }), task.id);
     multi.publish(
       getQueueTaskFailedChannel({ queue }),
-      serializeTask(failedTask),
+      serializeEvent({ createdAt: moment(), type: EventTypes.TaskFail }),
     );
     multi.publish(
       getQueueTaskCompleteChannel({ queue }),
-      serializeTask(failedTask),
+      serializeEvent({ createdAt: moment(), type: EventTypes.TaskComplete }),
     );
     return failedTask;
   });

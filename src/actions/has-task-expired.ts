@@ -1,5 +1,5 @@
 import { Moment } from 'moment';
-import { Task } from '../domain/task';
+import { Task } from '../domain/tasks/task';
 
 export const hasTaskExpired = ({
   task,

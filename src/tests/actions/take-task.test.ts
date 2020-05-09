@@ -1,12 +1,12 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { TaskStatuses } from '../../domain/task-statuses';
 import { takeTask } from '../../actions/take-task';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import { flushAll, quit, lrange, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getQueuedListKey, getProcessingListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('takeTask', () => {
   const queue = createUuid();
@@ -28,11 +28,8 @@ describe('takeTask', () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, client, task });
     const processingTask = await takeTask({ queue, client });
-    await expect(processingTask).toHaveProperty('id', task.id);
-    await expect(processingTask).toHaveProperty(
-      'status',
-      TaskStatuses.Processing,
-    );
+    expect(processingTask).toHaveProperty('id', task.id);
+    expect(processingTask).toHaveProperty('status', TaskStatuses.Processing);
 
     const queuedTaskIds = await lrange({
       key: getQueuedListKey({ queue }),
@@ -61,6 +58,6 @@ describe('takeTask', () => {
   });
   it('takeTask returns null when there is no task to take', async () => {
     const task = await takeTask({ queue, client });
-    await expect(task).toBe(null);
+    expect(task).toBe(null);
   });
 });

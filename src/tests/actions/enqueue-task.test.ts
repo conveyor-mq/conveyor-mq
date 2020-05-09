@@ -1,13 +1,13 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
-import { Task } from '../../domain/task';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { TaskStatuses } from '../../domain/task-statuses';
 import { flushAll, quit, lrange, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getTask } from '../../actions/get-task';
 import { getQueuedListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('putTask', () => {
   const queue = createUuid();

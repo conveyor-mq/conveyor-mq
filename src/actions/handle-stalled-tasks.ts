@@ -1,9 +1,9 @@
 import { Redis } from 'ioredis';
 import { map, filter } from 'lodash';
 import moment from 'moment';
-import { Task } from '../domain/task';
 import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
+import { Task } from '../domain/tasks/task';
 
 export const handleStalledTasks = async ({
   queue,

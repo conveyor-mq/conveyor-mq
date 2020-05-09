@@ -3,10 +3,10 @@ import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { enqueueTasks } from '../../actions/enqueue-tasks';
-import { Task } from '../../domain/task';
 import { takeTask } from '../../actions/take-task';
 import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { redisConfig } from '../config';
+import { Task } from '../../domain/tasks/task';
 
 describe('getStalledTasks', () => {
   const queue = createUuid();

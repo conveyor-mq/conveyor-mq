@@ -1,12 +1,12 @@
 import { map } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
-import { Task } from '../domain/task';
 import { getRetryDelayType } from './handle-task';
 import { createClient, quit } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
+import { Task } from '../domain/tasks/task';
 
 export const createWorker = async ({
   queue,

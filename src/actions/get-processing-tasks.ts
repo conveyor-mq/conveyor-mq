@@ -1,8 +1,8 @@
 import { Redis } from 'ioredis';
-import { Task } from '../domain/task';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';
 import { getTasks } from './get-tasks';
+import { Task } from '../domain/tasks/task';
 
 // TODO: paging.
 export const getProcessingTasks = async ({

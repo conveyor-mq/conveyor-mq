@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { Moment } from 'moment';
-import { Task } from '../domain/task';
 import { markTasksFailed } from './mark-tasks-failed';
+import { Task } from '../domain/tasks/task';
 
 export const markTaskFailed = async ({
   task,

@@ -4,9 +4,9 @@ import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { createWorker } from '../../actions/create-worker';
 import { redisConfig } from '../config';
-import { TaskStatuses } from '../../domain/task-statuses';
 import { getTask } from '../../actions/get-task';
-import { Task } from '../../domain/task';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { Task } from '../../domain/tasks/task';
 
 describe('createQueueHandler', () => {
   const queue = createUuid();

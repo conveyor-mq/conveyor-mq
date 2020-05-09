@@ -6,7 +6,7 @@ import moment from 'moment';
 import { Redis } from 'ioredis';
 import { acknowledgeTask } from './acknowledge-task';
 import { handleTask, getRetryDelayType } from './handle-task';
-import { Task } from '../domain/task';
+import { Task } from '../domain/tasks/task';
 
 export const processTask = async ({
   task,

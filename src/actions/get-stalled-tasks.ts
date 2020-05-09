@@ -1,10 +1,10 @@
 import { filter, map } from 'lodash';
 import { Redis } from 'ioredis';
-import { Task } from '../domain/task';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';
 import { getTasks } from './get-tasks';
 import { areTasksStalled } from './are-tasks-stalled';
+import { Task } from '../domain/tasks/task';
 
 // TODO: paging.
 export const getStalledTasks = async ({

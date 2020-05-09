@@ -1,9 +1,7 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { map, forEach } from 'lodash';
-import { Task } from '../domain/task';
-import { TaskStatuses } from '../domain/task-statuses';
-import { serializeTask } from '../domain/serialize-task';
+import { serializeTask } from '../domain/tasks/serialize-task';
 import {
   getTaskKey,
   getQueuedListKey,
@@ -11,6 +9,10 @@ import {
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createUuid } from '../utils/general';
+import { Task } from '../domain/tasks/task';
+import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
 
 export const enqueueTasks = async ({
   queue,
@@ -39,7 +41,14 @@ export const enqueueTasks = async ({
     const taskString = serializeTask(task);
     multi.set(taskKey, taskString);
     multi.lpush(queuedListKey, task.id);
-    multi.publish(getQueueTaskQueuedChannel({ queue }), taskString);
+    multi.publish(
+      getQueueTaskQueuedChannel({ queue }),
+      serializeEvent({
+        createdAt: moment(),
+        type: EventTypes.TaskQueued,
+        task,
+      }),
+    );
   });
   await exec(multi);
   return tasksToQueue;

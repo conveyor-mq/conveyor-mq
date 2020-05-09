@@ -1,9 +1,9 @@
 import { Redis } from 'ioredis';
 import { forEach, map, filter } from 'lodash';
-import { deSerializeTask } from '../domain/deserialize-task';
-import { Task } from '../domain/task';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { getTaskKey } from '../utils/keys';
 import { exec } from '../utils/redis';
+import { Task } from '../domain/tasks/task';
 
 export const getTasks = async ({
   queue,

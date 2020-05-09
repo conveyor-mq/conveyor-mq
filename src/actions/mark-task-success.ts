@@ -1,7 +1,5 @@
 import { Redis } from 'ioredis';
-import { Moment } from 'moment';
-import { Task } from '../domain/task';
-import { TaskStatuses } from '../domain/task-statuses';
+import moment, { Moment } from 'moment';
 import {
   getTaskKey,
   getProcessingListKey,
@@ -9,8 +7,12 @@ import {
   getQueueTaskCompleteChannel,
   getStallingHashKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/serialize-task';
+import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
+import { Task } from '../domain/tasks/task';
+import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
 
 export const markTaskSuccess = async ({
   task,
@@ -39,11 +41,15 @@ export const markTaskSuccess = async ({
   multi.hdel(getStallingHashKey({ queue }), task.id);
   multi.publish(
     getQueueTaskSuccessChannel({ queue }),
-    serializeTask(successfulTask),
+    serializeEvent({ createdAt: moment(), type: EventTypes.TaskSuccess, task }),
   );
   multi.publish(
     getQueueTaskCompleteChannel({ queue }),
-    serializeTask(successfulTask),
+    serializeEvent({
+      createdAt: moment(),
+      type: EventTypes.TaskComplete,
+      task,
+    }),
   );
   await exec(multi);
   return successfulTask;

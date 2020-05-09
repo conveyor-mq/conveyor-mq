@@ -3,7 +3,7 @@ import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/task';
+import { Task } from '../../domain/tasks/task';
 
 describe('createQueueManager', () => {
   const queue = createUuid();

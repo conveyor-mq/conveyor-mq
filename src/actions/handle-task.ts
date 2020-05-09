@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
 import moment, { Moment } from 'moment';
-import { Task } from '../domain/task';
 import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
 import { enqueueTask } from './enqueue-task';
@@ -8,7 +7,9 @@ import { markTaskFailed } from './mark-task-failed';
 import { linear } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
 import { getQueueTaskErrorChannel } from '../utils/keys';
-import { serializeTask } from '../domain/serialize-task';
+import { Task } from '../domain/tasks/task';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
 
 export type getRetryDelayType = ({
   task,
@@ -66,7 +67,10 @@ export const handleTask = async ({
     return result;
   } catch (e) {
     if (onTaskError) onTaskError({ task });
-    client.publish(getQueueTaskErrorChannel({ queue }), serializeTask(task));
+    client.publish(
+      getQueueTaskErrorChannel({ queue }),
+      serializeEvent({ createdAt: moment(), type: EventTypes.TaskError, task }),
+    );
     const willMaxAttemptCountBeExceeded =
       task.maxAttemptCount &&
       task.attemptCount &&

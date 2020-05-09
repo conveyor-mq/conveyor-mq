@@ -1,8 +1,8 @@
 import { Redis } from 'ioredis';
-import { Task } from '../domain/task';
 import { brpoplpush } from '../utils/redis';
 import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 import { markTaskProcessing } from './mark-task-processing';
+import { Task } from '../domain/tasks/task';
 
 export const takeTaskBlocking = async ({
   timeout = 0,

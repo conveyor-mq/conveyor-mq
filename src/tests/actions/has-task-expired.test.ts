@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { Task } from '../../domain/task';
 import { hasTaskExpired } from '../../actions/has-task-expired';
+import { Task } from '../../domain/tasks/task';
 
 describe('hasTaskExpired', () => {
   it('hasTaskExpired returns false for task with no expiresOn', () => {

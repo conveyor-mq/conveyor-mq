@@ -11,12 +11,12 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     {
       name: 'takeTask',
       filePath: './take-task.lua',
-      numberOfKeys: 8,
+      numberOfKeys: 10,
     },
     {
       name: 'markTaskProcessing',
       filePath: './mark-task-processing.lua',
-      numberOfKeys: 7,
+      numberOfKeys: 9,
     },
   ];
   await Promise.all(

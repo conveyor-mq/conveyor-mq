@@ -1,10 +1,10 @@
 import { enqueueTask } from './enqueue-task';
-import { Task } from '../domain/task';
 import { enqueueTasks } from './enqueue-tasks';
 import { createClient, quit } from '../utils/redis';
 import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
 import { RedisConfig } from '../utils/general';
+import { Task } from '../domain/tasks/task';
 
 export const createManager = async ({
   queue,

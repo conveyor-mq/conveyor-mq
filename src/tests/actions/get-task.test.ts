@@ -5,8 +5,8 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { getTask } from '../../actions/get-task';
 import { redisConfig } from '../config';
 import { takeTask } from '../../actions/take-task';
-import { TaskStatuses } from '../../domain/task-statuses';
-import { Task } from '../../domain/task';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('getTask', () => {
   const queue = createUuid();
