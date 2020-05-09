@@ -3,11 +3,13 @@ import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/tasks/task';
 import { createListener } from '../../actions/create-listener';
 import { EventTypes } from '../../domain/events/event-types';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { createWorker } from '../../actions/create-worker';
+import { takeTask } from '../../actions/take-task';
+import { processStalledTasks } from '../../actions/process-stalled-tasks';
+import { updateTask } from '../../actions/update-task';
 
 describe('createListener', () => {
   const queue = createUuid();
@@ -160,5 +162,43 @@ describe('createListener', () => {
     // TODO: Fix race condition.
     await sleep(50);
     await worker.shutdown();
+  });
+  it('createListener listens for task stalled event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const promise = new Promise((resolve) => {
+      listener.on(EventTypes.TaskStalled, ({ event }) => {
+        return resolve(event);
+      });
+    });
+    const manager = await createManager({ queue, redisConfig });
+    const task = { id: 'b', data: 'c' };
+    await manager.enqueueTask(task);
+
+    await takeTask({ queue, client, stallDuration: 1 });
+    await sleep(50);
+    await processStalledTasks({ queue, client });
+
+    const event = await promise;
+    expect(event).toHaveProperty('task.id', task.id);
+    expect(event).toHaveProperty('task.data', task.data);
+    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+  });
+  it('createListener listens for task updated event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const promise = new Promise((resolve) => {
+      listener.on(EventTypes.TaskUpdated, ({ event }) => {
+        return resolve(event);
+      });
+    });
+    const manager = await createManager({ queue, redisConfig });
+    const task = { id: 'b', data: 'c' };
+    const enqueuedTask = await manager.enqueueTask(task);
+
+    await updateTask({ task: enqueuedTask, queue, client });
+
+    const event = await promise;
+    expect(event).toHaveProperty('task.id', task.id);
+    expect(event).toHaveProperty('task.data', task.data);
+    expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
   });
 });

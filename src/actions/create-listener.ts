@@ -9,6 +9,7 @@ import {
   getQueueTaskStalledChannel,
   getQueueTaskFailedChannel,
   getQueueTaskCompleteChannel,
+  getQueueTaskUpdatedChannel,
 } from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
@@ -33,6 +34,7 @@ export const createListener = async ({
     getQueueTaskStalledChannel({ queue }),
     getQueueTaskFailedChannel({ queue }),
     getQueueTaskCompleteChannel({ queue }),
+    getQueueTaskUpdatedChannel({ queue }),
   ];
   client.on('message', (channel, eventString) => {
     const event = deSerializeEvent(eventString);
