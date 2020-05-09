@@ -2,26 +2,24 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Task } from '../src/domain/task';
 import { createUuid, sleep } from '../src/utils/general';
-import { createQueueManager } from '../src/actions/create-queue-manager';
-import { createQueueHandler } from '../src/actions/create-queue-handler';
-import { createQueueOrchestrator } from '../src/actions/create-queue-orchestrator';
-import { createQueueListener } from '../src/actions/create-queue-listener';
+import { createManager } from '../src/actions/create-manager';
+import { createWorker } from '../src/actions/create-worker';
+import { createOrchestrator } from '../src/actions/create-orchestrator';
+import { createListener } from '../src/actions/create-listener';
+import { Task } from '../src/domain/tasks/task';
 
 const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
   const queue = 'myQueue';
 
-  const manager = await createQueueManager({
+  const manager = await createManager({
     queue,
     redisConfig,
   });
-  const listener = await createQueueListener({ queue, redisConfig });
-  await listener.onTaskQueued(() => console.log('task queued'));
-  await listener.onTaskProcessing(() => console.log('task processing'));
+  const listener = await createListener({ queue, redisConfig });
 
-  const handler = await createQueueHandler({
+  const worker = await createWorker({
     queue,
     redisConfig,
     handler: ({ task }) => {
@@ -29,7 +27,7 @@ const main = async () => {
       return 'some-data';
     },
   });
-  const orchestrator = await createQueueOrchestrator({
+  const orchestrator = await createOrchestrator({
     queue,
     redisConfig,
   });
