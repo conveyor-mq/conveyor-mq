@@ -24,7 +24,7 @@ describe('createWorker', () => {
     await quit({ client });
   });
 
-  it('createWorker quits worker', async () => {
+  it('createWorker shutdown shuts down worker', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
     const worker = await createWorker({
@@ -36,7 +36,7 @@ describe('createWorker', () => {
         return 'some data';
       },
     });
-    await worker.quit();
+    await worker.shutdown();
   });
   it('createWorker processes task', async () => {
     const theTask = { id: 'b', data: 'c' };
@@ -58,14 +58,14 @@ describe('createWorker', () => {
     })) as Task;
     expect(processedTask.id).toBe(theTask.id);
     expect(processedTask.status).toBe(TaskStatuses.Success);
-    // await worker.quit();
+    await worker.shutdown();
   });
   it('createWorker onReady fires', async () => {
     const theTask = { id: 'b', data: 'c' };
     const promise = new Promise((resolve) => {
-      createWorker({
+      const workerPromise = createWorker({
         queue,
-        onReady: () => resolve('worker is ready'),
+        onReady: () => resolve({ message: 'worker is ready', workerPromise }),
         redisConfig,
         handler: ({ task }) => {
           expect(task.id).toBe(theTask.id);
@@ -74,14 +74,20 @@ describe('createWorker', () => {
         },
       });
     });
-    expect(promise).resolves.toBe('worker is ready');
+    const { message, workerPromise } = (await promise) as {
+      message: string;
+      workerPromise: Promise<any>;
+    };
+    expect(message).toBe('worker is ready');
+    const worker = await workerPromise;
+    await worker.shutdown();
   });
   it('createWorker onIdle fires', async () => {
     const theTask = { id: 'b', data: 'c' };
     const promise = new Promise((resolve) => {
-      return createWorker({
+      const workerPromise = createWorker({
         queue,
-        onIdle: () => resolve('worker is idle'),
+        onIdle: () => resolve({ message: 'worker is idle', workerPromise }),
         redisConfig,
         handler: ({ task }) => {
           expect(task.id).toBe(theTask.id);
@@ -95,9 +101,68 @@ describe('createWorker', () => {
       task: theTask,
       client,
     });
-    expect(promise).resolves.toBe('worker is idle');
+    const { message, workerPromise } = (await promise) as {
+      message: string;
+      workerPromise: Promise<any>;
+    };
+    expect(message).toBe('worker is idle');
+    const worker = await workerPromise;
+    await worker.shutdown();
   });
-  it.skip('createWorker handles autoStart false', async () => {
+  it('createWorker pause pauses worker', async () => {
+    const taskA = { id: 'a', data: 'c' };
+    const taskB = { id: 'b', data: 'c' };
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => {
+        return 'some data';
+      },
+    });
+    await enqueueTask({
+      queue,
+      task: taskA,
+      client,
+    });
+    await sleep(50);
+
+    const fetchedTaskA = (await getTask({
+      queue,
+      taskId: taskA.id,
+      client,
+    })) as Task;
+    expect(fetchedTaskA.id).toBe(taskA.id);
+    expect(fetchedTaskA.status).toBe(TaskStatuses.Success);
+
+    await worker.pause();
+
+    await enqueueTask({
+      queue,
+      task: taskB,
+      client,
+    });
+    await sleep(50);
+    const fetchedTaskB = (await getTask({
+      queue,
+      taskId: taskB.id,
+      client,
+    })) as Task;
+    expect(fetchedTaskB.id).toBe(taskB.id);
+    expect(fetchedTaskB.status).toBe(TaskStatuses.Queued);
+
+    await worker.start();
+    await sleep(500);
+
+    const fetchedTaskB2 = (await getTask({
+      queue,
+      taskId: taskB.id,
+      client,
+    })) as Task;
+    expect(fetchedTaskB2.id).toBe(taskB.id);
+    expect(fetchedTaskB2.status).toBe(TaskStatuses.Success);
+    await worker.shutdown();
+  });
+  it('createWorker handles autoStart false', async () => {
     const theTask = { id: 'b', data: 'c' };
     const worker = await createWorker({
       queue,
@@ -117,11 +182,11 @@ describe('createWorker', () => {
     await expect(
       getTask({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Queued);
-    await worker.resume();
+    await worker.start();
     await sleep(50);
     await expect(
       getTask({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Success);
-    await worker.quit();
+    await worker.shutdown();
   });
 });

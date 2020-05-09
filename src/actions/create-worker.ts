@@ -2,7 +2,7 @@ import { map, debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
-import { createClient, quit as quitClient } from '../utils/redis';
+import { createClient } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
@@ -39,12 +39,14 @@ export const createWorker = async ({
   onReady?: () => any;
   autoStart?: boolean;
 }) => {
+  let isPaused = autoStart === false;
+  let isShutdown = false;
   const takerQueue = new PQueue({ concurrency, autoStart });
   const workerQueue = new PQueue({ concurrency });
 
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
-  const [client1, client2] = await Promise.all([
+  const [takerClient, workerClient] = await Promise.all([
     createClient(redisConfig),
     createClient(redisConfig),
   ]);
@@ -58,7 +60,7 @@ export const createWorker = async ({
       const taskTaker = block ? takeTaskBlocking : takeTask;
       const task = await taskTaker({
         queue,
-        client: client1,
+        client: takerClient,
         stallDuration,
       });
       if (task) {
@@ -66,7 +68,7 @@ export const createWorker = async ({
           processTask({
             task,
             queue,
-            client: client2,
+            client: workerClient,
             handler,
             stallDuration,
             getRetryDelay,
@@ -78,10 +80,12 @@ export const createWorker = async ({
       }
       takerQueue.add(() => checkForAndHandleTask({ block: !task }));
     } catch (e) {
-      if (onHandlerError) onHandlerError(e);
-      console.error(e.toString());
-      await sleep(1000);
-      takerQueue.add(() => checkForAndHandleTask({ block: true }));
+      if (!isPaused && !isShutdown) {
+        if (onHandlerError) onHandlerError(e);
+        console.error(e.toString());
+        await sleep(1000);
+        takerQueue.add(() => checkForAndHandleTask({ block: true }));
+      }
     }
   };
 
@@ -94,27 +98,66 @@ export const createWorker = async ({
   );
 
   const pause = async () => {
+    if (isShutdown) {
+      throw new Error('Cannot pause a shutdown worker.');
+    }
+    isPaused = true;
     takerQueue.pause();
     takerQueue.clear();
-    await Promise.all([workerQueue.onIdle(), takerQueue.onEmpty()]);
+    await Promise.all([
+      takerClient.disconnect(),
+      workerQueue.onIdle(),
+      takerQueue.onIdle(),
+    ]);
   };
 
-  const resume = async () => {
-    await client1.connect();
-    takerQueue.start();
+  const start = async () => {
+    if (isShutdown) {
+      throw new Error('Cannot resume a shutdown worker.');
+    }
+    if (isPaused) {
+      try {
+        await takerClient.connect();
+      } catch (e) {
+        if (e.message !== 'Redis is already connecting/connected') {
+          throw e;
+        }
+      }
+      takerQueue.start();
+      takerQueue.addAll(
+        map(Array.from({ length: concurrency }), () => () =>
+          checkForAndHandleTask({ block: true }),
+        ),
+      );
+      isPaused = false;
+    }
   };
 
-  const quit = async () => {
-    await pause();
-    await Promise.all([takerQueue.clear(), workerQueue.clear()]);
-    await Promise.all(
-      map([client1, client2], (client) => quitClient({ client })),
-    );
+  const shutdown = async (params?: { force?: boolean }) => {
+    if (isShutdown) {
+      throw new Error('Cannot shutdown an already shutdown worker.');
+    }
+    isShutdown = true;
+    takerQueue.pause();
+    takerQueue.clear();
+    if (params?.force) {
+      workerQueue.pause();
+      workerQueue.clear();
+    }
+    await Promise.all([
+      takerClient.disconnect(),
+      ...(params?.force ? [workerClient.disconnect()] : []),
+      workerQueue.onIdle(),
+      takerQueue.onIdle(),
+    ]);
+    if (!params?.force) {
+      await workerClient.disconnect();
+    }
   };
 
   return {
     pause,
-    resume,
-    quit,
+    start,
+    shutdown,
   };
 };
