@@ -24,6 +24,20 @@ describe('createWorker', () => {
     await quit({ client });
   });
 
+  it('createWorker quits worker', async () => {
+    const theTask = { id: 'b', data: 'c' };
+    await enqueueTask({ queue, task: theTask, client });
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: ({ task }) => {
+        expect(task.id).toBe(theTask.id);
+        expect(task.status).toBe(TaskStatuses.Processing);
+        return 'some data';
+      },
+    });
+    await worker.quit();
+  });
   it('createWorker processes task', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
@@ -36,7 +50,7 @@ describe('createWorker', () => {
         return 'some data';
       },
     });
-    await sleep(10);
+    await sleep(50);
     const processedTask = (await getTask({
       queue,
       taskId: theTask.id,
@@ -44,7 +58,7 @@ describe('createWorker', () => {
     })) as Task;
     expect(processedTask.id).toBe(theTask.id);
     expect(processedTask.status).toBe(TaskStatuses.Success);
-    await worker.quit();
+    // await worker.quit();
   });
   it('createWorker onReady fires', async () => {
     const theTask = { id: 'b', data: 'c' };

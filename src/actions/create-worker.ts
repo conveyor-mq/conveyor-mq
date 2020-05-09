@@ -2,7 +2,7 @@ import { map, debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
-import { createClient, quit } from '../utils/redis';
+import { createClient, quit as quitClient } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
@@ -81,7 +81,7 @@ export const createWorker = async ({
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
-      takerQueue.add(() => checkForAndHandleTask({ block: false }));
+      takerQueue.add(() => checkForAndHandleTask({ block: true }));
     }
   };
 
@@ -93,16 +93,28 @@ export const createWorker = async ({
     ),
   );
 
+  const pause = async () => {
+    takerQueue.pause();
+    takerQueue.clear();
+    await Promise.all([workerQueue.onIdle(), takerQueue.onEmpty()]);
+  };
+
+  const resume = async () => {
+    await client1.connect();
+    takerQueue.start();
+  };
+
+  const quit = async () => {
+    await pause();
+    await Promise.all([takerQueue.clear(), workerQueue.clear()]);
+    await Promise.all(
+      map([client1, client2], (client) => quitClient({ client })),
+    );
+  };
+
   return {
-    pause: async () => {
-      await Promise.all([takerQueue.pause()]);
-    },
-    resume: async () => {
-      await Promise.all([takerQueue.start()]);
-    },
-    quit: async () => {
-      await Promise.all([takerQueue.pause()]);
-      await Promise.all(map([client1, client2], (client) => quit({ client })));
-    },
+    pause,
+    resume,
+    quit,
   };
 };
