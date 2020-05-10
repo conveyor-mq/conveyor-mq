@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
-import { createUuid } from '../../utils/general';
+import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
@@ -75,6 +75,23 @@ describe('createManager', () => {
         return 'some-result';
       },
     });
+    const completedTask = await manager.onTaskComplete({ taskId: task.id });
+    expect(completedTask.result).toBe('some-result');
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createManager onTaskComplete resolves later', async () => {
+    const task = { id: 'b', data: 'c' };
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: async () => {
+        return 'some-result';
+      },
+    });
+    const manager = await createManager({ queue, redisConfig });
+    await manager.enqueueTask({ task });
+    await sleep(100);
     const completedTask = await manager.onTaskComplete({ taskId: task.id });
     expect(completedTask.result).toBe('some-result');
     await manager.quit();
