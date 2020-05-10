@@ -8,7 +8,7 @@ import {
   getQueueTaskQueuedChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
-import { createUuid } from '../utils/general';
+import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { serializeEvent } from '../domain/events/serialize-event';
@@ -25,7 +25,7 @@ export const enqueueTasks = async ({
 }): Promise<Task[]> => {
   const tasksToQueue = map(tasks, (task) => ({
     ...task,
-    id: task.id || createUuid(),
+    id: task.id || createTaskId(),
     queuedOn: moment(),
     processingStartedOn: undefined,
     processingEndedOn: undefined,

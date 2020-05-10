@@ -134,12 +134,8 @@ export const createWorker = async ({
       workerQueue.pause();
       workerQueue.clear();
     }
-    await Promise.all([
-      takerClient.disconnect(),
-      ...(params?.force ? [workerClient.disconnect()] : []),
-      workerQueue.onIdle(),
-      takerQueue.onIdle(),
-    ]);
+    await takerClient.disconnect();
+    await Promise.all([workerQueue.onIdle(), takerQueue.onEmpty()]);
     if (!params?.force) {
       await workerClient.disconnect();
     }

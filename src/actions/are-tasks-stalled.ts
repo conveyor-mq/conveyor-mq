@@ -1,8 +1,7 @@
 import { Redis } from 'ioredis';
 import { map, forEach, zipWith, reduce } from 'lodash';
-import { getTaskAcknowledgedKey, getStallingHashKey } from '../utils/keys';
+import { getTaskAcknowledgedKey } from '../utils/keys';
 import { exec } from '../utils/redis';
-import { getProcessingTasks } from './get-processing-tasks';
 import { getStallingTaskIds } from './get-stalling-task-ids';
 
 export const areTasksStalled = async ({
