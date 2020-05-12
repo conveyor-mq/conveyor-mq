@@ -154,7 +154,7 @@ describe('createWorker', () => {
     expect(fetchedTaskB.status).toBe(TaskStatuses.Queued);
 
     await worker.start();
-    await sleep(100);
+    await sleep(50);
 
     const fetchedTaskB2 = (await getTask({
       queue,
@@ -182,6 +182,7 @@ describe('createWorker', () => {
       task: theTask,
       client,
     });
+    await sleep(50);
     await expect(
       getTask({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Queued);
