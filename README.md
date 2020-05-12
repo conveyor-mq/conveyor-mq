@@ -63,5 +63,5 @@ You will also need Redis >=3.2
   - At-least-once task delivery
   - High test code coverage
 - High performance
-  - Minimised network overhead using Redis pipelining and multi commands (transactions)
+  - Minimised network overhead using Redis [pipelining](https://redis.io/topics/pipelining) and (multi commands (transactions))[https://redis.io/commands/multi]
   - Uses Redis Lua scripting for improved performance and atomicity
