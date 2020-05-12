@@ -51,17 +51,17 @@ You will also need Redis >=3.2
 
 ## Features
 
-- Create and process tasks/jobs
+- Create and process tasks
   - Task retries
   - Task expiry
   - Task retry strategies
-- Concurrent handler/worker processing
+- Concurrent worker processing
 - Simple and extensible design
 - Async/await/Promise APIs
 - Robust
   - Atomic operations
-  - At-least-once task/job delivery
+  - At-least-once task delivery
   - High test code coverage
 - High performance
-  - Minimised network overhead using Redis pipelining and multi commands
+  - Minimised network overhead using Redis pipelining and multi commands (transactions)
   - Uses Redis Lua scripting for improved performance and atomicity
