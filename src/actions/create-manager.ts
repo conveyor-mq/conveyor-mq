@@ -2,10 +2,10 @@
 import { forEach, map, set } from 'lodash';
 import { enqueueTask } from './enqueue-task';
 import { enqueueTasks } from './enqueue-tasks';
-import { createClient } from '../utils/redis';
+import { createClient, ensureDisconnected } from '../utils/redis';
 import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
-import { RedisConfig, createUuid, createTaskId } from '../utils/general';
+import { RedisConfig, createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
 import { createListener } from './create-listener';
@@ -22,8 +22,10 @@ export const createManager = async ({
   queue: string;
   redisConfig: RedisConfig;
 }) => {
-  const client = await createClient(redisConfig);
-  const listener = await createListener({ queue, redisConfig });
+  const [client, listener] = await Promise.all([
+    createClient(redisConfig),
+    createListener({ queue, redisConfig }),
+  ]);
 
   const eventSubscriptions: {
     [key: string]: { [key: string]: ({ event }: { event: Event }) => any };
@@ -89,15 +91,34 @@ export const createManager = async ({
     return promise as Promise<Task>;
   };
 
+  const managerEnqueueTasks = (
+    params: {
+      task: Partial<Task>;
+      onTaskComplete?: ({ event }: { event: Event }) => any;
+    }[],
+  ) => {
+    const tasks = map(params, ({ task, onTaskComplete }) => {
+      const taskId = task.id || createTaskId();
+      if (onTaskComplete) {
+        set(
+          eventSubscriptions,
+          `${EventTypes.TaskComplete}.${callbackKey(taskId)}`,
+          onTaskComplete,
+        );
+      }
+      return { ...task, taskId };
+    });
+    return enqueueTasks({ queue, tasks, client });
+  };
+
   return {
     enqueueTask: managerEnqueueTask,
     onTaskComplete: managerOnTaskComplete,
-    enqueueTasks: (tasks: Partial<Task>[]) =>
-      enqueueTasks({ tasks, queue, client }),
+    enqueueTasks: managerEnqueueTasks,
     getTask: (taskId: string) => getTask({ taskId, queue, client }),
     getTasks: (taskIds: string[]) => getTasks({ taskIds, queue, client }),
     quit: async () => {
-      await client.disconnect();
+      ensureDisconnected({ client });
     },
   };
 };

@@ -39,19 +39,40 @@ export const handleTask = async ({
   onTaskFailed?: ({ task }: { task: Task }) => any;
 }): Promise<any | null> => {
   if (hasTaskExpired({ task, asOf })) {
-    console.warn(`Not handling task ${task.id}. Task has expired.`);
+    await markTaskFailed({
+      task,
+      queue,
+      client,
+      error: 'Task has exceeded its expiry',
+      asOf: moment(),
+    });
+    if (onTaskFailed) onTaskFailed({ task });
     return null;
   }
   const maxAttemptCountExceeded =
     task.maxAttemptCount && (task.attemptCount || 1) > task.maxAttemptCount;
   if (maxAttemptCountExceeded) {
-    console.warn(`Not handling task ${task.id}. Max attempts count exceeded.`);
+    await markTaskFailed({
+      task,
+      queue,
+      client,
+      error: 'Task max attempt count exceeded',
+      asOf: moment(),
+    });
+    if (onTaskFailed) onTaskFailed({ task });
     return null;
   }
   const maxErrorCountExceeded =
     task.maxErrorCount && (task.errorCount || 0) > task.maxErrorCount;
   if (maxErrorCountExceeded) {
-    console.warn(`Not handling task ${task.id}. Max error count exceeded.`);
+    await markTaskFailed({
+      task,
+      queue,
+      client,
+      error: 'Task max error count exceeded',
+      asOf: moment(),
+    });
+    if (onTaskFailed) onTaskFailed({ task });
     return null;
   }
   try {

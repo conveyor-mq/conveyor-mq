@@ -36,7 +36,7 @@ describe('createManager', () => {
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
-    await manager.enqueueTasks([taskA, taskB]);
+    await manager.enqueueTasks([{ task: taskA }, { task: taskB }]);
     const [retrievedTaskA, retrievedTaskB] = await manager.getTasks([
       taskA.id,
       taskB.id,

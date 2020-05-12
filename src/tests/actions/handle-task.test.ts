@@ -28,56 +28,83 @@ describe('handleTask', () => {
   });
 
   it('handleTask returns null for expired task', async () => {
-    console.warn = jest.fn();
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
     const expiredTask: Task = { id: 'i', expiresOn: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
+    const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
       task: expiredTask,
       asOf: theFuture,
+      onTaskFailed,
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    expect(console.warn).toHaveBeenCalled();
+    const failedTask = (await getTask({
+      queue,
+      taskId: expiredTask.id,
+      client,
+    })) as Task;
+    expect(failedTask.id).toBe(expiredTask.id);
+    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.error).toBe('Task has exceeded its expiry');
+    expect(onTaskFailed).toBeCalledTimes(1);
   });
   it('handleTask returns null for attempt count exceeded', async () => {
-    console.warn = jest.fn();
     const task: Task = {
       id: 'i',
       data: 'j',
       maxAttemptCount: 2,
       attemptCount: 3,
     };
+    const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
       task,
       asOf: moment(),
+      onTaskFailed,
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    expect(console.warn).toHaveBeenCalled();
+    const failedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(failedTask.id).toBe(task.id);
+    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.error).toBe('Task max attempt count exceeded');
+    expect(onTaskFailed).toBeCalledTimes(1);
   });
   it('handleTask returns null for error count exceeded', async () => {
-    console.warn = jest.fn();
     const task: Task = {
       id: 'i',
       data: 'j',
       maxErrorCount: 1,
       errorCount: 2,
     };
+    const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
       task,
       asOf: moment(),
+      onTaskFailed,
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    expect(console.warn).toHaveBeenCalled();
+    const failedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(failedTask.id).toBe(task.id);
+    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.error).toBe('Task max error count exceeded');
+    expect(onTaskFailed).toBeCalledTimes(1);
   });
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02');
