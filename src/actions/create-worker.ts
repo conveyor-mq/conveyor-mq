@@ -1,4 +1,4 @@
-import { map, debounce } from 'lodash';
+import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
@@ -109,17 +109,26 @@ export const createWorker = async ({
     }
   };
 
-  const pause = async () => {
+  const pause = async (params?: { killProcessingTasks?: boolean }) => {
     if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
     isPausing = true;
-    takerQueue.pause();
-    takerQueue.clear();
+    forEach(
+      params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+      (q) => {
+        q.pause();
+        q.clear();
+      },
+    );
     await Promise.all([
-      disconnect({ client: takerClient }),
-      workerQueue.onIdle(),
-      takerQueue.onIdle(),
+      ...map(
+        params?.killProcessingTasks
+          ? [takerClient, workerClient]
+          : [takerClient],
+        (client) => disconnect({ client }),
+      ),
+      ...map([workerQueue, takerQueue], (q) => q.onIdle()),
     ]);
     isPaused = true;
     isPausing = false;
@@ -133,8 +142,7 @@ export const createWorker = async ({
       throw new Error('Cannot start a pausing worker.');
     }
     if (isPaused) {
-      takerQueue.start();
-      workerQueue.start();
+      forEach([workerQueue, takerQueue], (q) => q.start());
       await Promise.all(
         map([takerClient, workerClient], (client) =>
           ensureConnected({ client }),
@@ -149,7 +157,7 @@ export const createWorker = async ({
     }
   };
 
-  const shutdown = async (params?: { terminateProcessingTasks?: boolean }) => {
+  const shutdown = async (params?: { killProcessingTasks?: boolean }) => {
     if (isShuttingDown || isShutdown) {
       throw new Error('Cannot shutdown an already shutdown worker.');
     }
@@ -157,19 +165,21 @@ export const createWorker = async ({
       throw new Error('Cannot shutdown a pausing worker.');
     }
     isShuttingDown = true;
-    takerQueue.pause();
-    takerQueue.clear();
-    if (params?.terminateProcessingTasks) {
-      workerQueue.pause();
-      workerQueue.clear();
-    }
+    forEach(
+      params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+      (q) => {
+        q.pause();
+        q.clear();
+      },
+    );
     await Promise.all([
-      disconnect({ client: takerClient }),
-      ...(params?.terminateProcessingTasks
-        ? [disconnect({ client: workerClient })]
-        : []),
-      workerQueue.onIdle(),
-      takerQueue.onIdle(),
+      ...map(
+        params?.killProcessingTasks
+          ? [takerClient, workerClient]
+          : [takerClient],
+        (client) => disconnect({ client }),
+      ),
+      ...map([workerQueue, takerQueue], (q) => q.onIdle()),
     ]);
     isShutdown = true;
     isShuttingDown = false;
