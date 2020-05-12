@@ -38,6 +38,27 @@ export const ensureConnected = async ({ client }: { client: Redis }) => {
   }
 };
 
+export const tryIgnore = async <T>(
+  f: () => T,
+  shouldThrow: (e: Error) => boolean,
+  // eslint-disable-next-line consistent-return
+) => {
+  try {
+    return await f();
+  } catch (e) {
+    if (shouldThrow(e)) {
+      throw e;
+    }
+  }
+};
+
+export const disconnect = ({ client }: { client: Redis }) => {
+  return new Promise((resolve) => {
+    client.disconnect();
+    client.on('end', () => resolve());
+  });
+};
+
 export const exec = (multi_: Pipeline) => {
   return new Promise((resolve, reject) => {
     multi_.exec((err, results) =>

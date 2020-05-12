@@ -109,7 +109,7 @@ describe('createWorker', () => {
     const worker = await workerPromise;
     await worker.shutdown();
   });
-  it('createWorker pause pauses worker', async () => {
+  it.only('createWorker pause pauses worker', async () => {
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
     const worker = await createWorker({
@@ -151,7 +151,7 @@ describe('createWorker', () => {
     expect(fetchedTaskB.status).toBe(TaskStatuses.Queued);
 
     await worker.start();
-    await sleep(500);
+    await sleep(100);
 
     const fetchedTaskB2 = (await getTask({
       queue,

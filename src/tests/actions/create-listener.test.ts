@@ -61,8 +61,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
-    // TODO: Fix race condition.
-    await sleep(50);
     await worker.shutdown();
   });
   it('createListener listens for task success event', async () => {
@@ -84,8 +82,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Success);
-    // TODO: Fix race condition.
-    await sleep(50);
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
@@ -109,8 +105,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
-    // TODO: Fix race condition.
-    await sleep(50);
     await worker.shutdown();
   });
   it('createListener listens for task failed event', async () => {
@@ -134,8 +128,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Failed);
-    // TODO: Fix race condition.
-    await sleep(50);
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
@@ -159,8 +151,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
-    // TODO: Fix race condition.
-    await sleep(50);
     await worker.shutdown();
   });
   it('createListener listens for task stalled event', async () => {

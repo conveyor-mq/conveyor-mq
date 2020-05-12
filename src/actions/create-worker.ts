@@ -2,7 +2,12 @@ import { map, debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RedisConfig, sleep } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
-import { createClient, ensureConnected } from '../utils/redis';
+import {
+  createClient,
+  ensureConnected,
+  tryIgnore,
+  disconnect,
+} from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
@@ -39,7 +44,9 @@ export const createWorker = async ({
   onReady?: () => any;
   autoStart?: boolean;
 }) => {
+  let isPausing = false;
   let isPaused = true;
+  let isShuttingDown = false;
   let isShutdown = false;
   const takerQueue = new PQueue({ concurrency, autoStart });
   const workerQueue = new PQueue({ concurrency });
@@ -51,6 +58,9 @@ export const createWorker = async ({
     createClient({ ...redisConfig, lazy: true }),
   ]);
 
+  const isActive = () =>
+    !isPausing && !isPaused && !isShuttingDown && !isShutdown;
+
   const checkForAndHandleTask = async ({
     block = true,
   }: {
@@ -58,87 +68,111 @@ export const createWorker = async ({
   }) => {
     try {
       const taskTaker = block ? takeTaskBlocking : takeTask;
-      const task = await taskTaker({
-        queue,
-        client: takerClient,
-        stallDuration,
-      });
+      const task = await tryIgnore(
+        () =>
+          taskTaker({
+            queue,
+            client: takerClient,
+            stallDuration,
+          }),
+        () => isActive(),
+      );
       if (task) {
         await workerQueue.add(async () =>
-          processTask({
-            task,
-            queue,
-            client: workerClient,
-            handler,
-            stallDuration,
-            getRetryDelay,
-            onTaskSuccess,
-            onTaskError,
-            onTaskFailed,
-          }),
+          tryIgnore(
+            () =>
+              processTask({
+                task,
+                queue,
+                client: workerClient,
+                handler,
+                stallDuration,
+                getRetryDelay,
+                onTaskSuccess,
+                onTaskError,
+                onTaskFailed,
+              }),
+            () => isActive(),
+          ),
         );
       }
-      takerQueue.add(() => checkForAndHandleTask({ block: !task }));
+      if (isActive()) {
+        takerQueue.add(() => checkForAndHandleTask({ block: !task }));
+      }
     } catch (e) {
-      if (!isPaused && !isShutdown) {
-        if (onHandlerError) onHandlerError(e);
-        console.error(e.toString());
-        await sleep(1000);
+      if (onHandlerError) onHandlerError(e);
+      console.error(e.toString());
+      await sleep(1000);
+      if (isActive()) {
         takerQueue.add(() => checkForAndHandleTask({ block: true }));
       }
     }
   };
 
   const pause = async () => {
-    if (isShutdown) {
+    if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
-    isPaused = true;
+    isPausing = true;
     takerQueue.pause();
     takerQueue.clear();
     await Promise.all([
-      takerClient.disconnect(),
+      disconnect({ client: takerClient }),
       workerQueue.onIdle(),
       takerQueue.onIdle(),
     ]);
+    isPaused = true;
+    isPausing = false;
   };
 
   const start = async () => {
-    if (isShutdown) {
-      throw new Error('Cannot resume a shutdown worker.');
+    if (isShuttingDown || isShutdown) {
+      throw new Error('Cannot start a shutdown worker.');
+    }
+    if (isPausing) {
+      throw new Error('Cannot start a pausing worker.');
     }
     if (isPaused) {
-      isPaused = false;
+      takerQueue.start();
+      workerQueue.start();
       await Promise.all(
         map([takerClient, workerClient], (client) =>
           ensureConnected({ client }),
         ),
       );
-      takerQueue.start();
       takerQueue.addAll(
         map(Array.from({ length: concurrency }), () => () =>
           checkForAndHandleTask({ block: true }),
         ),
       );
+      isPaused = false;
     }
   };
 
-  const shutdown = async (params?: { force?: boolean }) => {
-    if (isShutdown) {
+  const shutdown = async (params?: { terminateProcessingTasks?: boolean }) => {
+    if (isShuttingDown || isShutdown) {
       throw new Error('Cannot shutdown an already shutdown worker.');
     }
-    isShutdown = true;
+    if (isPausing) {
+      throw new Error('Cannot shutdown a pausing worker.');
+    }
+    isShuttingDown = true;
     takerQueue.pause();
     takerQueue.clear();
-    if (params?.force) {
+    if (params?.terminateProcessingTasks) {
       workerQueue.pause();
       workerQueue.clear();
     }
-    await takerClient.disconnect();
-    await Promise.all([workerQueue.onIdle(), takerQueue.onEmpty()]);
-    if (!params?.force) {
-      await workerClient.disconnect();
-    }
+    await Promise.all([
+      disconnect({ client: takerClient }),
+      ...(params?.terminateProcessingTasks
+        ? [disconnect({ client: workerClient })]
+        : []),
+      workerQueue.onIdle(),
+      takerQueue.onIdle(),
+    ]);
+    isShutdown = true;
+    isShuttingDown = false;
   };
 
   if (onReady) onReady();
