@@ -1,17 +1,23 @@
 import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
-import { RedisConfig, sleep } from '../utils/general';
+import moment from 'moment';
+import { RedisConfig, sleep, createWorkerId } from '../utils/general';
 import { getRetryDelayType } from './handle-task';
 import {
   createClient,
   ensureConnected,
   tryIgnore,
-  disconnect,
+  ensureDisconnected,
+  publish,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { takeTask } from './take-task';
 import { processTask } from './process-task';
 import { Task } from '../domain/tasks/task';
+import { getWorkerStartedChannel, getWorkerPausedChannel } from '../utils/keys';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventTypes } from '../domain/events/event-types';
+import { Worker } from '../domain/workers/worker';
 
 export const createWorker = async ({
   queue,
@@ -48,6 +54,12 @@ export const createWorker = async ({
   let isPaused = true;
   let isShuttingDown = false;
   let isShutdown = false;
+
+  const worker: Worker = {
+    id: createWorkerId(),
+    createdAt: moment(),
+  };
+
   const takerQueue = new PQueue({ concurrency, autoStart });
   const workerQueue = new PQueue({ concurrency });
 
@@ -121,12 +133,21 @@ export const createWorker = async ({
         q.clear();
       },
     );
+    await publish({
+      channel: getWorkerPausedChannel({ queue }),
+      message: serializeEvent({
+        createdAt: moment(),
+        type: EventTypes.WorkerPaused,
+        worker,
+      }),
+      client: workerClient,
+    });
     await Promise.all([
       ...map(
         params?.killProcessingTasks
           ? [takerClient, workerClient]
           : [takerClient],
-        (client) => disconnect({ client }),
+        (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),
     ]);
@@ -154,6 +175,15 @@ export const createWorker = async ({
         ),
       );
       isPaused = false;
+      await publish({
+        channel: getWorkerStartedChannel({ queue }),
+        message: serializeEvent({
+          createdAt: moment(),
+          type: EventTypes.WorkerStarted,
+          worker,
+        }),
+        client: workerClient,
+      });
     }
   };
 
@@ -172,12 +202,21 @@ export const createWorker = async ({
         q.clear();
       },
     );
+    await publish({
+      channel: getWorkerStartedChannel({ queue }),
+      message: serializeEvent({
+        createdAt: moment(),
+        type: EventTypes.WorkerShutdown,
+        worker,
+      }),
+      client: workerClient,
+    });
     await Promise.all([
       ...map(
         params?.killProcessingTasks
           ? [takerClient, workerClient]
           : [takerClient],
-        (client) => disconnect({ client }),
+        (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),
     ]);

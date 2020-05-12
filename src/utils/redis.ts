@@ -28,6 +28,22 @@ export const callLuaScript = ({
   return client[script](...args) as Promise<string>;
 };
 
+export const publish = ({
+  channel,
+  message,
+  client,
+}: {
+  channel: string;
+  message: string;
+  client: Redis;
+}) => {
+  return new Promise((resolve, reject) => {
+    client.publish(channel, message, (err, res) =>
+      err ? reject(err) : resolve(res),
+    );
+  });
+};
+
 export const ensureConnected = async ({ client }: { client: Redis }) => {
   try {
     await client.connect();
@@ -52,11 +68,13 @@ export const tryIgnore = async <T>(
   }
 };
 
-export const disconnect = ({ client }: { client: Redis }) => {
-  return new Promise((resolve) => {
-    client.disconnect();
-    client.on('end', () => resolve());
-  });
+export const ensureDisconnected = ({ client }: { client: Redis }) => {
+  return client.status === 'end'
+    ? Promise.resolve()
+    : new Promise((resolve) => {
+        client.disconnect();
+        client.on('end', () => resolve());
+      });
 };
 
 export const exec = (multi_: Pipeline) => {

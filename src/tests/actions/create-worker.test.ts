@@ -7,6 +7,9 @@ import { redisConfig } from '../config';
 import { getTask } from '../../actions/get-task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { Task } from '../../domain/tasks/task';
+import { createListener } from '../../actions/create-listener';
+import { EventTypes } from '../../domain/events/event-types';
+import { Event } from '../../domain/events/event';
 
 describe('createWorker', () => {
   const queue = createUuid();
@@ -109,7 +112,7 @@ describe('createWorker', () => {
     const worker = await workerPromise;
     await worker.shutdown();
   });
-  it.only('createWorker pause pauses worker', async () => {
+  it('createWorker pause pauses worker', async () => {
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
     const worker = await createWorker({
@@ -188,5 +191,60 @@ describe('createWorker', () => {
       getTask({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Success);
     await worker.shutdown();
+  });
+  it('createWorker triggers worker started event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const startedPromise = new Promise((resolve) => {
+      listener.on(EventTypes.WorkerStarted, ({ event }) => resolve(event));
+    }) as Promise<Event>;
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => {
+        return 'some data';
+      },
+    });
+    const startedEvent = await startedPromise;
+    await expect(typeof startedEvent?.worker?.id).toBe('string');
+    await expect(typeof startedEvent?.worker?.createdAt).toBe('object');
+    await expect(startedEvent?.type).toBe(EventTypes.WorkerStarted);
+    await worker.shutdown();
+  });
+  it('createWorker triggers worker paused event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const pausedPromise = new Promise((resolve) => {
+      listener.on(EventTypes.WorkerPaused, ({ event }) => resolve(event));
+    }) as Promise<Event>;
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => {
+        return 'some data';
+      },
+    });
+    await worker.pause();
+    const pausedEvent = await pausedPromise;
+    expect(typeof pausedEvent?.worker?.id).toBe('string');
+    expect(typeof pausedEvent?.worker?.createdAt).toBe('object');
+    expect(pausedEvent?.type).toBe(EventTypes.WorkerPaused);
+    await worker.shutdown();
+  });
+  it('createWorker triggers worker shutdown event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const shutdownPromise = new Promise((resolve) => {
+      listener.on(EventTypes.WorkerShutdown, ({ event }) => resolve(event));
+    }) as Promise<Event>;
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => {
+        return 'some data';
+      },
+    });
+    await worker.shutdown();
+    const shutdownEvent = await shutdownPromise;
+    expect(typeof shutdownEvent?.worker?.id).toBe('string');
+    expect(typeof shutdownEvent?.worker?.createdAt).toBe('object');
+    expect(shutdownEvent?.type).toBe(EventTypes.WorkerShutdown);
   });
 });

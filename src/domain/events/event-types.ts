@@ -7,4 +7,7 @@ export enum EventTypes {
   TaskComplete = 'task_complete',
   TaskError = 'task_error',
   TaskFail = 'task_fail',
+  WorkerStarted = 'worker_started',
+  WorkerPaused = 'worker_paused',
+  WorkerShutdown = 'worker_shutdown',
 }

@@ -1,6 +1,15 @@
 export const getStallingHashKey = ({ queue }: { queue: string }) =>
   `queue:${queue}:stalling-tasks`;
 
+export const getWorkerPausedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:worker-paused`;
+
+export const getWorkerStartedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:worker-started`;
+
+export const getWorkerShutdownChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:worker-shutdown`;
+
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 
