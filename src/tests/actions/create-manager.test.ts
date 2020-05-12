@@ -5,6 +5,7 @@ import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { createWorker } from '../../actions/create-worker';
+import { Event } from '../../domain/events/event';
 
 describe('createManager', () => {
   const queue = createUuid();
@@ -45,22 +46,45 @@ describe('createManager', () => {
     expect(retrievedTaskB.id).toBe(taskB.id);
     await manager.quit();
   });
-  it('createManager calls onTaskComplete', async () => {
+  it('createManager enqueueTasks calls onTaskComplete', async () => {
     const manager = await createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c' };
+    expect(typeof manager.quit).toBe('function');
+    const taskA = { id: 'a', data: 'c' };
     const promise = new Promise((resolve) => {
-      manager.enqueueTask({
-        task,
-        onTaskComplete: () => resolve('task complete'),
-      });
-    });
+      manager.enqueueTasks([
+        { task: taskA, onTaskComplete: ({ event }) => resolve(event) },
+      ]);
+    }) as Promise<Event>;
     const worker = await createWorker({
       queue,
       redisConfig,
       handler: () => 'some result',
     });
-    const result = await promise;
-    expect(result).toBe('task complete');
+    const event = await promise;
+    expect(typeof event.createdAt).toBe('object');
+    expect(event?.task?.id).toBe(taskA.id);
+    expect(event?.task?.data).toBe(taskA.data);
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createManager enqueueTask calls onTaskComplete', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    const task = { id: 'b', data: 'c' };
+    const promise = new Promise((resolve) => {
+      manager.enqueueTask({
+        task,
+        onTaskComplete: ({ event }) => resolve(event),
+      });
+    }) as Promise<Event>;
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some result',
+    });
+    const event = await promise;
+    expect(typeof event.createdAt).toBe('object');
+    expect(event?.task?.id).toBe(task.id);
+    expect(event?.task?.data).toBe(task.data);
     await manager.quit();
     await worker.shutdown();
   });
