@@ -1,4 +1,5 @@
 import { Redis } from 'ioredis';
+import { map, forEach } from 'lodash';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
@@ -118,6 +119,30 @@ describe('createManager', () => {
     await sleep(100);
     const completedTask = await manager.onTaskComplete({ taskId: task.id });
     expect(completedTask.result).toBe('some-result');
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createManager multiple onTaskComplete resolve later', async () => {
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: async ({ task }) => {
+        return task.id;
+      },
+    });
+    const manager = await createManager({ queue, redisConfig });
+    const params = map(Array.from({ length: 10 }), (val, index) => ({
+      task: { id: `${index}a` },
+    }));
+    await manager.enqueueTasks(params);
+    await sleep(100);
+    const results = await Promise.all(
+      map(params, ({ task }) => manager.onTaskComplete({ taskId: task.id })),
+    );
+    expect(results.length).toBe(params.length);
+    forEach(results, (result, index) => {
+      expect(result.id).toBe(params[index].task.id);
+    });
     await manager.quit();
     await worker.shutdown();
   });
