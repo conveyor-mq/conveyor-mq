@@ -92,7 +92,7 @@ const manager = await createManager({
 // Add a task to the queue:
 await manager.enqueueTask({ task: { id: 'my-task-id', data: { x: 1, y: 2 } } });
 
-// Get a task's details
+// Get a task's details:
 const task = await manager.getTask({ taskId: 'my-task-id' });
 /*
   {
@@ -119,7 +119,7 @@ const { createWorker } = require('@jasrusable/conveyor');
 const worker = await createWorker({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
-  // Pass a handler which receives tasks and returns the result of a task:
+  // Pass a handler which receives tasks, processes them, and then returns the result of a task:
   handler: ({ task }) => {
     return task.data.x + task.data.y;
   },
@@ -128,7 +128,7 @@ const worker = await createWorker({
 
 #### Queue orchestrator
 
-A queue orchestrator is responsible for various queue queue maintenance functions including re-enqueueing stalled tasks.
+A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.
 
 ```js
 const { createOrchestrator } = require('@jasrusable/conveyor');
@@ -150,9 +150,7 @@ A queue listener is responsible for listening and subscribing to queue events.
 ```js
 const { createListener } = require('@jasrusable/conveyor');
 
-/*
-  Create a listener which will start monitoring the queue and listen for task_complete events.
-*/
+// Create a listener which will start monitoring the queue and listen for task_complete events:
 const listener = await createListener({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
