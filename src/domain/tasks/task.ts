@@ -13,6 +13,10 @@ export interface Task {
   maxAttemptCount?: number;
   errorCount?: number;
   maxErrorCount?: number;
+  retryBackoff?: {
+    strategy: 'constant' | 'linear' | 'exponential' | string;
+    factor: number;
+  };
   result?: any;
   error?: any;
 }

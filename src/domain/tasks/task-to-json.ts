@@ -17,6 +17,7 @@ export const taskToJson = (task: Task) => {
     maxAttemptCount: task.maxAttemptCount,
     errorCount: task.errorCount,
     maxErrorCount: task.maxErrorCount,
+    retryBackoff: task.retryBackoff,
     result: task.result,
     error: task.error,
   };

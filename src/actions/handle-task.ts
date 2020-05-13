@@ -4,7 +4,7 @@ import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
 import { enqueueTask } from './enqueue-task';
 import { markTaskFailed } from './mark-task-failed';
-import { linear } from '../utils/retry-strategies';
+import { getRetryDelayDefault } from '../utils/retry-strategies';
 import { sleep } from '../utils/general';
 import { getQueueTaskErrorChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
@@ -23,7 +23,7 @@ export const handleTask = async ({
   client,
   handler,
   asOf,
-  getRetryDelay = linear(),
+  getRetryDelay = getRetryDelayDefault,
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
