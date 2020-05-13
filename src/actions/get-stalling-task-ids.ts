@@ -2,6 +2,9 @@ import { Redis } from 'ioredis';
 import { hkeys } from '../utils/redis';
 import { getStallingHashKey } from '../utils/keys';
 
+/**
+ * @ignore
+ */
 export const getStallingTaskIds = async ({
   queue,
   client,

@@ -2,6 +2,9 @@ import { Redis } from 'ioredis';
 import { enqueueTasks } from './enqueue-tasks';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const enqueueTask = async ({
   queue,
   task,

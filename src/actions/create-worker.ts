@@ -18,6 +18,11 @@ import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 import { Worker } from '../domain/workers/worker';
 
+/**
+ * Regular description
+ *
+ * @category Category Name
+ */
 export const createWorker = async ({
   queue,
   redisConfig,

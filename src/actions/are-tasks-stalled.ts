@@ -4,6 +4,9 @@ import { getTaskAcknowledgedKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { getStallingTaskIds } from './get-stalling-task-ids';
 
+/**
+ * @ignore
+ */
 export const areTasksStalled = async ({
   taskIds,
   queue,

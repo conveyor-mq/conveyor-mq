@@ -10,6 +10,9 @@ import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 
+/**
+ * @ignore
+ */
 export const markTaskProcessing = async ({
   taskId,
   stallDuration,

@@ -5,6 +5,9 @@ import { getTaskKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const getTasks = async ({
   queue,
   taskIds,

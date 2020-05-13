@@ -1,0 +1,278 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>conveyor-mq</title>
+	<meta name="description" content="Documentation for conveyor-mq">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">conveyor-mq</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>conveyor-mq</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#conveyor-mq" id="conveyor-mq" style="color: inherit; text-decoration: none;">
+					<h1>Conveyor MQ</h1>
+				</a>
+				<p>A fast, robust and extensible distributed task/job queue for Node.js.</p>
+				<p><img src="https://github.com/jasrusable/conveyor-mq/workflows/Tests/badge.svg" alt="Tests">
+					<img src="https://img.shields.io/npm/v/@jasrusable/conveyor-mq" alt="npm">
+				<a href="https://coveralls.io/github/jasrusable/conveyor-mq?branch=master"><img src="https://coveralls.io/repos/github/jasrusable/conveyor-mq/badge.svg?branch=master" alt="Coverage Status"></a></p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createManager, createWorker } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
+
+<span class="hljs-keyword">const</span> main = <span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-keyword">const</span> queueName = <span class="hljs-string">'my-queue'</span>;
+  <span class="hljs-keyword">const</span> redisConfig = { <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> };
+
+  <span class="hljs-keyword">const</span> manager = <span class="hljs-keyword">await</span> createManager({ <span class="hljs-attr">queue</span>: queueName, redisConfig });
+  <span class="hljs-keyword">await</span> manager.enqueueTask({ <span class="hljs-attr">task</span>: { <span class="hljs-attr">data</span>: { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">2</span> } } });
+
+  <span class="hljs-keyword">const</span> worker = <span class="hljs-keyword">await</span> createWorker({
+    <span class="hljs-attr">queue</span>: queueName,
+    redisConfig,
+    <span class="hljs-attr">handler</span>: <span class="hljs-function">(<span class="hljs-params">{ task }</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Processing task: <span class="hljs-subst">${task.id}</span>`</span>);
+      <span class="hljs-keyword">return</span> task.x + task.y;
+    },
+  });
+};
+
+main();</code></pre>
+				<a href="#introduction" id="introduction" style="color: inherit; text-decoration: none;">
+					<h2>Introduction</h2>
+				</a>
+				<p>Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by Redis. Conveyor is a general purpose task queue designed for both short lived, and long running tasks.</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>npm:</p>
+				<pre><code class="language-bash">npm install --save conveyor-mq</code></pre>
+				<p>yarn:</p>
+				<pre><code class="language-bash">yarn add conveyor-mq</code></pre>
+				<p>You will also need Redis &gt;=3.2</p>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
+				<ul>
+					<li>Create and process tasks<ul>
+							<li>Task retries</li>
+							<li>Task expiry</li>
+							<li>Task retry strategies</li>
+						</ul>
+					</li>
+					<li>Concurrent worker processing</li>
+					<li>Simple and extensible design</li>
+					<li>Async/await/Promise APIs</li>
+					<li>Robust<ul>
+							<li>Atomic operations with Redis <a href="https://redis.io/commands/multi">transactions</a></li>
+							<li><a href="https://www.cloudcomputingpatterns.org/at_least_once_delivery/">At-least-once</a> task delivery</li>
+							<li>High test <a href="https://coveralls.io/github/jasrusable/conveyor-mq?branch=master">code coverage</a></li>
+						</ul>
+					</li>
+					<li>High performance<ul>
+							<li>Minimised network overhead using Redis <a href="https://redis.io/topics/pipelining">pipelining</a> and <a href="https://redis.io/commands/multi">multi commands</a></li>
+							<li>Uses Redis <a href="https://redis.io/commands/eval">Lua scripting</a> for improved performance and atomicity</li>
+						</ul>
+					</li>
+				</ul>
+				<a href="#table-of-contents" id="table-of-contents" style="color: inherit; text-decoration: none;">
+					<h2>Table of Contents</h2>
+				</a>
+				<ol>
+					<li>Quick start</li>
+					<li>API Reference</li>
+					<li>Examples</li>
+					<li>Contributing</li>
+					<li>License</li>
+				</ol>
+				<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+					<h2>Quick start</h2>
+				</a>
+				<a href="#queue-manager" id="queue-manager" style="color: inherit; text-decoration: none;">
+					<h3>Queue manager</h3>
+				</a>
+				<p>A queue manager is responsible for adding tasks to a queue, as well as querying various properties of a queue.</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createManager } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
+
+<span class="hljs-comment">// Create a manager instance:</span>
+<span class="hljs-keyword">const</span> manager = <span class="hljs-keyword">await</span> createManager({
+  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
+  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
+});
+
+<span class="hljs-comment">// Add a task to the queue:</span>
+<span class="hljs-keyword">await</span> manager.enqueueTask({ <span class="hljs-attr">task</span>: { <span class="hljs-attr">id</span>: <span class="hljs-string">'my-task-id'</span>, <span class="hljs-attr">data</span>: { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">2</span> } } });
+
+<span class="hljs-comment">// Get a task's details:</span>
+<span class="hljs-keyword">const</span> task = <span class="hljs-keyword">await</span> manager.getTask({ <span class="hljs-attr">taskId</span>: <span class="hljs-string">'my-task-id'</span> });
+<span class="hljs-comment">/*
+  {
+    ...
+    id: 'my-task-id',
+    status: 'queued',
+    data: {
+      x: 1,
+      y: 2,
+    },
+    ...
+  }
+*/</span></code></pre>
+				<a href="#queue-worker" id="queue-worker" style="color: inherit; text-decoration: none;">
+					<h3>Queue worker</h3>
+				</a>
+				<p>A queue worker is responsible for taking enqueued tasks off of the queue, and processing them.</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createWorker } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
+
+<span class="hljs-comment">// Create a worker which will start monitoring the queue for tasks and process them:</span>
+<span class="hljs-keyword">const</span> worker = <span class="hljs-keyword">await</span> createWorker({
+  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
+  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
+  <span class="hljs-comment">// Pass a handler which receives tasks, processes them, and then returns the result of a task:</span>
+  <span class="hljs-attr">handler</span>: <span class="hljs-function">(<span class="hljs-params">{ task }</span>) =&gt;</span> {
+    <span class="hljs-keyword">return</span> task.data.x + task.data.y;
+  },
+});</code></pre>
+				<a href="#queue-orchestrator" id="queue-orchestrator" style="color: inherit; text-decoration: none;">
+					<h3>Queue orchestrator</h3>
+				</a>
+				<p>A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createOrchestrator } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
+
+<span class="hljs-comment">/*
+  Create an orchestrator which will start monitoring the queue for stalled tasks
+  and re-enqueue them if necessary:
+*/</span>
+<span class="hljs-keyword">const</span> orchestrator = <span class="hljs-keyword">await</span> createOrchestrator({
+  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
+  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
+});</code></pre>
+				<a href="#queue-listener" id="queue-listener" style="color: inherit; text-decoration: none;">
+					<h3>Queue listener</h3>
+				</a>
+				<p>A queue listener is responsible for listening and subscribing to queue events.</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createListener } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
+
+<span class="hljs-comment">// Create a listener which will start monitoring the queue and listen for task_complete events:</span>
+<span class="hljs-keyword">const</span> listener = <span class="hljs-keyword">await</span> createListener({
+  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
+  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
+});
+
+listener.on(<span class="hljs-string">'task_complete'</span>, ({ event }) =&gt;
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Task <span class="hljs-subst">${event.task.id}</span> has completed!`</span>),
+);</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/eventtypes.html" class="tsd-kind-icon">Event<wbr>Types</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/taskstatuses.html" class="tsd-kind-icon">Task<wbr>Statuses</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/event.html" class="tsd-kind-icon">Event</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/task.html" class="tsd-kind-icon">Task</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/worker.html" class="tsd-kind-icon">Worker</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

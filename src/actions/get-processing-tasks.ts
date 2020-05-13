@@ -5,6 +5,9 @@ import { getTasks } from './get-tasks';
 import { Task } from '../domain/tasks/task';
 
 // TODO: paging.
+/**
+ * @ignore
+ */
 export const getProcessingTasks = async ({
   queue,
   client,

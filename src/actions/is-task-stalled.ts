@@ -1,6 +1,9 @@
 import { Redis } from 'ioredis';
 import { areTasksStalled } from './are-tasks-stalled';
 
+/**
+ * @ignore
+ */
 export const isTaskStalled = async ({
   taskId,
   queue,

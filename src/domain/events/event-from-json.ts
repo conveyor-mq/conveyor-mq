@@ -4,6 +4,9 @@ import { taskFromJson } from '../tasks/task-from-json';
 import { EventTypes } from './event-types';
 import { workerFromJson } from '../workers/worker-from-json';
 
+/**
+ * @ignore
+ */
 export const eventFromJson = (eventJson: any): Event => {
   return {
     createdAt: moment(eventJson.createdAt),

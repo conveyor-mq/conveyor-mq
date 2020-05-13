@@ -1,6 +1,9 @@
 import moment from 'moment';
 import { Task } from './task';
 
+/**
+ * @ignore
+ */
 export const taskFromJson = (taskJson: any): Task => {
   return {
     id: taskJson.id,

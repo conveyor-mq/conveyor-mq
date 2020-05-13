@@ -1,0 +1,6 @@
+{
+  "inputFiles": ["./src/actions/**"],
+  "exclude": ["./src/tests/**", "./src/utils/**", "./src/lua/**"],
+  "mode": "file",
+  "out": "docs"
+}

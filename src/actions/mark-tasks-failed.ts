@@ -15,6 +15,9 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 
+/**
+ * @ignore
+ */
 export const markTasksFailed = async ({
   tasksAndErrors,
   queue,

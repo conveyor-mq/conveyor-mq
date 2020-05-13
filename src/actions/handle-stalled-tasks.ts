@@ -5,6 +5,9 @@ import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const handleStalledTasks = async ({
   queue,
   client,

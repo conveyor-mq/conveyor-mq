@@ -1,5 +1,8 @@
 import { Task } from './task';
 
+/**
+ * @ignore
+ */
 export const taskToJson = (task: Task) => {
   return {
     id: task.id,

@@ -7,6 +7,9 @@ import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 
+/**
+ * @ignore
+ */
 export const updateTask = async ({
   task,
   queue,

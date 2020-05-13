@@ -11,9 +11,21 @@ import { createListener } from './create-listener';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 
+/**
+ * @ignore
+ */
 const callbackKey = (taskId: string) => `${taskId}-cb`;
+
+/**
+ * @ignore
+ */
 const promiseKey = (taskId: string) => `${taskId}-promise`;
 
+/**
+ * Regular description
+ *
+ * @category Category Name
+ */
 export const createManager = async ({
   queue,
   redisConfig,

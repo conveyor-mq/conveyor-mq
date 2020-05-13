@@ -12,12 +12,18 @@ import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 
+/**
+ * @ignore
+ */
 export type getRetryDelayType = ({
   task,
 }: {
   task: Task;
 }) => number | Promise<number>;
 
+/**
+ * @ignore
+ */
 export const handleTask = async ({
   task,
   queue,

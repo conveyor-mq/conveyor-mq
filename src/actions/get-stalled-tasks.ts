@@ -7,6 +7,9 @@ import { areTasksStalled } from './are-tasks-stalled';
 import { Task } from '../domain/tasks/task';
 
 // TODO: paging.
+/**
+ * @ignore
+ */
 export const getStalledTasks = async ({
   queue,
   client,

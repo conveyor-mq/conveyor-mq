@@ -3,6 +3,9 @@ import moment from 'moment';
 import { set } from '../utils/redis';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 
+/**
+ * @ignore
+ */
 export const acknowledgeTask = async ({
   taskId,
   queue,

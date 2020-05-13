@@ -3,6 +3,9 @@ import { Moment } from 'moment';
 import { markTasksFailed } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const markTaskFailed = async ({
   task,
   queue,

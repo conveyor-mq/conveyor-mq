@@ -13,6 +13,9 @@ import { Task } from '../domain/tasks/task';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 
+/**
+ * @ignore
+ */
 export const takeTask = async ({
   queue,
   client,

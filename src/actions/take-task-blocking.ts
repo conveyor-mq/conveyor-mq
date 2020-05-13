@@ -4,6 +4,9 @@ import { getQueuedListKey, getProcessingListKey } from '../utils/keys';
 import { markTaskProcessing } from './mark-task-processing';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const takeTaskBlocking = async ({
   timeout = 0,
   queue,

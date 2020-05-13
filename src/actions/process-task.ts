@@ -8,6 +8,9 @@ import { acknowledgeTask } from './acknowledge-task';
 import { handleTask, getRetryDelayType } from './handle-task';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const processTask = async ({
   task,
   queue,

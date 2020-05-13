@@ -2,6 +2,9 @@ import { Event } from './event';
 import { taskToJson } from '../tasks/task-to-json';
 import { workerToJson } from '../workers/worker-to-json';
 
+/**
+ * @ignore
+ */
 export const eventToJson = (event: Event) => {
   return {
     createdAt: event.createdAt.toISOString(),

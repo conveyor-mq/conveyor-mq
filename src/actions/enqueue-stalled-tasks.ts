@@ -12,6 +12,9 @@ import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 
+/**
+ * @ignore
+ */
 export const enqueueStalledTasks = async ({
   queue,
   tasks,
