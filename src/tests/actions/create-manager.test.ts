@@ -7,6 +7,7 @@ import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { createWorker } from '../../actions/create-worker';
 import { Event } from '../../domain/events/event';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('createManager', () => {
   const queue = createUuid();
@@ -28,7 +29,9 @@ describe('createManager', () => {
     const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    const result = await manager.enqueueTask({ task });
+    expect(result.task.id).toBe(task.id);
+    expect(result.task.status).toBe(TaskStatuses.Queued);
     const retrievedTask = (await manager.getTask(task.id)) as Task;
     expect(retrievedTask.id).toBe(task.id);
     await manager.quit();
@@ -38,7 +41,14 @@ describe('createManager', () => {
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
-    await manager.enqueueTasks([{ task: taskA }, { task: taskB }]);
+    const [resultA, resultB] = await manager.enqueueTasks([
+      { task: taskA },
+      { task: taskB },
+    ]);
+    expect(resultA.task.id).toBe(taskA.id);
+    expect(resultA.task.status).toBe(TaskStatuses.Queued);
+    expect(resultB.task.id).toBe(taskB.id);
+    expect(resultB.task.status).toBe(TaskStatuses.Queued);
     const [retrievedTaskA, retrievedTaskB] = await manager.getTasks([
       taskA.id,
       taskB.id,

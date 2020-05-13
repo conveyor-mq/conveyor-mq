@@ -29,11 +29,11 @@ const main = async () => {
 main();
 ```
 
-### Introduction
+## Introduction
 
 Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by Redis. Conveyor is a general purpose task queue designed for both short lived, and long running tasks.
 
-### Installation
+## Installation
 
 npm:
 
@@ -49,7 +49,7 @@ yarn add @jasrusable/conveyor
 
 You will also need Redis >=3.2
 
-### Features
+## Features
 
 - Create and process tasks
   - Task retries
@@ -74,9 +74,9 @@ You will also need Redis >=3.2
 4. Contributing
 5. License
 
-### Quick start
+## Quick start
 
-#### Queue manager
+### Queue manager
 
 A queue manager is responsible for adding tasks to a queue, as well as querying various properties of a queue.
 
@@ -108,7 +108,7 @@ const task = await manager.getTask({ taskId: 'my-task-id' });
 */
 ```
 
-#### Queue worker
+### Queue worker
 
 A queue worker is responsible for taking enqueued tasks off of the queue, and processing them.
 
@@ -126,7 +126,7 @@ const worker = await createWorker({
 });
 ```
 
-#### Queue orchestrator
+### Queue orchestrator
 
 A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.
 
@@ -143,7 +143,7 @@ const orchestrator = await createOrchestrator({
 });
 ```
 
-#### Queue listener
+### Queue listener
 
 A queue listener is responsible for listening and subscribing to queue events.
 
@@ -155,6 +155,7 @@ const listener = await createListener({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
 });
+
 listener.on('task_complete', ({ event }) =>
   console.log(`Task ${event.task.id} has completed!`),
 );

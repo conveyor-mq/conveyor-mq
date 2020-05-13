@@ -73,11 +73,7 @@ export const createWorker = async ({
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
 
-  const checkForAndHandleTask = async ({
-    block = true,
-  }: {
-    block?: boolean;
-  }) => {
+  const takeAndProcessTask = async ({ block = true }: { block?: boolean }) => {
     try {
       const taskTaker = block ? takeTaskBlocking : takeTask;
       const task = await tryIgnore(
@@ -109,14 +105,14 @@ export const createWorker = async ({
         );
       }
       if (isActive()) {
-        takerQueue.add(() => checkForAndHandleTask({ block: !task }));
+        takerQueue.add(() => takeAndProcessTask({ block: !task }));
       }
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
       if (isActive()) {
-        takerQueue.add(() => checkForAndHandleTask({ block: true }));
+        takerQueue.add(() => takeAndProcessTask({ block: true }));
       }
     }
   };
@@ -171,7 +167,7 @@ export const createWorker = async ({
       );
       takerQueue.addAll(
         map(Array.from({ length: concurrency }), () => () =>
-          checkForAndHandleTask({ block: true }),
+          takeAndProcessTask({ block: true }),
         ),
       );
       isPaused = false;

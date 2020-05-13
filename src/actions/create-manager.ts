@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { forEach, map, set } from 'lodash';
-import { enqueueTask } from './enqueue-task';
-import { enqueueTasks } from './enqueue-tasks';
+import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import { createClient, ensureDisconnected } from '../utils/redis';
 import { getTask } from './get-task';
 import { getTasks } from './get-tasks';
@@ -40,38 +39,15 @@ export const createManager = async ({
           keyFunc(event!.task!.id)
         ],
     }));
-    forEach(map(subscriptions), (key) => {
-      if (key.handler) {
-        key.handler({ event });
-        delete eventSubscriptions[EventTypes.TaskComplete][key.key];
+    forEach(subscriptions, (subscription) => {
+      if (subscription.handler) {
+        subscription.handler({ event });
+        delete eventSubscriptions[EventTypes.TaskComplete][subscription.key];
       }
     });
   });
 
-  const managerEnqueueTask = async ({
-    task,
-    onTaskComplete,
-  }: {
-    task: Task;
-    onTaskComplete?: ({ event }: { event: Event }) => any;
-  }) => {
-    const taskId = task.id || createTaskId();
-    if (onTaskComplete) {
-      set(
-        eventSubscriptions,
-        `${EventTypes.TaskComplete}.${callbackKey(taskId)}`,
-        onTaskComplete,
-      );
-    }
-    const enqueuedTask = await enqueueTask({
-      task: { ...task, id: taskId },
-      queue,
-      client,
-    });
-    return { task: enqueuedTask };
-  };
-
-  const managerOnTaskComplete = async ({ taskId }: { taskId: string }) => {
+  const onTaskComplete = async ({ taskId }: { taskId: string }) => {
     const promise = new Promise((resolve) => {
       set(
         eventSubscriptions,
@@ -91,34 +67,52 @@ export const createManager = async ({
     return promise as Promise<Task>;
   };
 
-  const managerEnqueueTasks = (
+  const enqueueTasks = async (
     params: {
       task: Partial<Task>;
       onTaskComplete?: ({ event }: { event: Event }) => any;
     }[],
   ) => {
-    const tasks = map(params, ({ task, onTaskComplete }) => {
-      const taskId = task.id || createTaskId();
-      if (onTaskComplete) {
-        set(
-          eventSubscriptions,
-          `${EventTypes.TaskComplete}.${callbackKey(taskId)}`,
-          onTaskComplete,
-        );
-      }
-      return { ...task, taskId };
-    });
-    return enqueueTasks({ queue, tasks, client });
+    const tasks: Task[] = map(
+      params,
+      ({ task, onTaskComplete: onTaskCompleteCb }) => {
+        const taskId = task.id || createTaskId();
+        if (onTaskCompleteCb) {
+          set(
+            eventSubscriptions,
+            `${EventTypes.TaskComplete}.${callbackKey(taskId)}`,
+            onTaskCompleteCb,
+          );
+        }
+        return { ...task, id: taskId };
+      },
+    );
+    const enqueuedTasks = await enqueueTasksAction({ queue, tasks, client });
+    return map(enqueuedTasks, (task) => ({
+      task,
+      onTaskComplete: () => onTaskComplete({ taskId: task.id }),
+    }));
+  };
+
+  const enqueueTask = async ({
+    task,
+    onTaskComplete: onTaskCompleteCb,
+  }: {
+    task: Partial<Task>;
+    onTaskComplete?: ({ event }: { event: Event }) => any;
+  }) => {
+    const [result] = await enqueueTasks([
+      { task, onTaskComplete: onTaskCompleteCb },
+    ]);
+    return result;
   };
 
   return {
-    enqueueTask: managerEnqueueTask,
-    onTaskComplete: managerOnTaskComplete,
-    enqueueTasks: managerEnqueueTasks,
+    enqueueTask,
+    onTaskComplete,
+    enqueueTasks,
     getTask: (taskId: string) => getTask({ taskId, queue, client }),
     getTasks: (taskIds: string[]) => getTasks({ taskIds, queue, client }),
-    quit: async () => {
-      ensureDisconnected({ client });
-    },
+    quit: () => ensureDisconnected({ client }),
   };
 };

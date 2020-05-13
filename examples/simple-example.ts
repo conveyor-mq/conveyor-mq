@@ -2,7 +2,8 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createUuid, sleep } from '../src/utils/general';
+import { setIntervalAsync } from 'set-interval-async/dynamic';
+import { createUuid } from '../src/utils/general';
 import { createManager } from '../src/actions/create-manager';
 import { createWorker } from '../src/actions/create-worker';
 import { createOrchestrator } from '../src/actions/create-orchestrator';
@@ -18,14 +19,16 @@ const main = async () => {
     queue,
     redisConfig,
   });
+
   const listener = await createListener({ queue, redisConfig });
+  listener.on(EventTypes.TaskComplete, ({ event }) =>
+    console.log('Task complete:', event?.task?.id),
+  );
 
   const worker = await createWorker({
     queue,
     redisConfig,
-    handler: async ({ task }) => {
-      console.log('Handling task: ', task.id);
-      await sleep(5000);
+    handler: async () => {
       return 'some-result';
     },
   });
@@ -37,21 +40,14 @@ const main = async () => {
   });
 
   const addTasks = async () => {
-    const task: Task = {
-      id: createUuid(),
-      data: 'some-task-data',
-    };
-    await manager.enqueueTask({
-      task,
-      onTaskComplete: () => console.log('callback fired'),
-    });
-    console.log('Adding task ', task.id);
-    const s = await manager.onTaskComplete({ taskId: task.id });
-    console.log('promise fired');
-    // await sleep(5000);
-    // addTasks();
+    try {
+      const task: Task = { id: createUuid(), data: 'some-task-data' };
+      await manager.enqueueTask({ task });
+    } catch (e) {
+      console.log(e);
+    }
   };
-  addTasks();
+  setIntervalAsync(addTasks, 3000);
 };
 
 main();
