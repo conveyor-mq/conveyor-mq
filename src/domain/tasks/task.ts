@@ -7,6 +7,7 @@ export interface Task {
   data?: any;
   queuedOn?: Moment;
   expiresOn?: Moment;
+  executionTimeout?: number;
   processingStartedOn?: Moment;
   processingEndedOn?: Moment;
   attemptCount?: number;

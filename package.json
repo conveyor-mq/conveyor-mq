@@ -37,12 +37,14 @@
   "dependencies": {
     "@types/ioredis": "^4.16.1",
     "@types/lodash": "^4.14.150",
+    "@types/p-timeout": "^1.2.2",
     "@types/set-interval-async": "^1.0.0",
     "@types/uuid": "^7.0.3",
     "ioredis": "^4.16.3",
     "lodash": "^4.17.15",
     "moment": "^2.25.3",
     "p-queue": "^6.4.0",
+    "p-timeout": "^3.2.0",
     "set-interval-async": "^1.0.32",
     "uuid": "^8.0.0"
   },

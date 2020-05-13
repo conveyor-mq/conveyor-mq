@@ -7,6 +7,7 @@ export const taskToJson = (task: Task) => {
     data: task.data,
     queuedOn: task.queuedOn ? task.queuedOn.toISOString() : undefined,
     expiresOn: task.expiresOn ? task.expiresOn.toISOString() : undefined,
+    executionTimeout: task.executionTimeout,
     processingStartedOn: task.processingStartedOn
       ? task.processingStartedOn.toISOString()
       : undefined,

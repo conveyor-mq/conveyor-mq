@@ -1,5 +1,6 @@
 import { Redis } from 'ioredis';
 import moment, { Moment } from 'moment';
+import pTimeout from 'p-timeout';
 import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
 import { enqueueTask } from './enqueue-task';
@@ -38,45 +39,30 @@ export const handleTask = async ({
   onTaskError?: ({ task }: { task: Task }) => any;
   onTaskFailed?: ({ task }: { task: Task }) => any;
 }): Promise<any | null> => {
-  if (hasTaskExpired({ task, asOf })) {
-    await markTaskFailed({
-      task,
-      queue,
-      client,
-      error: 'Task has exceeded its expiry',
-      asOf: moment(),
-    });
-    if (onTaskFailed) onTaskFailed({ task });
-    return null;
-  }
   const maxAttemptCountExceeded =
     task.maxAttemptCount && (task.attemptCount || 1) > task.maxAttemptCount;
-  if (maxAttemptCountExceeded) {
-    await markTaskFailed({
-      task,
-      queue,
-      client,
-      error: 'Task max attempt count exceeded',
-      asOf: moment(),
-    });
-    if (onTaskFailed) onTaskFailed({ task });
-    return null;
-  }
   const maxErrorCountExceeded =
     task.maxErrorCount && (task.errorCount || 0) > task.maxErrorCount;
-  if (maxErrorCountExceeded) {
-    await markTaskFailed({
+  const hasExpired = hasTaskExpired({ task, asOf });
+  if (maxAttemptCountExceeded || maxErrorCountExceeded || hasExpired) {
+    const failedTask = await markTaskFailed({
       task,
       queue,
       client,
-      error: 'Task max error count exceeded',
+      error: hasExpired
+        ? 'Task has expired'
+        : `Task max ${
+            maxAttemptCountExceeded ? 'attempt' : 'error'
+          } count exceeded`,
       asOf: moment(),
     });
-    if (onTaskFailed) onTaskFailed({ task });
+    if (onTaskFailed) onTaskFailed({ task: failedTask });
     return null;
   }
   try {
-    const result = await handler({ task });
+    const result = await (task.executionTimeout
+      ? pTimeout(handler({ task }), task.executionTimeout)
+      : handler({ task }));
     const successfulTask = await markTaskSuccess({
       task,
       queue,
@@ -113,14 +99,14 @@ export const handleTask = async ({
       });
       return null;
     }
-    await markTaskFailed({
+    const failedTask = await markTaskFailed({
       task,
       queue,
       client,
       error: e.message,
       asOf: moment(),
     });
-    if (onTaskFailed) onTaskFailed({ task });
-    return e;
+    if (onTaskFailed) onTaskFailed({ task: failedTask });
+    return null;
   }
 };

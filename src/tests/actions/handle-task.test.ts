@@ -6,7 +6,7 @@ import { hasTaskExpired } from '../../actions/has-task-expired';
 import { handleTask } from '../../actions/handle-task';
 import { getTask } from '../../actions/get-task';
 import { flushAll, quit, createClient } from '../../utils/redis';
-import { createUuid } from '../../utils/general';
+import { createUuid, sleep } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
@@ -27,7 +27,7 @@ describe('handleTask', () => {
     await quit({ client });
   });
 
-  it('handleTask returns null for expired task', async () => {
+  it('handleTask fails task if task is expired', async () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
     const expiredTask: Task = { id: 'i', expiresOn: thePast, data: 'j' };
@@ -49,10 +49,10 @@ describe('handleTask', () => {
     })) as Task;
     expect(failedTask.id).toBe(expiredTask.id);
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.error).toBe('Task has exceeded its expiry');
+    expect(failedTask.error).toBe('Task has expired');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
-  it('handleTask returns null for attempt count exceeded', async () => {
+  it('handleTask fails task if attempt count exceeded', async () => {
     const task: Task = {
       id: 'i',
       data: 'j',
@@ -79,7 +79,7 @@ describe('handleTask', () => {
     expect(failedTask.error).toBe('Task max attempt count exceeded');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
-  it('handleTask returns null for error count exceeded', async () => {
+  it('handleTask fails task if error count exceeded', async () => {
     const task: Task = {
       id: 'i',
       data: 'j',
@@ -149,7 +149,7 @@ describe('handleTask', () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
     const onFailure = jest.fn();
-    await handleTask({
+    const result = await handleTask({
       queue,
       client,
       task: processingTask,
@@ -162,6 +162,7 @@ describe('handleTask', () => {
         throw new Error('some-error');
       },
     });
+    expect(result).toBe(null);
     const handledTask = (await getTask({
       queue,
       taskId: theTask.id,
@@ -237,5 +238,29 @@ describe('handleTask', () => {
     expect(handledTask2.error).toBe('some-error');
     expect(handledTask2.result).toBe(undefined);
     expect(await takeTask({ queue, client })).toBe(null);
+  });
+  it('handleTask times out task with executionTimeout', async () => {
+    const task: Task = { id: 'i', data: 'j', executionTimeout: 10 };
+    await enqueueTask({ queue, task, client });
+    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const result = await handleTask({
+      queue,
+      client,
+      task: taskToHandle,
+      asOf: moment(),
+      handler: async () => {
+        await sleep(50);
+        return 'some-result';
+      },
+    });
+    expect(result).toBe(null);
+    const failedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(failedTask.id).toBe(task.id);
+    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.error).toBe('Promise timed out after 10 milliseconds');
   });
 });
