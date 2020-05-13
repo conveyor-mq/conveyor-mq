@@ -1,5 +1,5 @@
 {
-  "name": "@jasrusable/conveyor",
+  "name": "conveyor-mq",
   "version": "0.0.5",
   "description": "A fast, robust and extensible distributed task/job queue for Node.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jasrusable/conveyor.git"
+    "url": "git+https://github.com/jasrusable/conveyor-mq.git"
   },
   "author": "Jason Russell",
   "license": "ISC",
@@ -29,9 +29,9 @@
     "redis"
   ],
   "bugs": {
-    "url": "https://github.com/jasrusable/conveyor/issues"
+    "url": "https://github.com/jasrusable/conveyor-mq/issues"
   },
-  "homepage": "https://github.com/jasrusable/conveyor#readme",
+  "homepage": "https://github.com/jasrusable/conveyor-mq#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
