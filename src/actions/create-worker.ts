@@ -11,7 +11,6 @@ import {
   publish,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
-import { takeTask } from './take-task';
 import { processTask } from './process-task';
 import { Task } from '../domain/tasks/task';
 import { getWorkerStartedChannel, getWorkerPausedChannel } from '../utils/keys';
@@ -73,12 +72,11 @@ export const createWorker = async ({
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
 
-  const takeAndProcessTask = async ({ block = true }: { block?: boolean }) => {
+  const takeAndProcessTask = async () => {
     try {
-      const taskTaker = block ? takeTaskBlocking : takeTask;
       const task = await tryIgnore(
         () =>
-          taskTaker({
+          takeTaskBlocking({
             queue,
             client: takerClient,
             stallDuration,
@@ -105,14 +103,14 @@ export const createWorker = async ({
         );
       }
       if (isActive()) {
-        takerQueue.add(() => takeAndProcessTask({ block: !task }));
+        takerQueue.add(takeAndProcessTask);
       }
     } catch (e) {
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
       if (isActive()) {
-        takerQueue.add(() => takeAndProcessTask({ block: true }));
+        takerQueue.add(takeAndProcessTask);
       }
     }
   };
@@ -166,9 +164,7 @@ export const createWorker = async ({
         ),
       );
       takerQueue.addAll(
-        map(Array.from({ length: concurrency }), () => () =>
-          takeAndProcessTask({ block: true }),
-        ),
+        map(Array.from({ length: concurrency }), () => takeAndProcessTask),
       );
       isPaused = false;
       await publish({
@@ -227,5 +223,7 @@ export const createWorker = async ({
     pause,
     start,
     shutdown,
+    onIdle: () =>
+      Promise.all(map([takerQueue, workerQueue], (q) => q.onIdle())),
   };
 };
