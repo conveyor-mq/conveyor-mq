@@ -1,13 +1,13 @@
-# Conveyor
+# Conveyor MQ
 
 A fast, robust and extensible distributed task/job queue for Node.js.
 
-![Tests](https://github.com/jasrusable/conveyor/workflows/Tests/badge.svg)
-![npm](https://img.shields.io/npm/v/@jasrusable/conveyor)
-[![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor?branch=master)
+![Tests](https://github.com/jasrusable/conveyor-mq/workflows/Tests/badge.svg)
+![npm](https://img.shields.io/npm/v/@jasrusable/conveyor-mq)
+[![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor-mq/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor-mq?branch=master)
 
 ```js
-const { createManager, createWorker } = require('@jasrusable/conveyor');
+const { createManager, createWorker } = require('conveyor-mq');
 
 const main = async () => {
   const queueName = 'my-queue';
@@ -38,13 +38,13 @@ Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by R
 npm:
 
 ```bash
-npm install --save @jasrusable/conveyor
+npm install --save conveyor-mq
 ```
 
 yarn:
 
 ```bash
-yarn add @jasrusable/conveyor
+yarn add conveyor-mq
 ```
 
 You will also need Redis >=3.2
@@ -61,7 +61,7 @@ You will also need Redis >=3.2
 - Robust
   - Atomic operations with Redis [transactions](https://redis.io/commands/multi)
   - [At-least-once](https://www.cloudcomputingpatterns.org/at_least_once_delivery/) task delivery
-  - High test [code coverage](https://coveralls.io/github/jasrusable/conveyor?branch=master)
+  - High test [code coverage](https://coveralls.io/github/jasrusable/conveyor-mq?branch=master)
 - High performance
   - Minimised network overhead using Redis [pipelining](https://redis.io/topics/pipelining) and [multi commands](https://redis.io/commands/multi)
   - Uses Redis [Lua scripting](https://redis.io/commands/eval) for improved performance and atomicity
@@ -81,7 +81,7 @@ You will also need Redis >=3.2
 A queue manager is responsible for adding tasks to a queue, as well as querying various properties of a queue.
 
 ```js
-const { createManager } = require('@jasrusable/conveyor');
+const { createManager } = require('conveyor-mq');
 
 // Create a manager instance:
 const manager = await createManager({
@@ -113,7 +113,7 @@ const task = await manager.getTask({ taskId: 'my-task-id' });
 A queue worker is responsible for taking enqueued tasks off of the queue, and processing them.
 
 ```js
-const { createWorker } = require('@jasrusable/conveyor');
+const { createWorker } = require('conveyor-mq');
 
 // Create a worker which will start monitoring the queue for tasks and process them:
 const worker = await createWorker({
@@ -131,7 +131,7 @@ const worker = await createWorker({
 A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.
 
 ```js
-const { createOrchestrator } = require('@jasrusable/conveyor');
+const { createOrchestrator } = require('conveyor-mq');
 
 /*
   Create an orchestrator which will start monitoring the queue for stalled tasks
@@ -148,7 +148,7 @@ const orchestrator = await createOrchestrator({
 A queue listener is responsible for listening and subscribing to queue events.
 
 ```js
-const { createListener } = require('@jasrusable/conveyor');
+const { createListener } = require('conveyor-mq');
 
 // Create a listener which will start monitoring the queue and listen for task_complete events:
 const listener = await createListener({
