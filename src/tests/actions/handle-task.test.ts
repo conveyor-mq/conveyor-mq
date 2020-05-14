@@ -30,7 +30,7 @@ describe('handleTask', () => {
   it('handleTask fails task if task is expired', async () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const expiredTask: Task = { id: 'i', expiresOn: thePast, data: 'j' };
+    const expiredTask: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
     const onTaskFailed = jest.fn();
     const result = await handleTask({
@@ -168,8 +168,8 @@ describe('handleTask', () => {
       taskId: theTask.id,
       client,
     })) as Task;
-    expect(typeof handledTask.processingStartedOn).toBe('object');
-    expect(typeof handledTask.processingEndedOn).toBe('object');
+    expect(typeof handledTask.processingStartedAt).toBe('object');
+    expect(typeof handledTask.processingEndedAt).toBe('object');
     expect(handledTask.status).toBe(TaskStatuses.Failed);
     expect(handledTask.error).toBe('some-error');
     expect(handledTask.result).toBe(undefined);
@@ -261,6 +261,8 @@ describe('handleTask', () => {
     })) as Task;
     expect(failedTask.id).toBe(task.id);
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.error).toBe('Promise timed out after 10 milliseconds');
+    expect(failedTask.error).toBe(
+      'Task execution duration exceeded executionTimeout',
+    );
   });
 });

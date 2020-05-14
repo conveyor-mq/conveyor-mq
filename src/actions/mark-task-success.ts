@@ -34,7 +34,7 @@ export const markTaskSuccess = async ({
   const processingListKey = getProcessingListKey({ queue });
   const successfulTask: Task = {
     ...task,
-    processingEndedOn: asOf,
+    processingEndedAt: asOf,
     status: TaskStatuses.Success,
     result,
   };

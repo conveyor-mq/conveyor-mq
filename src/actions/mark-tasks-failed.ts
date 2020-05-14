@@ -35,7 +35,7 @@ export const markTasksFailed = async ({
     const taskKey = getTaskKey({ taskId: task.id, queue });
     const failedTask: Task = {
       ...task,
-      processingEndedOn: asOf,
+      processingEndedAt: asOf,
       status: TaskStatuses.Failed,
       error,
     };

@@ -5,11 +5,11 @@ export interface Task {
   id: string;
   status?: TaskStatuses;
   data?: any;
-  queuedOn?: Moment;
-  expiresOn?: Moment;
+  queuedAt?: Moment;
+  expiresAt?: Moment;
   executionTimeout?: number;
-  processingStartedOn?: Moment;
-  processingEndedOn?: Moment;
+  processingStartedAt?: Moment;
+  processingEndedAt?: Moment;
   attemptCount?: number;
   maxAttemptCount?: number;
   errorCount?: number;

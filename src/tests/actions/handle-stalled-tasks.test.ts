@@ -56,8 +56,8 @@ describe('handleStalledTasks', () => {
     })) as Task;
     expect(retriedTask.status).toBe(TaskStatuses.Queued);
     expect(retriedTask.attemptCount).toBe(2);
-    expect(retriedTask.processingStartedOn).toBe(undefined);
-    expect(retriedTask.processingEndedOn).toBe(undefined);
+    expect(retriedTask.processingStartedAt).toBe(undefined);
+    expect(retriedTask.processingEndedAt).toBe(undefined);
     expect(retriedTask.error).toBe(undefined);
     expect(retriedTask.result).toBe(undefined);
   });

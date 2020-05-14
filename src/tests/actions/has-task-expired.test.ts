@@ -11,13 +11,13 @@ describe('hasTaskExpired', () => {
   it('hasTaskExpired returns false for not expired task', () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const task: Task = { id: 'i', expiresOn: theFuture, data: 'j' };
+    const task: Task = { id: 'i', expiresAt: theFuture, data: 'j' };
     expect(hasTaskExpired({ task, asOf: thePast })).toBe(false);
   });
   it('hasTaskExpired returns true for expired task', () => {
     const thePast = moment('2020-01-01');
     const theFuture = moment('2020-01-02');
-    const task: Task = { id: 'i', expiresOn: thePast, data: 'j' };
+    const task: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task, asOf: theFuture })).toBe(true);
   });
 });

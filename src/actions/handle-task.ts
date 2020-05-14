@@ -98,7 +98,7 @@ export const handleTask = async ({
         task: {
           ...task,
           errorCount: (task.errorCount || 0) + 1,
-          processingEndedOn: moment(),
+          processingEndedAt: moment(),
         },
         queue,
         client,
@@ -109,7 +109,10 @@ export const handleTask = async ({
       task,
       queue,
       client,
-      error: e.message,
+      error:
+        e instanceof pTimeout.TimeoutError
+          ? 'Task execution duration exceeded executionTimeout'
+          : e.message,
       asOf: moment(),
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask });

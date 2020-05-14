@@ -9,14 +9,14 @@ export const taskFromJson = (taskJson: any): Task => {
     id: taskJson.id,
     status: taskJson.status,
     data: taskJson.data,
-    queuedOn: taskJson.queuedOn ? moment(taskJson.queuedOn) : undefined,
-    expiresOn: taskJson.expiresOn ? moment(taskJson.expiresOn) : undefined,
+    queuedAt: taskJson.queuedAt ? moment(taskJson.queuedAt) : undefined,
+    expiresAt: taskJson.expiresAt ? moment(taskJson.expiresAt) : undefined,
     executionTimeout: taskJson.executionTimeout,
-    processingStartedOn: taskJson.processingStartedOn
-      ? moment(taskJson.processingStartedOn)
+    processingStartedAt: taskJson.processingStartedAt
+      ? moment(taskJson.processingStartedAt)
       : undefined,
-    processingEndedOn: taskJson.processingEndedOn
-      ? moment(taskJson.processingEndedOn)
+    processingEndedAt: taskJson.processingEndedAt
+      ? moment(taskJson.processingEndedAt)
       : undefined,
     attemptCount: taskJson.attemptCount,
     maxAttemptCount: taskJson.maxAttemptCount,

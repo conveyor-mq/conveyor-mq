@@ -26,12 +26,12 @@ export const enqueueTasks = async ({
   tasks: Partial<Task>[];
   client: Redis;
 }): Promise<Task[]> => {
-  const tasksToQueue = map(tasks, (task) => ({
+  const tasksToQueue: Task[] = map(tasks, (task) => ({
     ...task,
     id: task.id || createTaskId(),
-    queuedOn: moment(),
-    processingStartedOn: undefined,
-    processingEndedOn: undefined,
+    queuedAt: moment(),
+    processingStartedAt: undefined,
+    processingEndedAt: undefined,
     status: TaskStatuses.Queued,
     maxAttemptCount: task.maxAttemptCount || 1,
     attemptCount: (task.attemptCount || 0) + 1,

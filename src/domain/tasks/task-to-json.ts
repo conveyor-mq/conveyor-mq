@@ -8,14 +8,14 @@ export const taskToJson = (task: Task) => {
     id: task.id,
     status: task.status,
     data: task.data,
-    queuedOn: task.queuedOn ? task.queuedOn.toISOString() : undefined,
-    expiresOn: task.expiresOn ? task.expiresOn.toISOString() : undefined,
+    queuedAt: task.queuedAt ? task.queuedAt.toISOString() : undefined,
+    expiresAt: task.expiresAt ? task.expiresAt.toISOString() : undefined,
     executionTimeout: task.executionTimeout,
-    processingStartedOn: task.processingStartedOn
-      ? task.processingStartedOn.toISOString()
+    processingStartedAt: task.processingStartedAt
+      ? task.processingStartedAt.toISOString()
       : undefined,
-    processingEndedOn: task.processingEndedOn
-      ? task.processingEndedOn.toISOString()
+    processingEndedAt: task.processingEndedAt
+      ? task.processingEndedAt.toISOString()
       : undefined,
     attemptCount: task.attemptCount,
     maxAttemptCount: task.maxAttemptCount,

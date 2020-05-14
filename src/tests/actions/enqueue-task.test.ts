@@ -29,9 +29,9 @@ describe('putTask', () => {
     const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await enqueueTask({ queue, client, task });
     expect(queuedTask.data).toBe(task.data);
-    expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
-    expect(queuedTask.processingStartedOn).toBe(undefined);
-    expect(queuedTask.processingEndedOn).toBe(undefined);
+    expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedAt).toBe(undefined);
+    expect(queuedTask.processingEndedAt).toBe(undefined);
     expect(queuedTask.status).toBe(TaskStatuses.Queued);
     expect(queuedTask.data).toBe(task.data);
     expect(queuedTask.attemptCount).toBe(1);
@@ -56,13 +56,13 @@ describe('putTask', () => {
     const task: Task = {
       id: 'a',
       data: 'b',
-      queuedOn: moment(),
-      processingStartedOn: moment(),
-      processingEndedOn: moment(),
+      queuedAt: moment(),
+      processingStartedAt: moment(),
+      processingEndedAt: moment(),
     };
     const queuedTask = await enqueueTask({ queue, client, task });
-    expect(typeof queuedTask.queuedOn).toBe('object'); // Moment date is type 'object'.
-    expect(queuedTask.processingStartedOn).toBe(undefined);
-    expect(queuedTask.processingEndedOn).toBe(undefined);
+    expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedAt).toBe(undefined);
+    expect(queuedTask.processingEndedAt).toBe(undefined);
   });
 });

@@ -16,7 +16,7 @@ local taskKey = taskKeyPrefix .. taskId
 local taskJson = redis.call('GET', taskKey)
 local task = cjson.decode(taskJson)
 task['status'] = status
-task['processingStartedOn'] = datetime
+task['processingStartedAt'] = datetime
 
 local processingTaskJson = cjson.encode(task)
 redis.call('SET', taskKey, processingTaskJson)

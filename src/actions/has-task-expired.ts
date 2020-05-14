@@ -11,5 +11,5 @@ export const hasTaskExpired = ({
   task: Task;
   asOf: Moment;
 }) => {
-  return !!task.expiresOn && task.expiresOn < asOf;
+  return !!task.expiresAt && task.expiresAt < asOf;
 };
