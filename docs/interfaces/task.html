@@ -53,7 +53,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../index.html">Globals</a>
 				</li>
 				<li>
 					<a href="task.html">Task</a>
@@ -83,16 +83,17 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#attemptcount" class="tsd-kind-icon">attempt<wbr>Count</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#data" class="tsd-kind-icon">data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#enqueueafter" class="tsd-kind-icon">enqueue<wbr>After</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#error" class="tsd-kind-icon">error</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#errorcount" class="tsd-kind-icon">error<wbr>Count</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#executiontimeout" class="tsd-kind-icon">execution<wbr>Timeout</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#expireson" class="tsd-kind-icon">expires<wbr>On</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#expiresat" class="tsd-kind-icon">expires<wbr>At</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#maxattemptcount" class="tsd-kind-icon">max<wbr>Attempt<wbr>Count</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#maxerrorcount" class="tsd-kind-icon">max<wbr>Error<wbr>Count</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#processingendedon" class="tsd-kind-icon">processing<wbr>Ended<wbr>On</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#processingstartedon" class="tsd-kind-icon">processing<wbr>Started<wbr>On</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#queuedon" class="tsd-kind-icon">queued<wbr>On</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#processingendedat" class="tsd-kind-icon">processing<wbr>Ended<wbr>At</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#processingstartedat" class="tsd-kind-icon">processing<wbr>Started<wbr>At</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#queuedat" class="tsd-kind-icon">queued<wbr>At</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#result" class="tsd-kind-icon">result</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#retrybackoff" class="tsd-kind-icon">retry<wbr>Backoff</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="task.html#status" class="tsd-kind-icon">status</a></li>
@@ -109,7 +110,7 @@
 					<div class="tsd-signature tsd-kind-icon">attempt<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L13">domain/tasks/task.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L14">domain/tasks/task.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -119,7 +120,17 @@
 					<div class="tsd-signature tsd-kind-icon">data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L7">domain/tasks/task.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L7">domain/tasks/task.ts:7</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="enqueueafter" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> enqueue<wbr>After</h3>
+					<div class="tsd-signature tsd-kind-icon">enqueue<wbr>After<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L9">domain/tasks/task.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -129,7 +140,7 @@
 					<div class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L22">domain/tasks/task.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L23">domain/tasks/task.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -139,7 +150,7 @@
 					<div class="tsd-signature tsd-kind-icon">error<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L15">domain/tasks/task.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L16">domain/tasks/task.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -149,17 +160,17 @@
 					<div class="tsd-signature tsd-kind-icon">execution<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L10">domain/tasks/task.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L11">domain/tasks/task.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="expireson" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> expires<wbr>On</h3>
-					<div class="tsd-signature tsd-kind-icon">expires<wbr>On<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
+					<a name="expiresat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> expires<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">expires<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L9">domain/tasks/task.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L10">domain/tasks/task.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -169,7 +180,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L5">domain/tasks/task.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L5">domain/tasks/task.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -179,7 +190,7 @@
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Attempt<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L14">domain/tasks/task.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L15">domain/tasks/task.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -189,37 +200,37 @@
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Error<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L16">domain/tasks/task.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L17">domain/tasks/task.ts:17</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="processingendedon" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> processing<wbr>Ended<wbr>On</h3>
-					<div class="tsd-signature tsd-kind-icon">processing<wbr>Ended<wbr>On<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
+					<a name="processingendedat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> processing<wbr>Ended<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">processing<wbr>Ended<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L12">domain/tasks/task.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L13">domain/tasks/task.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="processingstartedon" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> processing<wbr>Started<wbr>On</h3>
-					<div class="tsd-signature tsd-kind-icon">processing<wbr>Started<wbr>On<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
+					<a name="processingstartedat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> processing<wbr>Started<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">processing<wbr>Started<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L11">domain/tasks/task.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L12">domain/tasks/task.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="queuedon" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> queued<wbr>On</h3>
-					<div class="tsd-signature tsd-kind-icon">queued<wbr>On<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
+					<a name="queuedat" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> queued<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">queued<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Moment</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L8">domain/tasks/task.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L8">domain/tasks/task.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -229,7 +240,7 @@
 					<div class="tsd-signature tsd-kind-icon">result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L21">domain/tasks/task.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L22">domain/tasks/task.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -239,7 +250,7 @@
 					<div class="tsd-signature tsd-kind-icon">retry<wbr>Backoff<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>factor<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>strategy<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"constant"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"linear"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"exponential"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L17">domain/tasks/task.ts:17</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L18">domain/tasks/task.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -249,7 +260,7 @@
 					<div class="tsd-signature tsd-kind-icon">status<span class="tsd-signature-symbol">:</span> <a href="../enums/taskstatuses.html" class="tsd-signature-type">TaskStatuses</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/24ce955/src/domain/tasks/task.ts#L6">domain/tasks/task.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/domain/tasks/task.ts#L6">domain/tasks/task.ts:6</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -259,7 +270,7 @@
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+						<a href="../index.html"><em>Globals</em></a>
 					</li>
 				</ul>
 			</nav>
@@ -286,6 +297,9 @@
 								<a href="task.html#data" class="tsd-kind-icon">data</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="task.html#enqueueafter" class="tsd-kind-icon">enqueue<wbr>After</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="task.html#error" class="tsd-kind-icon">error</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
@@ -295,7 +309,7 @@
 								<a href="task.html#executiontimeout" class="tsd-kind-icon">execution<wbr>Timeout</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="task.html#expireson" class="tsd-kind-icon">expires<wbr>On</a>
+								<a href="task.html#expiresat" class="tsd-kind-icon">expires<wbr>At</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="task.html#id" class="tsd-kind-icon">id</a>
@@ -307,13 +321,13 @@
 								<a href="task.html#maxerrorcount" class="tsd-kind-icon">max<wbr>Error<wbr>Count</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="task.html#processingendedon" class="tsd-kind-icon">processing<wbr>Ended<wbr>On</a>
+								<a href="task.html#processingendedat" class="tsd-kind-icon">processing<wbr>Ended<wbr>At</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="task.html#processingstartedon" class="tsd-kind-icon">processing<wbr>Started<wbr>On</a>
+								<a href="task.html#processingstartedat" class="tsd-kind-icon">processing<wbr>Started<wbr>At</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="task.html#queuedon" class="tsd-kind-icon">queued<wbr>On</a>
+								<a href="task.html#queuedat" class="tsd-kind-icon">queued<wbr>At</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="task.html#result" class="tsd-kind-icon">result</a>
@@ -332,16 +346,16 @@
 						<a href="worker.html" class="tsd-kind-icon">Worker</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="../globals.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
+						<a href="../index.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="../globals.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
+						<a href="../index.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="../globals.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
+						<a href="../index.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="../globals.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
+						<a href="../index.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
 					</li>
 				</ul>
 			</nav>

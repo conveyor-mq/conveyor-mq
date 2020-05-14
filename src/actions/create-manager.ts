@@ -24,7 +24,6 @@ const promiseKey = (taskId: string) => `${taskId}-promise`;
 /**
  * Regular description
  *
- * @category Category Name
  */
 export const createManager = async ({
   queue,

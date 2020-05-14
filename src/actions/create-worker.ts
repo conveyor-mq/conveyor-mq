@@ -21,7 +21,6 @@ import { Worker } from '../domain/workers/worker';
 /**
  * Regular description
  *
- * @category Category Name
  */
 export const createWorker = async ({
   queue,

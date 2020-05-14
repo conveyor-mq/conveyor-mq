@@ -53,7 +53,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="globals.html">Globals</a>
+					<a href="index.html">Globals</a>
 				</li>
 			</ul>
 			<h1>conveyor-mq</h1>
@@ -63,164 +63,277 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<div class="tsd-panel tsd-typography">
-				<a href="#conveyor-mq" id="conveyor-mq" style="color: inherit; text-decoration: none;">
-					<h1>Conveyor MQ</h1>
-				</a>
-				<p>A fast, robust and extensible distributed task/job queue for Node.js.</p>
-				<p><img src="https://github.com/jasrusable/conveyor-mq/workflows/Tests/badge.svg" alt="Tests">
-					<img src="https://img.shields.io/npm/v/@jasrusable/conveyor-mq" alt="npm">
-				<a href="https://coveralls.io/github/jasrusable/conveyor-mq?branch=master"><img src="https://coveralls.io/repos/github/jasrusable/conveyor-mq/badge.svg?branch=master" alt="Coverage Status"></a></p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createManager, createWorker } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
-
-<span class="hljs-keyword">const</span> main = <span class="hljs-keyword">async</span> () =&gt; {
-  <span class="hljs-keyword">const</span> queueName = <span class="hljs-string">'my-queue'</span>;
-  <span class="hljs-keyword">const</span> redisConfig = { <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> };
-
-  <span class="hljs-keyword">const</span> manager = <span class="hljs-keyword">await</span> createManager({ <span class="hljs-attr">queue</span>: queueName, redisConfig });
-  <span class="hljs-keyword">await</span> manager.enqueueTask({ <span class="hljs-attr">task</span>: { <span class="hljs-attr">data</span>: { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">2</span> } } });
-
-  <span class="hljs-keyword">const</span> worker = <span class="hljs-keyword">await</span> createWorker({
-    <span class="hljs-attr">queue</span>: queueName,
-    redisConfig,
-    <span class="hljs-attr">handler</span>: <span class="hljs-function">(<span class="hljs-params">{ task }</span>) =&gt;</span> {
-      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Processing task: <span class="hljs-subst">${task.id}</span>`</span>);
-      <span class="hljs-keyword">return</span> task.x + task.y;
-    },
-  });
-};
-
-main();</code></pre>
-				<a href="#introduction" id="introduction" style="color: inherit; text-decoration: none;">
-					<h2>Introduction</h2>
-				</a>
-				<p>Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by Redis. Conveyor is a general purpose task queue designed for both short lived, and long running tasks.</p>
-				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
-					<h2>Installation</h2>
-				</a>
-				<p>npm:</p>
-				<pre><code class="language-bash">npm install --save conveyor-mq</code></pre>
-				<p>yarn:</p>
-				<pre><code class="language-bash">yarn add conveyor-mq</code></pre>
-				<p>You will also need Redis &gt;=3.2</p>
-				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
-					<h2>Features</h2>
-				</a>
-				<ul>
-					<li>Create and process tasks<ul>
-							<li>Task retries</li>
-							<li>Task expiry</li>
-							<li>Task retry strategies</li>
-						</ul>
-					</li>
-					<li>Concurrent worker processing</li>
-					<li>Simple and extensible design</li>
-					<li>Async/await/Promise APIs</li>
-					<li>Robust<ul>
-							<li>Atomic operations with Redis <a href="https://redis.io/commands/multi">transactions</a></li>
-							<li><a href="https://www.cloudcomputingpatterns.org/at_least_once_delivery/">At-least-once</a> task delivery</li>
-							<li>High test <a href="https://coveralls.io/github/jasrusable/conveyor-mq?branch=master">code coverage</a></li>
-						</ul>
-					</li>
-					<li>High performance<ul>
-							<li>Minimised network overhead using Redis <a href="https://redis.io/topics/pipelining">pipelining</a> and <a href="https://redis.io/commands/multi">multi commands</a></li>
-							<li>Uses Redis <a href="https://redis.io/commands/eval">Lua scripting</a> for improved performance and atomicity</li>
-						</ul>
-					</li>
-				</ul>
-				<a href="#table-of-contents" id="table-of-contents" style="color: inherit; text-decoration: none;">
-					<h2>Table of Contents</h2>
-				</a>
-				<ol>
-					<li>Quick start</li>
-					<li>API Reference</li>
-					<li>Examples</li>
-					<li>Contributing</li>
-					<li>License</li>
-				</ol>
-				<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
-					<h2>Quick start</h2>
-				</a>
-				<a href="#queue-manager" id="queue-manager" style="color: inherit; text-decoration: none;">
-					<h3>Queue manager</h3>
-				</a>
-				<p>A queue manager is responsible for adding tasks to a queue, as well as querying various properties of a queue.</p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createManager } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
-
-<span class="hljs-comment">// Create a manager instance:</span>
-<span class="hljs-keyword">const</span> manager = <span class="hljs-keyword">await</span> createManager({
-  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
-  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
-});
-
-<span class="hljs-comment">// Add a task to the queue:</span>
-<span class="hljs-keyword">await</span> manager.enqueueTask({ <span class="hljs-attr">task</span>: { <span class="hljs-attr">id</span>: <span class="hljs-string">'my-task-id'</span>, <span class="hljs-attr">data</span>: { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">2</span> } } });
-
-<span class="hljs-comment">// Get a task's details:</span>
-<span class="hljs-keyword">const</span> task = <span class="hljs-keyword">await</span> manager.getTask({ <span class="hljs-attr">taskId</span>: <span class="hljs-string">'my-task-id'</span> });
-<span class="hljs-comment">/*
-  {
-    ...
-    id: 'my-task-id',
-    status: 'queued',
-    data: {
-      x: 1,
-      y: 2,
-    },
-    ...
-  }
-*/</span></code></pre>
-				<a href="#queue-worker" id="queue-worker" style="color: inherit; text-decoration: none;">
-					<h3>Queue worker</h3>
-				</a>
-				<p>A queue worker is responsible for taking enqueued tasks off of the queue, and processing them.</p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createWorker } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
-
-<span class="hljs-comment">// Create a worker which will start monitoring the queue for tasks and process them:</span>
-<span class="hljs-keyword">const</span> worker = <span class="hljs-keyword">await</span> createWorker({
-  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
-  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
-  <span class="hljs-comment">// Pass a handler which receives tasks, processes them, and then returns the result of a task:</span>
-  <span class="hljs-attr">handler</span>: <span class="hljs-function">(<span class="hljs-params">{ task }</span>) =&gt;</span> {
-    <span class="hljs-keyword">return</span> task.data.x + task.data.y;
-  },
-});</code></pre>
-				<a href="#queue-orchestrator" id="queue-orchestrator" style="color: inherit; text-decoration: none;">
-					<h3>Queue orchestrator</h3>
-				</a>
-				<p>A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.</p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createOrchestrator } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
-
-<span class="hljs-comment">/*
-  Create an orchestrator which will start monitoring the queue for stalled tasks
-  and re-enqueue them if necessary:
-*/</span>
-<span class="hljs-keyword">const</span> orchestrator = <span class="hljs-keyword">await</span> createOrchestrator({
-  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
-  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
-});</code></pre>
-				<a href="#queue-listener" id="queue-listener" style="color: inherit; text-decoration: none;">
-					<h3>Queue listener</h3>
-				</a>
-				<p>A queue listener is responsible for listening and subscribing to queue events.</p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> { createListener } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conveyor-mq'</span>);
-
-<span class="hljs-comment">// Create a listener which will start monitoring the queue and listen for task_complete events:</span>
-<span class="hljs-keyword">const</span> listener = <span class="hljs-keyword">await</span> createListener({
-  <span class="hljs-attr">queue</span>: <span class="hljs-string">'my-queue'</span>,
-  <span class="hljs-attr">redisConfig</span>: { <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>, <span class="hljs-attr">port</span>: <span class="hljs-number">6379</span> },
-});
-
-listener.on(<span class="hljs-string">'task_complete'</span>, ({ event }) =&gt;
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Task <span class="hljs-subst">${event.task.id}</span> has completed!`</span>),
-);</code></pre>
-			</div>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Enumerations</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-enum"><a href="enums/eventtypes.html" class="tsd-kind-icon">Event<wbr>Types</a></li>
+								<li class="tsd-kind-enum"><a href="enums/taskstatuses.html" class="tsd-kind-icon">Task<wbr>Statuses</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface"><a href="interfaces/event.html" class="tsd-kind-icon">Event</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/task.html" class="tsd-kind-icon">Task</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/worker.html" class="tsd-kind-icon">Worker</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function"><a href="index.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a></li>
+								<li class="tsd-kind-function"><a href="index.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a></li>
+								<li class="tsd-kind-function"><a href="index.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a></li>
+								<li class="tsd-kind-function"><a href="index.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="createlistener" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Listener</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Listener<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>on<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/actions/create-listener.ts#L21">actions/create-listener.ts:21</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>redis<wbr>Config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter">
+													<h5>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+												</li>
+												<li class="tsd-parameter">
+													<h5>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>on<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="createmanager" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Manager</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Manager<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>enqueueTask<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">enqueueTask</span><span class="tsd-signature-symbol">; </span>enqueueTasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">enqueueTasks</span><span class="tsd-signature-symbol">; </span>onTaskComplete<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">onTaskComplete</span><span class="tsd-signature-symbol">; </span>getTask<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>getTasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>quit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/actions/create-manager.ts#L28">actions/create-manager.ts:28</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Regular description</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>redis<wbr>Config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter">
+													<h5>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+												</li>
+												<li class="tsd-parameter">
+													<h5>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>enqueueTask<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">enqueueTask</span><span class="tsd-signature-symbol">; </span>enqueueTasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">enqueueTasks</span><span class="tsd-signature-symbol">; </span>onTaskComplete<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">onTaskComplete</span><span class="tsd-signature-symbol">; </span>getTask<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>getTasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>quit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="createorchestrator" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Orchestrator</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Orchestrator<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>delayedTasksCheckInterval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>stalledCheckInterval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>quit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">quit</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/actions/create-orchestrator.ts#L11">actions/create-orchestrator.ts:11</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>delayedTasksCheckInterval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>stalledCheckInterval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>delayed<wbr>Tasks<wbr>Check<wbr>Interval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>redis<wbr>Config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter">
+													<h5>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+												</li>
+												<li class="tsd-parameter">
+													<h5>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+												</li>
+											</ul>
+										</li>
+										<li class="tsd-parameter">
+											<h5>stalled<wbr>Check<wbr>Interval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>quit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">quit</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function">
+					<a name="createworker" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Worker</h3>
+					<ul class="tsd-signatures tsd-kind-function">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Worker<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>autoStart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>concurrency<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>getRetryDelay<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>idleTimeout<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onHandlerError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onIdle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onReady<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskFailed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskSuccess<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>stallDuration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>pause<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pause</span><span class="tsd-signature-symbol">; </span>shutdown<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">shutdown</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">start</span><span class="tsd-signature-symbol">; </span>onIdle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/931f035/src/actions/create-worker.ts#L25">actions/create-worker.ts:25</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Regular description</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>autoStart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>concurrency<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>getRetryDelay<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>idleTimeout<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onHandlerError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onIdle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onReady<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskFailed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>onTaskSuccess<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>redisConfig<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>stallDuration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>auto<wbr>Start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>concurrency<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>get<wbr>Retry<wbr>Delay<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>handler<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter-signature">
+													<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+														<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+													</ul>
+													<ul class="tsd-descriptions">
+														<li class="tsd-description">
+															<h4 class="tsd-parameters-title">Parameters</h4>
+															<ul class="tsd-parameters">
+																<li>
+																	<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span></h5>
+																	<ul class="tsd-parameters">
+																		<li class="tsd-parameter">
+																			<h5>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a></h5>
+																		</li>
+																	</ul>
+																</li>
+															</ul>
+															<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</li>
+										<li class="tsd-parameter">
+											<h5>idle<wbr>Timeout<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Handler<wbr>Error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Idle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Ready<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Task<wbr>Error<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Task<wbr>Failed<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>on<wbr>Task<wbr>Success<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>task<span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>redis<wbr>Config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter">
+													<h5>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+												</li>
+												<li class="tsd-parameter">
+													<h5>port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+												</li>
+											</ul>
+										</li>
+										<li class="tsd-parameter">
+											<h5>stall<wbr>Duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>pause<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">pause</span><span class="tsd-signature-symbol">; </span>shutdown<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">shutdown</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">start</span><span class="tsd-signature-symbol">; </span>onIdle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+					<li class="globals current ">
+						<a href="index.html"><em>Globals</em></a>
 					</li>
 				</ul>
 			</nav>
@@ -242,16 +355,16 @@ listener.on(<span class="hljs-string">'task_complete'</span>, ({ event }) =&gt;
 						<a href="interfaces/worker.html" class="tsd-kind-icon">Worker</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
+						<a href="index.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
+						<a href="index.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
+						<a href="index.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
 					</li>
 					<li class=" tsd-kind-function">
-						<a href="globals.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
+						<a href="index.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
 					</li>
 				</ul>
 			</nav>

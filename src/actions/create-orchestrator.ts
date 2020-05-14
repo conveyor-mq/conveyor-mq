@@ -17,7 +17,7 @@ export const createOrchestrator = async ({
   queue: string;
   redisConfig: RedisConfig;
   stalledCheckInterval?: number;
-  delayedTasksCheckInternal?: number;
+  delayedTasksCheckInterval?: number;
 }) => {
   const client = await createClient(redisConfig);
 

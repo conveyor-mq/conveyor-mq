@@ -25,7 +25,7 @@ export const takeTask = async ({
   client: Redis;
   stallDuration?: number;
 }): Promise<Task | null> => {
-  const taskString = await callLuaScript({
+  const taskString = (await callLuaScript({
     client,
     script: 'takeTask',
     args: [
@@ -40,7 +40,7 @@ export const takeTask = async ({
       EventTypes.TaskProcessing,
       TaskStatuses.Processing,
     ],
-  });
+  })) as string;
   if (!taskString) return null;
   const task = deSerializeTask(taskString);
   return task;

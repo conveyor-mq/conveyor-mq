@@ -2,5 +2,6 @@
   "inputFiles": ["./src/actions/**"],
   "exclude": ["./src/tests/**", "./src/utils/**", "./src/lua/**"],
   "mode": "file",
+  "readme": "none",
   "out": "docs"
 }

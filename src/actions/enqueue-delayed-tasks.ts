@@ -5,6 +5,9 @@ import { callLuaScript } from '../utils/redis';
 import { getDelayedSetKey, getQueuedListKey, getTaskKey } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
+/**
+ * @ignore
+ */
 export const enqueueDelayedTasks = async ({
   queue,
   client,
