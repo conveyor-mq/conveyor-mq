@@ -10,6 +10,9 @@ export const taskFromJson = (taskJson: any): Task => {
     status: taskJson.status,
     data: taskJson.data,
     queuedAt: taskJson.queuedAt ? moment(taskJson.queuedAt) : undefined,
+    enqueueAfter: taskJson.enqueueAfter
+      ? moment(taskJson.enqueueAfter)
+      : undefined,
     expiresAt: taskJson.expiresAt ? moment(taskJson.expiresAt) : undefined,
     executionTimeout: taskJson.executionTimeout,
     processingStartedAt: taskJson.processingStartedAt

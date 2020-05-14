@@ -6,6 +6,7 @@ import {
   getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
+  getDelayedSetKey,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createTaskId } from '../utils/general';
@@ -17,6 +18,7 @@ import { EventTypes } from '../domain/events/event-types';
 /**
  * @ignore
  */
+// TODO: Consider enqueueing task with enqueueAfter < now.
 export const enqueueTasks = async ({
   queue,
   tasks,
@@ -43,15 +45,23 @@ export const enqueueTasks = async ({
     const taskKey = getTaskKey({ taskId: task.id, queue });
     const taskString = serializeTask(task);
     multi.set(taskKey, taskString);
-    multi.lpush(queuedListKey, task.id);
-    multi.publish(
-      getQueueTaskQueuedChannel({ queue }),
-      serializeEvent({
-        createdAt: moment(),
-        type: EventTypes.TaskQueued,
-        task,
-      }),
-    );
+    if (task.enqueueAfter) {
+      multi.zadd(
+        getDelayedSetKey({ queue }),
+        String(task.enqueueAfter.unix()),
+        task.id,
+      );
+    } else {
+      multi.lpush(queuedListKey, task.id);
+      multi.publish(
+        getQueueTaskQueuedChannel({ queue }),
+        serializeEvent({
+          createdAt: moment(),
+          type: EventTypes.TaskQueued,
+          task,
+        }),
+      );
+    }
   });
   await exec(multi);
   return tasksToQueue;

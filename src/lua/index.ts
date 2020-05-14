@@ -18,6 +18,11 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
       filePath: './mark-task-processing.lua',
       numberOfKeys: 9,
     },
+    {
+      name: 'enqueueDelayedTasks',
+      filePath: './enqueue-delayed-tasks.lua',
+      numberOfKeys: 4,
+    },
   ];
   await Promise.all(
     map(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {

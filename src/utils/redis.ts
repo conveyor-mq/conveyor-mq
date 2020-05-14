@@ -30,7 +30,7 @@ export const callLuaScript = ({
   script: string;
   args: (string | number)[];
 }) => {
-  return client[script](...args) as Promise<string>;
+  return client[script](...args) as Promise<string | string[]>;
 };
 
 export const publish = ({
@@ -88,6 +88,20 @@ export const exec = (multi_: Pipeline) => {
       err ? reject(err) : resolve(map(results, (result) => result[1])),
     );
   }) as Promise<(string | number)[]>;
+};
+
+export const zrangebyscore = ({
+  client,
+  key,
+  min,
+  max,
+}: {
+  client: Redis;
+  key: string;
+  min: string | number;
+  max: string | number;
+}) => {
+  return client.zrangebyscore(key, min, max);
 };
 
 export const set = ({

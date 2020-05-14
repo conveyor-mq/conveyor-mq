@@ -1,15 +1,22 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { flushAll, quit, lrange, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  lrange,
+  createClient,
+  zrangebyscore,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getTask } from '../../actions/get-task';
-import { getQueuedListKey } from '../../utils/keys';
+import { getQueuedListKey, getDelayedSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { takeTask } from '../../actions/take-task';
 
-describe('putTask', () => {
+describe('enqueueTask', () => {
   const queue = createUuid();
   let client: Redis;
 
@@ -25,7 +32,7 @@ describe('putTask', () => {
     await quit({ client });
   });
 
-  it('putTask adds task to a queue', async () => {
+  it('enqueueTask adds task to a queue', async () => {
     const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await enqueueTask({ queue, client, task });
     expect(queuedTask.data).toBe(task.data);
@@ -52,7 +59,7 @@ describe('putTask', () => {
     expect(queuedTaskIds.length).toBe(1);
     expect(queuedTaskIds[0]).toBe(task.id);
   });
-  it('putTask resets processing dates', async () => {
+  it('enqueueTask resets processing dates', async () => {
     const task: Task = {
       id: 'a',
       data: 'b',
@@ -64,5 +71,25 @@ describe('putTask', () => {
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
+  });
+  it('enqueueTask schedules delayed task', async () => {
+    const enqueueAfter = moment();
+    const task: Task = {
+      id: 'a',
+      data: 'b',
+      enqueueAfter,
+    };
+    await enqueueTask({ queue, client, task });
+
+    const taskResult = await takeTask({ queue, client });
+    expect(taskResult).toBe(null);
+
+    const [taskId] = await zrangebyscore({
+      client,
+      key: getDelayedSetKey({ queue }),
+      min: 0,
+      max: enqueueAfter.unix(),
+    });
+    expect(taskId).toBe(task.id);
   });
 });

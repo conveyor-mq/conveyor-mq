@@ -51,10 +51,13 @@ You will also need Redis >=3.2
 
 ## Features
 
-- Create and process tasks
-  - Task retries
-  - Task expiry
-  - Task retry strategies
+- Task management
+  - Retry tasks on error or stall with customizable retry strategies
+  - Tasks which expire
+  - Task execution timeouts
+  - Delayed/Scheduled tasks
+- Events
+  - Task, Queue and Worker events
 - Concurrent worker processing
 - Simple and extensible design
 - Async/await/Promise APIs

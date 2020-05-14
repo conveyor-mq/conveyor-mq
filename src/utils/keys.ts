@@ -54,6 +54,9 @@ export const getTaskAcknowledgedKey = ({
   return `${queue}:acknowledged-tasks:${taskId}`;
 };
 
+export const getDelayedSetKey = ({ queue }: { queue: string }) =>
+  `${queue}:sets:delayed`;
+
 export const getQueuedListKey = ({ queue }: { queue: string }) =>
   `${queue}:lists:queued`;
 

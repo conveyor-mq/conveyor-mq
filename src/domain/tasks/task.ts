@@ -6,6 +6,7 @@ export interface Task {
   status?: TaskStatuses;
   data?: any;
   queuedAt?: Moment;
+  enqueueAfter?: Moment;
   expiresAt?: Moment;
   executionTimeout?: number;
   processingStartedAt?: Moment;
