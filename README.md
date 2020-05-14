@@ -56,13 +56,13 @@ Conveyor is a asynchronous, distributed task/job queue for Node.js, powered by R
 ## Table of Contents
 
 1. Installation
-2. Quick start
+2. Quick Start
 3. API Reference
 4. Examples
 5. Contributing
 6. License
 
-## Installation
+## 1. Installation
 
 npm:
 
@@ -78,11 +78,11 @@ yarn add conveyor-mq
 
 You will also need Redis >=3.2
 
-## Quick start
+## 2. Quick Start
 
 ### Queue manager
 
-A queue manager is responsible for adding tasks to a queue, as well as querying various properties of a queue.
+A [manager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager) is responsible for adding tasks to a queue, as well as querying various properties of a queue.
 
 ```js
 const { createManager } = require('conveyor-mq');
@@ -114,7 +114,7 @@ const task = await manager.getTask({ taskId: 'my-task-id' });
 
 ### Queue worker
 
-A queue worker is responsible for taking enqueued tasks off of the queue, and processing them.
+A [worker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) is responsible for taking enqueued tasks off of the queue and processing them.
 
 ```js
 const { createWorker } = require('conveyor-mq');
@@ -132,7 +132,7 @@ const worker = await createWorker({
 
 ### Queue orchestrator
 
-A queue orchestrator is responsible for various queue maintenance functions including re-enqueueing stalled tasks.
+An [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) is responsible for various queue maintenance operations including re-enqueueing stalled tasks, and enqueueing delayed/scheduled tasks.
 
 ```js
 const { createOrchestrator } = require('conveyor-mq');
@@ -149,7 +149,7 @@ const orchestrator = await createOrchestrator({
 
 ### Queue listener
 
-A queue listener is responsible for listening and subscribing to queue events.
+A [listener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) is responsible for listening and subscribing to [events](https://jasrusable.github.io/conveyor-mq/enums/eventtypes.html).
 
 ```js
 const { createListener } = require('conveyor-mq');
@@ -164,3 +164,7 @@ listener.on('task_complete', ({ event }) =>
   console.log(`Task ${event.task.id} has completed!`),
 );
 ```
+
+## 3. API Reference
+
+API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
