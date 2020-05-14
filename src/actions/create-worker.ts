@@ -25,7 +25,7 @@ import { Worker } from '../domain/workers/worker';
 export const createWorker = async ({
   queue,
   redisConfig,
-  stallDuration = 1000,
+  stallTimeout = 1000,
   handler,
   concurrency = 1,
   getRetryDelay,
@@ -40,7 +40,7 @@ export const createWorker = async ({
 }: {
   queue: string;
   redisConfig: RedisConfig;
-  stallDuration?: number;
+  stallTimeout?: number;
   handler: ({ task }: { task: Task }) => any;
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
@@ -83,7 +83,7 @@ export const createWorker = async ({
           takeTaskBlocking({
             queue,
             client: takerClient,
-            stallDuration,
+            stallTimeout,
           }),
         () => isActive(),
       );
@@ -96,7 +96,7 @@ export const createWorker = async ({
                 queue,
                 client: workerClient,
                 handler,
-                stallDuration,
+                stallTimeout,
                 getRetryDelay,
                 onTaskSuccess,
                 onTaskError,

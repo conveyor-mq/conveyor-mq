@@ -19,11 +19,11 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 export const takeTask = async ({
   queue,
   client,
-  stallDuration = 1000,
+  stallTimeout = 1000,
 }: {
   queue: string;
   client: Redis;
-  stallDuration?: number;
+  stallTimeout?: number;
 }): Promise<Task | null> => {
   const taskString = (await callLuaScript({
     client,
@@ -32,7 +32,7 @@ export const takeTask = async ({
       getQueuedListKey({ queue }),
       getProcessingListKey({ queue }),
       getTaskKey({ taskId: '', queue }),
-      stallDuration,
+      stallTimeout,
       queue,
       moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),

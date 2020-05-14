@@ -35,7 +35,7 @@ describe('getTask', () => {
     expect(retrievedTask.id).toBe(task.id);
     expect(retrievedTask.status).toBe(TaskStatuses.Queued);
 
-    await takeTask({ queue, client, stallDuration: 100 });
+    await takeTask({ queue, client, stallTimeout: 100 });
     const retrievedTask2 = (await getTask({
       queue,
       client,

@@ -26,7 +26,7 @@ describe('acknowledgeTask', () => {
   it('acknowledgeTask acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task, client });
-    await takeTask({ queue, client, stallDuration: 1 });
+    await takeTask({ queue, client, stallTimeout: 1 });
     await sleep(50);
     expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(true);
     await acknowledgeTask({ taskId: task.id, queue, client, ttl: 50 });

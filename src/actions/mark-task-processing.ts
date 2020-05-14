@@ -15,12 +15,12 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
  */
 export const markTaskProcessing = async ({
   taskId,
-  stallDuration,
+  stallTimeout,
   queue,
   client,
 }: {
   taskId: string;
-  stallDuration: number;
+  stallTimeout: number;
   queue: string;
   client: Redis;
 }) => {
@@ -30,7 +30,7 @@ export const markTaskProcessing = async ({
     args: [
       taskId,
       getTaskKey({ taskId: '', queue }),
-      stallDuration,
+      stallTimeout,
       queue,
       moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),

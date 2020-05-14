@@ -164,7 +164,7 @@ describe('createListener', () => {
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask({ task });
 
-    await takeTask({ queue, client, stallDuration: 1 });
+    await takeTask({ queue, client, stallTimeout: 1 });
     await sleep(50);
     await processStalledTasks({ queue, client });
 

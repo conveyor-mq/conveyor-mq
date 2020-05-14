@@ -30,8 +30,8 @@ describe('putStalledTask', () => {
     const taskB = { id: 'b', data: 'g' };
     await enqueueTask({ queue, task: taskA, client });
     await enqueueTask({ queue, task: taskB, client });
-    await takeTask({ queue, client, stallDuration: 150 });
-    await takeTask({ queue, client, stallDuration: 10000 });
+    await takeTask({ queue, client, stallTimeout: 150 });
+    await takeTask({ queue, client, stallTimeout: 10000 });
     expect((await getProcessingTasks({ queue, client })).length).toBe(2);
     expect((await getStalledTasks({ queue, client })).length).toBe(0);
     expect(await isTaskStalled({ taskId: taskA.id, queue, client })).toBe(

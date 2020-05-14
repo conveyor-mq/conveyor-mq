@@ -16,7 +16,7 @@ export const processTask = async ({
   queue,
   client,
   handler,
-  stallDuration,
+  stallTimeout,
   getRetryDelay,
   onTaskSuccess,
   onTaskError,
@@ -26,7 +26,7 @@ export const processTask = async ({
   queue: string;
   client: Redis;
   handler: ({ task }: { task: Task }) => any;
-  stallDuration: number;
+  stallTimeout: number;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: ({ task }: { task: Task }) => any;
   onTaskError?: ({ task }: { task: Task }) => any;
@@ -38,9 +38,9 @@ export const processTask = async ({
       taskId: task.id,
       queue,
       client,
-      ttl: stallDuration,
+      ttl: stallTimeout,
     });
-  }, stallDuration / 2);
+  }, stallTimeout / 2);
   const result = await handleTask({
     task,
     queue,

@@ -11,12 +11,12 @@ export const takeTaskBlocking = async ({
   timeout = 0,
   queue,
   client,
-  stallDuration = 1000,
+  stallTimeout = 1000,
 }: {
   timeout?: number;
   queue: string;
   client: Redis;
-  stallDuration?: number;
+  stallTimeout?: number;
 }): Promise<Task | null> => {
   const taskId = await brpoplpush({
     fromKey: getQueuedListKey({ queue }),
@@ -27,7 +27,7 @@ export const takeTaskBlocking = async ({
   if (!taskId) return null;
   const task = await markTaskProcessing({
     taskId,
-    stallDuration,
+    stallTimeout,
     queue,
     client,
   });

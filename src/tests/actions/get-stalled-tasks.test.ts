@@ -35,7 +35,7 @@ describe('getStalledTasks', () => {
     );
     await enqueueTasks({ queue, tasks, client });
     const takenTasks = await Promise.all(
-      map(tasks, () => takeTask({ queue, client, stallDuration: 100 })),
+      map(tasks, () => takeTask({ queue, client, stallTimeout: 100 })),
     );
     expect(takenTasks.length).toBe(10);
     const stalledTasks = await getStalledTasks({ queue, client });
