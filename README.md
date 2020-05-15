@@ -251,29 +251,50 @@ scheduled -> queued -> processing
 
 \*Note: `success` and `failed` statuses both represent the final outcome of a task, after all stall/error retrying has been attempted and exhausted.
 
-### Task.result
+#### Task.result
 
 [Task.result](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#result) is set to the return value (or returned Promise resolution) of `worker.handler` after the successful processing of a task.
 
-### Task.error
+#### Task.error
 
 [Task.error](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#error) is set to the value of an error thrown (or returned Promise rejection) in `worker.handler` after the failed processing of a task.
 
-### Task.queuedAt
+#### Task.queuedAt
 
 [Task.queuedAt](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#queuedat) is the time at which the task was enqueued in the queue.
 
-### Task.processingStartedAt
+#### Task.processingStartedAt
 
 [Task.processingStartedAt](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#processingstartedat) is the time at which processing of the task was started by a worker.
 
-### Task.processingEndedAt
+#### Task.processingEndedAt
 
 [Task.processingEndedAt](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#processingendedat) is the time at which processing of the task ended on a worker.
 
-### Task.expiresAt
+#### Task.expiresAt
 
 [Task.expiresAt](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#expiresat) is the time at which a task will be considered expired and will be marked as `failed` by a worker if the time at which the task starts being processed is _after_ its `task.expiresAt` value. Task stall and error retires will not be attempted if it has expired.
+
+#### Task.enqueueAfter
+
+[Task.enqueueAfter](https://jasrusable.github.io/conveyor-mq/interfaces/task.html#enqueueafter) is the time after which a task will be enqueued in the queue by an [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator). A task with a `enqueueAfter` in the future will have a status of `scheduled` until it is actually enqueued by an orchestrator once `enqueueAfter` < `now`, after which it will have a status of `queued`.
+
+### Enqueuing tasks
+
+Tasks are added to a queue (enqueued) by using a manager's `enqueueTask` function.
+
+```js
+import { createManager } from 'conveyor-mq';
+
+const manager = await createManager({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+});
+
+const myTask = { data: { x: 1, y: 2 } };
+
+const enqueuedTask = await manager.enqueueTask({ task: myTask });
+```
 
 ## API Reference
 
