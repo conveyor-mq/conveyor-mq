@@ -91,12 +91,13 @@ export const handleTask = async ({
     const willMaxErrorCountBeExceeded =
       task.maxErrorCount && (task.errorCount || 0) >= task.maxErrorCount;
     if (!willMaxErrorCountBeExceeded && !willMaxAttemptCountBeExceeded) {
-      const delay = await getRetryDelay({ task });
-      // Use delayed task instead of sleeping.
-      await sleep(delay);
+      const retryDelay = await getRetryDelay({ task });
       await enqueueTask({
         task: {
           ...task,
+          enqueueAfter: retryDelay
+            ? moment().add(retryDelay, 'milliseconds')
+            : undefined,
           errorCount: (task.errorCount || 0) + 1,
           processingEndedAt: moment(),
         },
