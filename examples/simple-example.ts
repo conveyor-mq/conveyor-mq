@@ -3,12 +3,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { createUuid } from '../src/utils/general';
 import { createManager } from '../src/actions/create-manager';
 import { createWorker } from '../src/actions/create-worker';
 import { createOrchestrator } from '../src/actions/create-orchestrator';
 import { createListener } from '../src/actions/create-listener';
-import { Task } from '../src/domain/tasks/task';
 import { EventTypes } from '../src/domain/events/event-types';
 
 const main = async () => {
@@ -28,7 +26,7 @@ const main = async () => {
   const worker = await createWorker({
     queue,
     redisConfig,
-    handler: async () => {
+    handler: () => {
       return 'some-result';
     },
   });
@@ -41,7 +39,7 @@ const main = async () => {
 
   const addTasks = async () => {
     try {
-      const task: Task = { id: createUuid(), data: 'some-task-data' };
+      const task = { data: 'some-task-data' };
       await manager.enqueueTask({ task });
     } catch (e) {
       console.log(e);

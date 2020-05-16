@@ -22,16 +22,8 @@ export const createOrchestrator = async ({
   const client = await createClient(redisConfig);
 
   const processStalledTasks = async () => {
-    console.log('Checking for stalled tasks.');
     try {
-      const {
-        stalledTasks,
-        reQueuedTasks,
-        failedTasks,
-      } = await processStalledTasksAction({ queue, client });
-      console.log('Stalled tasks:', stalledTasks.length);
-      console.log('Requeued stalled tasks:', reQueuedTasks.length);
-      console.log('Failed stalled tasks:', failedTasks.length);
+      await processStalledTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
@@ -42,10 +34,8 @@ export const createOrchestrator = async ({
   );
 
   const enqueueDelayedTasks = async () => {
-    console.log('Checking for delayed tasks.');
     try {
-      const enqueuedTasks = await enqueueDelayedTasksAction({ queue, client });
-      console.log('Enqueued delayed tasks:', enqueuedTasks.length);
+      await enqueueDelayedTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }

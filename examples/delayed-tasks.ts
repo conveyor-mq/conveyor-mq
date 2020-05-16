@@ -15,11 +15,6 @@ const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
   const queue = 'myQueue';
 
-  const manager = await createManager({
-    queue,
-    redisConfig,
-  });
-
   const listener = await createListener({ queue, redisConfig });
   listener.on(EventTypes.TaskComplete, ({ event }) =>
     console.log('Task complete:', event?.task?.id),
@@ -39,10 +34,13 @@ const main = async () => {
     stalledCheckInterval: 30000,
   });
 
-  const task: Task = {
-    id: createUuid(),
+  const manager = await createManager({
+    queue,
+    redisConfig,
+  });
+  const task = {
     data: 'some-task-data',
-    enqueueAfter: moment().add(10, 'seconds'),
+    enqueueAfter: moment().add(3, 'seconds'),
   };
   await manager.enqueueTask({ task });
 };
