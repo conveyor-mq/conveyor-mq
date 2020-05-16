@@ -3,7 +3,7 @@
 A fast, robust and extensible distributed task/job queue for Node.js.
 
 ![Tests](https://github.com/jasrusable/conveyor-mq/workflows/Tests/badge.svg)
-![npm](https://img.shields.io/npm/v/@jasrusable/conveyor-mq)
+![npm](https://img.shields.io/npm/v/conveyor-mq)
 [![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor-mq/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor-mq?branch=master)
 
 ```js
