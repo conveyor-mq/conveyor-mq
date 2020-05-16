@@ -262,10 +262,10 @@ const myTask = {
   retryBackoff: { strategy: 'linear', factor: 10 },
 
   // Schedules a task to only be enqueued after this time:
-  enqueueAfter: moment('2020-05-01'),
+  enqueueAfter: new Date('2020-05-01'),
 
   // Time after which a task will expire and fail if only picked up by a worker after the time:
-  expiresAt: moment('2020-05-06'),
+  expiresAt: new Date('2020-05-06'),
 
   // Time after an acknowledgement after which a task will be considered stalled and re-enqueued by an orchestrator:
   stallTimeout: 5000,
@@ -360,7 +360,7 @@ The time since a task was last acknowledged after which it is considered stalled
 Tasks can be scheduled to be added to the queue at some future point in time. To schedule a task, include a `enqueueAfter` property on a task:
 
 ```js
-const scheduledTask = { data: { x: 1, y: 2 }, enqueueAfter: moment('2020-05-15') };
+const scheduledTask = { data: { x: 1, y: 2 }, enqueueAfter: new Date('2020-05-15') };
 
 const enqueuedTask = await manager.enqueueTask({ task: scheduledTask });
 /*

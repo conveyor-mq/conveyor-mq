@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment, { Moment } from 'moment';
 import {
   getTaskKey,
   getProcessingListKey,
@@ -28,7 +27,7 @@ export const markTaskSuccess = async ({
   queue: string;
   client: Redis;
   result?: any;
-  asOf: Moment;
+  asOf: Date;
 }) => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const processingListKey = getProcessingListKey({ queue });
@@ -45,7 +44,7 @@ export const markTaskSuccess = async ({
   multi.publish(
     getQueueTaskSuccessChannel({ queue }),
     serializeEvent({
-      createdAt: moment(),
+      createdAt: new Date(),
       type: EventTypes.TaskSuccess,
       task: successfulTask,
     }),
@@ -53,7 +52,7 @@ export const markTaskSuccess = async ({
   multi.publish(
     getQueueTaskCompleteChannel({ queue }),
     serializeEvent({
-      createdAt: moment(),
+      createdAt: new Date(),
       type: EventTypes.TaskComplete,
       task: successfulTask,
     }),

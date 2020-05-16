@@ -1,6 +1,5 @@
 import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
-import moment from 'moment';
 import { RedisConfig, sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -79,7 +78,7 @@ export const createWorker = async ({
 
   const worker: Worker = {
     id: createWorkerId(),
-    createdAt: moment(),
+    createdAt: new Date(),
   };
 
   const takerQueue = new PQueue({ concurrency, autoStart });
@@ -157,7 +156,7 @@ export const createWorker = async ({
     await publish({
       channel: getWorkerPausedChannel({ queue }),
       message: serializeEvent({
-        createdAt: moment(),
+        createdAt: new Date(),
         type: EventTypes.WorkerPaused,
         worker,
       }),
@@ -197,7 +196,7 @@ export const createWorker = async ({
       await publish({
         channel: getWorkerStartedChannel({ queue }),
         message: serializeEvent({
-          createdAt: moment(),
+          createdAt: new Date(),
           type: EventTypes.WorkerStarted,
           worker,
         }),
@@ -224,7 +223,7 @@ export const createWorker = async ({
     await publish({
       channel: getWorkerStartedChannel({ queue }),
       message: serializeEvent({
-        createdAt: moment(),
+        createdAt: new Date(),
         type: EventTypes.WorkerShutdown,
         worker,
       }),

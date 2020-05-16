@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { getTaskKey, getQueueTaskUpdatedChannel } from '../utils/keys';
@@ -24,7 +23,11 @@ export const updateTask = async ({
   multi.set(taskKey, serializeTask(task));
   multi.publish(
     getQueueTaskUpdatedChannel({ queue }),
-    serializeEvent({ createdAt: moment(), type: EventTypes.TaskUpdated, task }),
+    serializeEvent({
+      createdAt: new Date(),
+      type: EventTypes.TaskUpdated,
+      task,
+    }),
   );
   await exec(multi);
   return task;

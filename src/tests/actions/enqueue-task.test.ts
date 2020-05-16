@@ -96,9 +96,9 @@ describe('enqueueTask', () => {
     const task: Task = {
       id: 'a',
       data: 'b',
-      queuedAt: moment(),
-      processingStartedAt: moment(),
-      processingEndedAt: moment(),
+      queuedAt: new Date(),
+      processingStartedAt: new Date(),
+      processingEndedAt: new Date(),
     };
     const queuedTask = await enqueueTask({ queue, client, task });
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
@@ -106,7 +106,7 @@ describe('enqueueTask', () => {
     expect(queuedTask.processingEndedAt).toBe(undefined);
   });
   it('enqueueTask schedules delayed task', async () => {
-    const enqueueAfter = moment().add(1, 'hours');
+    const enqueueAfter = moment().add(1, 'hours').toDate();
     const task: Task = {
       id: 'a',
       data: 'b',
@@ -122,7 +122,7 @@ describe('enqueueTask', () => {
       client,
       key: getDelayedSetKey({ queue }),
       min: 0,
-      max: enqueueAfter.unix(),
+      max: moment(enqueueAfter).unix(),
     });
     expect(taskId).toBe(task.id);
   });

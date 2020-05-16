@@ -3,12 +3,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from 'moment';
-import { createUuid } from '../src/utils/general';
 import { createManager } from '../src/actions/create-manager';
 import { createWorker } from '../src/actions/create-worker';
 import { createOrchestrator } from '../src/actions/create-orchestrator';
 import { createListener } from '../src/actions/create-listener';
-import { Task } from '../src/domain/tasks/task';
 import { EventTypes } from '../src/domain/events/event-types';
 
 const main = async () => {
@@ -40,7 +38,7 @@ const main = async () => {
   });
   const task = {
     data: 'some-task-data',
-    enqueueAfter: moment().add(3, 'seconds'),
+    enqueueAfter: moment().add(3, 'seconds').toDate(),
   };
   await manager.enqueueTask({ task });
 };

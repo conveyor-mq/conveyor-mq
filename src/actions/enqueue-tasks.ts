@@ -32,7 +32,7 @@ export const enqueueTasks = async ({
   const tasksToQueue: Task[] = map(tasks, (task) => ({
     ...task,
     id: task.id || createTaskId(),
-    queuedAt: moment(),
+    queuedAt: new Date(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
     status: task.enqueueAfter ? TaskStatuses.Scheduled : TaskStatuses.Queued,
@@ -53,13 +53,13 @@ export const enqueueTasks = async ({
     if (task.enqueueAfter) {
       multi.zadd(
         getDelayedSetKey({ queue }),
-        String(task.enqueueAfter.unix()),
+        String(moment(task.enqueueAfter).unix()),
         task.id,
       );
       multi.publish(
         getQueueTaskScheduledChannel({ queue }),
         serializeEvent({
-          createdAt: moment(),
+          createdAt: new Date(),
           type: EventTypes.TaskScheduled,
           task,
         }),
@@ -69,7 +69,7 @@ export const enqueueTasks = async ({
       multi.publish(
         getQueueTaskQueuedChannel({ queue }),
         serializeEvent({
-          createdAt: moment(),
+          createdAt: new Date(),
           type: EventTypes.TaskQueued,
           task,
         }),

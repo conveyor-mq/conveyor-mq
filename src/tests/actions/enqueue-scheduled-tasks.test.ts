@@ -26,7 +26,7 @@ describe('enqueueScheduledTasks', () => {
   });
 
   it('enqueueScheduledTasks enqueues tasks', async () => {
-    const now = moment();
+    const now = new Date();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: now };
     await enqueueTask({ queue, task, client });
 
@@ -41,7 +41,7 @@ describe('enqueueScheduledTasks', () => {
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks enqueues past tasks', async () => {
-    const thePast = moment().subtract(1, 'hour');
+    const thePast = moment().subtract(1, 'hour').toDate();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
     await enqueueTask({ queue, task, client });
 
@@ -56,7 +56,7 @@ describe('enqueueScheduledTasks', () => {
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks does not enqueue future task', async () => {
-    const theFuture = moment().add(1, 'hour');
+    const theFuture = moment().add(1, 'hour').toDate();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: theFuture };
     await enqueueTask({ queue, task, client });
 

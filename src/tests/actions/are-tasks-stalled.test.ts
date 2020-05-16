@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
@@ -82,7 +81,7 @@ describe('areTasksStalled', () => {
       queue,
       client,
       error: 'some-error',
-      asOf: moment(),
+      asOf: new Date(),
     });
 
     const [result3] = await areTasksStalled({
@@ -119,7 +118,7 @@ describe('areTasksStalled', () => {
       queue,
       client,
       result: 'some-result',
-      asOf: moment(),
+      asOf: new Date(),
     });
 
     const [result3] = await areTasksStalled({

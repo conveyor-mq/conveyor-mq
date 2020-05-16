@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Task } from './task';
 
 /**
@@ -9,17 +8,17 @@ export const taskFromJson = (taskJson: any): Task => {
     id: taskJson.id,
     status: taskJson.status,
     data: taskJson.data,
-    queuedAt: taskJson.queuedAt ? moment(taskJson.queuedAt) : undefined,
+    queuedAt: taskJson.queuedAt ? new Date(taskJson.queuedAt) : undefined,
     enqueueAfter: taskJson.enqueueAfter
-      ? moment(taskJson.enqueueAfter)
+      ? new Date(taskJson.enqueueAfter)
       : undefined,
-    expiresAt: taskJson.expiresAt ? moment(taskJson.expiresAt) : undefined,
+    expiresAt: taskJson.expiresAt ? new Date(taskJson.expiresAt) : undefined,
     executionTimeout: taskJson.executionTimeout,
     processingStartedAt: taskJson.processingStartedAt
-      ? moment(taskJson.processingStartedAt)
+      ? new Date(taskJson.processingStartedAt)
       : undefined,
     processingEndedAt: taskJson.processingEndedAt
-      ? moment(taskJson.processingEndedAt)
+      ? new Date(taskJson.processingEndedAt)
       : undefined,
     retries: taskJson.retries,
     retryLimit: taskJson.retryLimit,

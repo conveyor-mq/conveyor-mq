@@ -2,7 +2,6 @@ import {
   clearIntervalAsync,
   setIntervalAsync,
 } from 'set-interval-async/dynamic';
-import moment from 'moment';
 import { Redis } from 'ioredis';
 import { acknowledgeTask } from './acknowledge-task';
 import {
@@ -54,7 +53,7 @@ export const processTask = async ({
     queue,
     handler,
     client,
-    asOf: moment(),
+    asOf: new Date(),
     getRetryDelay,
     onTaskSuccess,
     onTaskError,

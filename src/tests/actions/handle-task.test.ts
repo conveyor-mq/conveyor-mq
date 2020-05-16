@@ -28,8 +28,8 @@ describe('handleTask', () => {
   });
 
   it('handleTask fails task if task is expired', async () => {
-    const thePast = moment('2020-01-01');
-    const theFuture = moment('2020-01-02');
+    const thePast = moment('2020-01-01').toDate();
+    const theFuture = moment('2020-01-02').toDate();
     const expiredTask: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
     const onTaskFailed = jest.fn();
@@ -64,7 +64,7 @@ describe('handleTask', () => {
       queue,
       client,
       task,
-      asOf: moment(),
+      asOf: new Date(),
       onTaskFailed,
       handler: () => 'some-result',
     });
@@ -91,7 +91,7 @@ describe('handleTask', () => {
       queue,
       client,
       task,
-      asOf: moment(),
+      asOf: new Date(),
       onTaskFailed,
       handler: () => 'some-result',
     });
@@ -107,7 +107,7 @@ describe('handleTask', () => {
     expect(onTaskFailed).toBeCalledTimes(1);
   });
   it('handleTask handles task success case', async () => {
-    const now = moment('2020-01-02');
+    const now = moment('2020-01-02').toDate();
     const theTask: Task = { id: 'i', data: 'j' };
     await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
@@ -142,7 +142,7 @@ describe('handleTask', () => {
     expect(onFailure).toHaveBeenCalledTimes(0);
   });
   it('handleTask handles task failure case', async () => {
-    const now = moment('2020-01-02');
+    const now = moment('2020-01-02').toDate();
     const theTask: Task = { id: 'i', data: 'j', retryLimit: 0 };
     await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
@@ -178,7 +178,7 @@ describe('handleTask', () => {
     expect(onFailure).toHaveBeenCalledTimes(1);
   });
   it('handleTask retires errored task', async () => {
-    const now = moment('2020-01-02');
+    const now = moment('2020-01-02').toDate();
     const task: Task = { id: 'i', data: 'j', errorRetryLimit: 1 };
     await enqueueTask({ queue, task, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
@@ -252,7 +252,7 @@ describe('handleTask', () => {
       queue,
       client,
       task: taskToHandle,
-      asOf: moment(),
+      asOf: new Date(),
       handler: async () => {
         await sleep(50);
         return 'some-result';
@@ -281,7 +281,7 @@ describe('handleTask', () => {
       queue,
       client,
       task: taskToHandle,
-      asOf: moment(),
+      asOf: new Date(),
       handler: async ({ updateTaskProgress }) => {
         await updateTaskProgress(1);
         await updateTaskProgress(2);
@@ -312,7 +312,7 @@ describe('handleTask', () => {
       queue,
       client,
       task: taskToHandle,
-      asOf: moment(),
+      asOf: new Date(),
       handler: async ({ task: theTask, updateTask }) => {
         await updateTask({ task: { ...theTask, data: 'new data' } });
         return 'some-result';

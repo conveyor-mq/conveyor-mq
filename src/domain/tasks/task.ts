@@ -1,16 +1,15 @@
-import { Moment } from 'moment';
 import { TaskStatuses } from './task-statuses';
 
 export interface Task {
   id: string;
   status?: TaskStatuses;
   data?: any;
-  queuedAt?: Moment;
-  enqueueAfter?: Moment;
-  expiresAt?: Moment;
+  queuedAt?: Date;
+  enqueueAfter?: Date;
+  expiresAt?: Date;
   executionTimeout?: number;
-  processingStartedAt?: Moment;
-  processingEndedAt?: Moment;
+  processingStartedAt?: Date;
+  processingEndedAt?: Date;
   stallTimeout?: number;
   taskAcknowledgementInterval?: number;
   retries?: number;

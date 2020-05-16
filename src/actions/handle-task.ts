@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import pTimeout from 'p-timeout';
 import { find } from 'lodash';
 import { hasTaskExpired } from './has-task-expired';
@@ -72,7 +72,7 @@ export const handleTask = async ({
   queue: string;
   client: Redis;
   handler: Handler;
-  asOf: Moment;
+  asOf: Date;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: TaskSuccessCb;
   onTaskError?: TaskErrorCb;
@@ -121,7 +121,7 @@ export const handleTask = async ({
       queue,
       client,
       error,
-      asOf: moment(),
+      asOf: new Date(),
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;
@@ -158,7 +158,7 @@ export const handleTask = async ({
       queue,
       client,
       result,
-      asOf: moment(),
+      asOf: new Date(),
     });
     if (onTaskSuccess) onTaskSuccess({ task: successfulTask, result });
     return result;
@@ -170,7 +170,11 @@ export const handleTask = async ({
     if (onTaskError) onTaskError({ task, error });
     client.publish(
       getQueueTaskErrorChannel({ queue }),
-      serializeEvent({ createdAt: moment(), type: EventTypes.TaskError, task }),
+      serializeEvent({
+        createdAt: new Date(),
+        type: EventTypes.TaskError,
+        task,
+      }),
     );
     const willRetryLimitBeReached =
       task.retryLimit !== undefined &&
@@ -194,11 +198,11 @@ export const handleTask = async ({
         task: {
           ...task,
           enqueueAfter: retryDelay
-            ? moment().add(retryDelay, 'milliseconds')
+            ? moment().add(retryDelay, 'milliseconds').toDate()
             : undefined,
           retries: (task.retries || 0) + 1,
           errorRetries: (task.errorRetries || 0) + 1,
-          processingEndedAt: moment(),
+          processingEndedAt: new Date(),
         },
         queue,
         client,
@@ -210,7 +214,7 @@ export const handleTask = async ({
       queue,
       client,
       error,
-      asOf: moment(),
+      asOf: new Date(),
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;

@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { forEach } from 'lodash';
 import { getQueueTaskStalledChannel } from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
@@ -24,7 +23,7 @@ export const processStalledTasks = async ({
     multi.publish(
       getQueueTaskStalledChannel({ queue }),
       serializeEvent({
-        createdAt: moment(),
+        createdAt: new Date(),
         type: EventTypes.TaskStalled,
         task,
       }),

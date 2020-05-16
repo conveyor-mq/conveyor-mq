@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment, { Moment } from 'moment';
 import { map } from 'lodash';
 import {
   getTaskKey,
@@ -27,7 +26,7 @@ export const markTasksFailed = async ({
   tasksAndErrors: { task: Task; error: any }[];
   queue: string;
   client: Redis;
-  asOf: Moment;
+  asOf: Date;
 }): Promise<Task[]> => {
   const processingListKey = getProcessingListKey({ queue });
   const multi = client.multi();
@@ -45,7 +44,7 @@ export const markTasksFailed = async ({
     multi.publish(
       getQueueTaskFailedChannel({ queue }),
       serializeEvent({
-        createdAt: moment(),
+        createdAt: new Date(),
         type: EventTypes.TaskFail,
         task: failedTask,
       }),
@@ -53,7 +52,7 @@ export const markTasksFailed = async ({
     multi.publish(
       getQueueTaskCompleteChannel({ queue }),
       serializeEvent({
-        createdAt: moment(),
+        createdAt: new Date(),
         type: EventTypes.TaskComplete,
         task: failedTask,
       }),

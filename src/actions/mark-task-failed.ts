@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import { Moment } from 'moment';
 import { markTasksFailed } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';
 
@@ -17,7 +16,7 @@ export const markTaskFailed = async ({
   queue: string;
   client: Redis;
   error?: any;
-  asOf: Moment;
+  asOf: Date;
 }) => {
   const [failedTask] = await markTasksFailed({
     tasksAndErrors: [{ task, error }],

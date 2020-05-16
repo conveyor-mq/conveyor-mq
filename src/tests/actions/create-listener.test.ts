@@ -52,7 +52,11 @@ describe('createListener', () => {
       });
     });
     const manager = await createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c', enqueueAfter: moment().add(1, 'hours') };
+    const task = {
+      id: 'b',
+      data: 'c',
+      enqueueAfter: moment().add(1, 'hours').toDate(),
+    };
     await manager.enqueueTask({ task });
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
