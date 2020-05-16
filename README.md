@@ -44,7 +44,7 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
 - Events
   - Task, Queue and Worker events
 - Concurrent worker processing
-- Efficient, polling-free design
+- Fast & efficient, polling-free design
 - Simple and extensible design
 - Async/await/Promise APIs
 - Robust
