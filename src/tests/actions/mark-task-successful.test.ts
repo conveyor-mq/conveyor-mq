@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
@@ -34,7 +33,7 @@ describe('markTaskSuccessful', () => {
       queue,
       client,
       result: 'horaay!',
-      asOf: moment(),
+      asOf: new Date(),
     });
     expect(successfulTask).toHaveProperty('status', TaskStatuses.Success);
     expect(successfulTask).toHaveProperty('result', 'horaay!');

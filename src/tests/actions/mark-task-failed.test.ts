@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
@@ -34,7 +33,7 @@ describe('markTaskFailed', () => {
       queue,
       client,
       error: 'aww :(',
-      asOf: moment(),
+      asOf: new Date(),
     });
     expect(failedTask).toHaveProperty('status', TaskStatuses.Failed);
     expect(failedTask).toHaveProperty('error', 'aww :(');

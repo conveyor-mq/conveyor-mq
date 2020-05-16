@@ -52,7 +52,7 @@ export const handleStalledTasks = async ({
     },
   );
   const [failedTasks, reQueuedTasks] = await Promise.all([
-    markTasksFailed({ tasksAndErrors, queue, client, asOf: moment() }),
+    markTasksFailed({ tasksAndErrors, queue, client, asOf: new Date() }),
     enqueueStalledTasks({ queue, tasks: tasksToReQueue, client }),
   ]);
   return { failedTasks, reQueuedTasks };
