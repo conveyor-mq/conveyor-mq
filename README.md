@@ -57,21 +57,23 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
 
 ## Table of Contents
 
-1. [Installation](https://github.com/jasrusable/conveyor-mq#installation)
-2. [Quick Start Guide](https://github.com/jasrusable/conveyor-mq#quick-start-guide)
-3. [Overview](https://github.com/jasrusable/conveyor-mq#overview)
+1. [Introduction](https://github.com/jasrusable/conveyor-mq#introduction)
+2. [Features](https://github.com/jasrusable/conveyor-mq#features)
+3. [Table of Contents](https://github.com/jasrusable/conveyor-mq#table-of-contents)
+4. [Quick Start Guide](https://github.com/jasrusable/conveyor-mq#quick-start-guide)
+5. [Overview](https://github.com/jasrusable/conveyor-mq#overview)
    - [Tasks](https://github.com/jasrusable/conveyor-mq#tasks)
    - [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
    - [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
    - [Stalled tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
    - [Scheduled tasks](https://github.com/jasrusable/conveyor-mq#scheduled-tasks)
-4. [API Reference](https://github.com/jasrusable/conveyor-mq#api-reference)
-5. [Examples](https://github.com/jasrusable/conveyor-mq#examples)
+6. [API Reference](https://github.com/jasrusable/conveyor-mq#api-reference)
+7. [Examples](https://github.com/jasrusable/conveyor-mq#examples)
    - [Simple example](https://github.com/jasrusable/conveyor-mq#simple-example)
    - [Scheduled task example](https://github.com/jasrusable/conveyor-mq#scheduled-task-example)
-6. [Roadmap](https://github.com/jasrusable/conveyor-mq#roadmap)
-7. [Contributing](https://github.com/jasrusable/conveyor-mq#contributing)
-8. [License](https://github.com/jasrusable/conveyor-mq#license)
+8. [Roadmap](https://github.com/jasrusable/conveyor-mq#roadmap)
+9. [Contributing](https://github.com/jasrusable/conveyor-mq#contributing)
+10. [License](https://github.com/jasrusable/conveyor-mq#license)
 
 ## Installation
 
