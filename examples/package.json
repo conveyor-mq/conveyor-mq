@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "conveyor-mq": "0.0.10"
+    "conveyor-mq": "0.0.11"
   }
 }
