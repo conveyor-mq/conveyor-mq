@@ -2,6 +2,7 @@ export enum EventTypes {
   TaskScheduled = 'task_scheduled',
   TaskQueued = 'task_queued',
   TaskUpdated = 'task_updated',
+  TaskProgressUpdated = 'task_progress_updated',
   TaskStalled = 'task_stalled',
   TaskProcessing = 'task_processing',
   TaskSuccess = 'task_success',

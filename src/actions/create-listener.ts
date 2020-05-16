@@ -14,6 +14,7 @@ import {
   getWorkerPausedChannel,
   getWorkerShutdownChannel,
   getQueueTaskScheduledChannel,
+  getQueueTaskProgressUpdatedChannel,
 } from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
@@ -40,6 +41,7 @@ export const createListener = async ({
     getQueueTaskFailedChannel({ queue }),
     getQueueTaskCompleteChannel({ queue }),
     getQueueTaskUpdatedChannel({ queue }),
+    getQueueTaskProgressUpdatedChannel({ queue }),
     getWorkerStartedChannel({ queue }),
     getWorkerPausedChannel({ queue }),
     getWorkerShutdownChannel({ queue }),

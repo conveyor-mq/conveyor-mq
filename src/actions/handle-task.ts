@@ -12,6 +12,7 @@ import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 import { updateTask as updateTaskAction } from './update-task';
+import { updateTaskProgress as updateTaskProgressAction } from './update-task-progress';
 
 /**
  * @ignore
@@ -137,8 +138,9 @@ export const handleTask = async ({
       return updatedTask;
     };
     const updateTaskProgress = async (progress: any) => {
-      const updatedTask = await updateTaskAction({
-        task: { ...task, progress },
+      const updatedTask = await updateTaskProgressAction({
+        task,
+        progress,
         queue,
         client,
       });

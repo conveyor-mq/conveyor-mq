@@ -19,6 +19,12 @@ export const getQueueTaskScheduledChannel = ({ queue }: { queue: string }) =>
 export const getQueueTaskUpdatedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-updated`;
 
+export const getQueueTaskProgressUpdatedChannel = ({
+  queue,
+}: {
+  queue: string;
+}) => `queue:${queue}:task-progress-updated`;
+
 export const getQueueTaskProcessingChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-processing`;
 

@@ -208,4 +208,31 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
   });
+  it('createListener listens for task progress updated event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const promise = new Promise((resolve) => {
+      listener.on(EventTypes.TaskProgressUpdated, ({ event }) => {
+        return resolve(event);
+      });
+    });
+    const manager = await createManager({ queue, redisConfig });
+    const task = { id: 'b', data: 'c' };
+    await manager.enqueueTask({ task });
+
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: async ({ updateTaskProgress }) => {
+        await updateTaskProgress(1);
+      },
+    });
+
+    const event = await promise;
+    expect(event).toHaveProperty('task.id', task.id);
+    expect(event).toHaveProperty('task.data', task.data);
+    expect(event).toHaveProperty('task.progress', 1);
+    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    await manager.quit();
+    await worker.shutdown();
+  });
 });
