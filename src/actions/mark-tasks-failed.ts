@@ -22,11 +22,13 @@ export const markTasksFailed = async ({
   queue,
   client,
   asOf,
+  remove,
 }: {
   tasksAndErrors: { task: Task; error: any }[];
   queue: string;
   client: Redis;
   asOf: Date;
+  remove?: boolean;
 }): Promise<Task[]> => {
   const processingListKey = getProcessingListKey({ queue });
   const multi = client.multi();
@@ -38,7 +40,11 @@ export const markTasksFailed = async ({
       status: TaskStatuses.Failed,
       error,
     };
-    multi.set(taskKey, serializeTask(failedTask));
+    if (remove) {
+      multi.del(taskKey);
+    } else {
+      multi.set(taskKey, serializeTask(failedTask));
+    }
     multi.lrem(processingListKey, 1, task.id);
     multi.hdel(getStallingHashKey({ queue }), task.id);
     multi.publish(

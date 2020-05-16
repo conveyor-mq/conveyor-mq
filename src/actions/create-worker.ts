@@ -54,6 +54,10 @@ export const createWorker = async ({
   onReady,
   // Control whether the worker should start automatically, else worker.start() must be called manually:
   autoStart = true,
+  // Remove tasks once they are processed successfully
+  removeOnSuccess = false,
+  // Remove tasks once they are fail to be processed successfully
+  removeOnFailed = false,
 }: {
   queue: string;
   redisConfig: RedisConfig;
@@ -70,6 +74,8 @@ export const createWorker = async ({
   idleTimeout?: number;
   onReady?: () => any;
   autoStart?: boolean;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
 }) => {
   let isPausing = false;
   let isPaused = true;
@@ -123,6 +129,14 @@ export const createWorker = async ({
                 onTaskSuccess,
                 onTaskError,
                 onTaskFailed,
+                removeOnSuccess:
+                  task.removeOnSuccess !== undefined
+                    ? task.removeOnSuccess
+                    : removeOnSuccess,
+                removeOnFailed:
+                  task.removeOnFailed !== undefined
+                    ? task.removeOnFailed
+                    : removeOnFailed,
               }),
             () => isActive(),
           ),

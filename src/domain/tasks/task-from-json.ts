@@ -30,5 +30,7 @@ export const taskFromJson = (taskJson: any): Task => {
     result: taskJson.result,
     error: taskJson.error,
     progress: taskJson.progress,
+    removeOnSuccess: taskJson.removeOnSuccess,
+    removeOnFailed: taskJson.removeOnFailed,
   };
 };

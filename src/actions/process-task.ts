@@ -28,6 +28,8 @@ export const processTask = async ({
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
+  removeOnSuccess,
+  removeOnFailed,
 }: {
   task: Task;
   queue: string;
@@ -39,6 +41,8 @@ export const processTask = async ({
   onTaskSuccess?: TaskSuccessCb;
   onTaskError?: TaskErrorCb;
   onTaskFailed?: TaskFailedCb;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
 }) => {
   const timer = setIntervalAsync(async () => {
     await acknowledgeTask({
@@ -58,6 +62,8 @@ export const processTask = async ({
     onTaskSuccess,
     onTaskError,
     onTaskFailed,
+    removeOnSuccess,
+    removeOnFailed,
   });
   await clearIntervalAsync(timer);
   return result;

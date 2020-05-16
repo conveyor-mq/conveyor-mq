@@ -22,12 +22,14 @@ export const markTaskSuccess = async ({
   client,
   result,
   asOf,
+  remove,
 }: {
   task: Task;
   queue: string;
   client: Redis;
   result?: any;
   asOf: Date;
+  remove?: boolean;
 }) => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const processingListKey = getProcessingListKey({ queue });
@@ -38,7 +40,11 @@ export const markTaskSuccess = async ({
     result,
   };
   const multi = client.multi();
-  multi.set(taskKey, serializeTask(successfulTask));
+  if (remove) {
+    multi.del(taskKey);
+  } else {
+    multi.set(taskKey, serializeTask(successfulTask));
+  }
   multi.lrem(processingListKey, 1, task.id);
   multi.hdel(getStallingHashKey({ queue }), task.id);
   multi.publish(

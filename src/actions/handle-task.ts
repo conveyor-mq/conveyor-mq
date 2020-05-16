@@ -67,6 +67,8 @@ export const handleTask = async ({
   onTaskSuccess,
   onTaskError,
   onTaskFailed,
+  removeOnSuccess,
+  removeOnFailed,
 }: {
   task: Task;
   queue: string;
@@ -77,6 +79,8 @@ export const handleTask = async ({
   onTaskSuccess?: TaskSuccessCb;
   onTaskError?: TaskErrorCb;
   onTaskFailed?: TaskFailedCb;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
 }): Promise<any | null> => {
   const retryLimitReached =
     task.retryLimit !== undefined &&
@@ -122,6 +126,7 @@ export const handleTask = async ({
       client,
       error,
       asOf: new Date(),
+      remove: removeOnFailed,
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;
@@ -159,6 +164,7 @@ export const handleTask = async ({
       client,
       result,
       asOf: new Date(),
+      remove: removeOnSuccess,
     });
     if (onTaskSuccess) onTaskSuccess({ task: successfulTask, result });
     return result;
@@ -215,6 +221,7 @@ export const handleTask = async ({
       client,
       error,
       asOf: new Date(),
+      remove: removeOnFailed,
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;

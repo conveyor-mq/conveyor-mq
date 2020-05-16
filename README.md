@@ -340,6 +340,12 @@ const worker = await createWorker({
 
   // Control whether the worker should start automatically, else worker.start() must be called manually:
   autoStart: true,
+
+  // Remove tasks once they are processed successfully
+  removeOnSuccess = false,
+
+  // Remove tasks once they are fail to be processed successfully
+  removeOnFailed = false,
 });
 ```
 
