@@ -284,7 +284,9 @@ const enqueuedTask = await manager.enqueueTask({ task: myTask });
 
 ### Processing tasks
 
-Tasks are processed on the queue by workers which can be created using `createWorker`.
+Tasks are processed on the queue by workers which can be created using `createWorker`. Once created, a worker will begin monitoring a queue for tasks to process using an efficient, non-polling implementation making use of the `brpoplpush` Redis command.
+
+A worker can paused and resumed by calling `worker.pause` and `worker.start` respectively.
 
 ```js
 import { createWorker } from 'conveyor-mq';
@@ -308,24 +310,32 @@ const worker = await createWorker({
   getRetryDelay: ({ task }) => (task.retries + 1) * 100,
 
   // Task success callback:
-  onTaskSuccess: ({ task }) =>
-    console.log('Task processed successfully', result),
+  onTaskSuccess: ({ task }) => {
+    console.log('Task processed successfully', result);
+  },
 
   // Task error callback:
-  onTaskError: ({ task, error }) => console.log('Task had an error', error),
+  onTaskError: ({ task, error }) => {
+    console.log('Task had an error', error);
+  },
 
   // Task fail callback:
-  onTaskFailed: ({ task, error }) =>
-    console.log('Task failed with error', error),
+  onTaskFailed: ({ task, error }) => {
+    console.log('Task failed with error', error);
+  },
 
   // Worker idle callback. Called when the worker becomes idle:
-  onIdle: () => console.log('worker is now idle and not processing tasks'),
+  onIdle: () => {
+    console.log('worker is now idle and not processing tasks');
+  },
 
   // Amount of time since processing a task after which the worker is considered idle and the onIdle callback is called.
   idleTimeout: 250,
 
   // Worker ready callback, called once a worker is ready to start processing tasks:
-  onReady: () => console.log('Worker is now ready to start processing tasks'),
+  onReady: () => {
+    console.log('Worker is now ready to start processing tasks');
+  },
 
   // Control whether the worker should start automatically, else worker.start() must be called manually:
   autoStart: true,
@@ -342,7 +352,28 @@ A task is considered stalled if while it is being processed by a worker, the wor
 
 The time since a task was last acknowledged after which it is considered stalled is controlled by `Task.stallInterval` and otherwise falls back to `Worker.defaultStallInterval`.
 
-*Note: An orchestrator is required to be running on the queue which will monitor and re-enqueue any stalled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
+> *Note*: An orchestrator is required to be running on the queue which will monitor and re-enqueue any stalled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
+
+### Scheduled tasks
+
+Tasks can be scheduled to be added to the queue at some future point in time. To schedule a task, include a `enqueueAfter` property on a task:
+
+```js
+const scheduledTask = { data: { x: 1, y: 2 }, enqueueAfter: moment('2020-05-15') };
+
+const enqueuedTask = await manager.enqueueTask({ task: scheduledTask });
+/*
+  enqueuedTask = {
+    ...
+    data: { x: 1, y: 2 },
+    status: 'scheduled',
+    enqueueAfter: '2020-05-15',
+    ...
+  }
+/*
+```
+
+> *Note*: An orchestrator is required to be running on the queue which will monitor and enqueue any scheduled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
 
 ## API Reference
 
