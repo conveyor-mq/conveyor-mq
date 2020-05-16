@@ -63,10 +63,14 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
 4. [Quick Start Guide](https://github.com/jasrusable/conveyor-mq#quick-start-guide)
 5. [Overview](https://github.com/jasrusable/conveyor-mq#overview)
    - [Tasks](https://github.com/jasrusable/conveyor-mq#tasks)
+   - [Manager](https://github.com/jasrusable/conveyor-mq#manager)
    - [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
+   - [Worker](https://github.com/jasrusable/conveyor-mq#worker)
    - [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
+   - [Orchestrator](https://github.com/jasrusable/conveyor-mq#orchestrator)
    - [Stalled tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
    - [Scheduled tasks](https://github.com/jasrusable/conveyor-mq#scheduled-tasks)
+   - [Listener](https://github.com/jasrusable/conveyor-mq#listener)
 6. [API Reference](https://github.com/jasrusable/conveyor-mq#api-reference)
 7. [Examples](https://github.com/jasrusable/conveyor-mq#examples)
    - [Simple example](https://github.com/jasrusable/conveyor-mq#simple-example)
@@ -93,115 +97,51 @@ You will also need Redis >=3.2
 
 ## Quick Start Guide
 
-### Task
-
-A [task](https://jasrusable.github.io/conveyor-mq/interfaces/task.html) is an object containing at least a `data` key.
-The value of `data` should be JSON serializable as it will need to be transferred over the wire to and from Redis.
-
-For more information, see [Tasks](https://github.com/jasrusable/conveyor-mq#tasks) and [Task](https://jasrusable.github.io/conveyor-mq/interfaces/task.html)
-
 ```js
-// A task:
-const myTask = { data: { x: 1, y: 2 } };
-```
+import {
+  createManager,
+  createWorker,
+  createOrchestrator,
+  createListener,
+} from 'conveyor-mq';
 
-### Manager
+const redisConfig = { host: '127.0.0.1', port: 6379 };
+const queue = 'myQueue';
 
-A [manager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager) is responsible for enqueuing tasks, as well as querying various properties of a queue.
-Create a manager by calling `createManager` and passing a `queue` and `redisConfig` parameter.
+const main = async () => {
+  // Create a manager which is used to add tasks to the queue, and query various properties of a queue:
+  const manager = await createManager({
+    queue,
+    redisConfig,
+  });
 
-Add a task to the queue by calling `manager.enqueueTask` with an object `{ task: { data: x: 1, y: 2} }`.
+  // Add a task to the queue by calling manager.enqueueTask:
+  const task = { data: x: 1, y: 2 };
+  await manager.enqueueTask({ task });
 
-For more information, see [createManager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager), [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
+  // Create a listener and subscribe to the task_complete event:
+  const listener = await createListener({ queue, redisConfig });
+  listener.on('task_complete', ({ event }) =>
+    console.log('Task complete:', event?.task?.id),
+  );
 
-```js
-import { createManager } from 'conveyor-mq';
-
-// Create a manager instance:
-const manager = await createManager({
-  queue: 'my-queue',
-  redisConfig: { host: 'localhost', port: 6379 },
-});
-
-// Add a task to the queue:
-await manager.enqueueTask({ task: { data: { x: 1, y: 2 } } });
-
-// Get a task:
-const task = await manager.getTask({ taskId: 'my-task-id' });
-/*
-  task = {
-    ...
-    status: 'queued',
-    data: {
-      x: 1,
-      y: 2,
+  // Create a worker which will process tasks on the queue:
+  const worker = await createWorker({
+    queue,
+    redisConfig,
+    handler: ({ task }) => {
+      return task.data.x + task.data.y;
     },
-    ...
-  }
-*/
-```
+  });
 
-### Worker
+  // Create an orchestrator to monitor the queue for stalled tasks, and enqueue scheduled tasks:
+  const orchestrator = await createOrchestrator({
+    queue,
+    redisConfig,
+  });
+};
 
-A [worker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) is responsible for taking enqueued tasks off of the queue and processing them.
-Create a worker by calling `createWorker` with a `queue`, `redisConfig` and `handler` parameter.
-
-The `handler` parameter should be a function which receives a task and is responsible for processing the task.
-The handler should return a promise which should resolve if the task was successful, or reject if failed.
-
-For more information, see [createWorker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) and [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
-
-```js
-import { createWorker } from 'conveyor-mq';
-
-// Create a worker which will start monitoring the queue for tasks and process them:
-const worker = await createWorker({
-  queue: 'my-queue',
-  redisConfig: { host: 'localhost', port: 6379 },
-  // Pass a handler which receives tasks, processes them, and then returns the result of a task:
-  handler: ({ task }) => {
-    return task.data.x + task.data.y;
-  },
-});
-```
-
-### Orchestrator
-
-An [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) is responsible for various queue maintenance operations including re-enqueueing stalled tasks, and enqueueing delayed/scheduled tasks.
-Create an orchestrator by calling `createOrchestrator` with a `queue` and `redisConfig` parameter. The orchestrator will then begin monitoring the queue for stalled tasks and re-enqueueing them if needed, as well as enqueueing scheduled tasks.
-
-For more information, see [createOrchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) and [Stalling tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
-
-```js
-import { createOrchestrator } from 'conveyor-mq';
-
-// Create an orchestrator:
-const orchestrator = await createOrchestrator({
-  queue: 'my-queue',
-  redisConfig: { host: 'localhost', port: 6379 },
-});
-```
-
-### Listener
-
-A [listener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) is responsible for listening and subscribing to [events](https://jasrusable.github.io/conveyor-mq/enums/eventtypes.html). Use `listener.on` to subscribe to various task, queue and worker related events.
-
-For more information, see [createListener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) and [Event](https://jasrusable.github.io/conveyor-mq/interfaces/event.html)
-
-```js
-import { createListener } from 'conveyor-mq';
-
-// Create a listener:
-const listener = await createListener({
-  queue: 'my-queue',
-  redisConfig: { host: 'localhost', port: 6379 },
-});
-
-// Listen for the 'task_complete' event:
-listener.on('task_complete', ({ event }) => {
-  console.log(`Task ${event.task.id} has completed!`),
-}
-);
+main();
 ```
 
 ## Overview
@@ -242,6 +182,42 @@ scheduled -> queued -> processing
 ```
 
 \*Note: `success` and `failed` statuses both represent the final outcome of a task, after all stall/error retrying has been attempted and exhausted.
+
+### Manager
+
+A [manager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager) is responsible for enqueuing tasks, as well as querying various properties of a queue.
+Create a manager by calling `createManager` and passing a `queue` and `redisConfig` parameter.
+
+Add a task to the queue by calling `manager.enqueueTask` with an object `{ task: { data: x: 1, y: 2} }`.
+
+For more information, see [createManager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager), [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
+
+```js
+import { createManager } from 'conveyor-mq';
+
+// Create a manager instance:
+const manager = await createManager({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+});
+
+// Add a task to the queue:
+await manager.enqueueTask({ task: { data: { x: 1, y: 2 } } });
+
+// Get a task:
+const task = await manager.getTask({ taskId: 'my-task-id' });
+/*
+  task = {
+    ...
+    status: 'queued',
+    data: {
+      x: 1,
+      y: 2,
+    },
+    ...
+  }
+*/
+```
 
 ### Enqueuing tasks
 
@@ -291,6 +267,30 @@ const manager = await createManager({
 });
 
 const enqueuedTask = await manager.enqueueTask({ task: myTask });
+```
+
+### Worker
+
+A [worker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) is responsible for taking enqueued tasks off of the queue and processing them.
+Create a worker by calling `createWorker` with a `queue`, `redisConfig` and `handler` parameter.
+
+The `handler` parameter should be a function which receives a task and is responsible for processing the task.
+The handler should return a promise which should resolve if the task was successful, or reject if failed.
+
+For more information, see [createWorker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) and [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
+
+```js
+import { createWorker } from 'conveyor-mq';
+
+// Create a worker which will start monitoring the queue for tasks and process them:
+const worker = await createWorker({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+  // Pass a handler which receives tasks, processes them, and then returns the result of a task:
+  handler: ({ task }) => {
+    return task.data.x + task.data.y;
+  },
+});
 ```
 
 ### Processing tasks
@@ -360,6 +360,23 @@ const worker = await createWorker({
 });
 ```
 
+### Orchestrator
+
+An [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) is responsible for various queue maintenance operations including re-enqueueing stalled tasks, and enqueueing delayed/scheduled tasks.
+Create an orchestrator by calling `createOrchestrator` with a `queue` and `redisConfig` parameter. The orchestrator will then begin monitoring the queue for stalled tasks and re-enqueueing them if needed, as well as enqueueing scheduled tasks.
+
+For more information, see [createOrchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) and [Stalling tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
+
+```js
+import { createOrchestrator } from 'conveyor-mq';
+
+// Create an orchestrator:
+const orchestrator = await createOrchestrator({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+});
+```
+
 ### Stalled tasks
 
 As part of the at-least-once task delivery strategy, Conveyor MQ implements stalled or stuck task checking and retrying.
@@ -392,6 +409,28 @@ const enqueuedTask = await manager.enqueueTask({ task: scheduledTask });
 ```
 
 > _Note_: An orchestrator is required to be running on the queue which will monitor and enqueue any scheduled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
+
+### Listener
+
+A [listener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) is responsible for listening and subscribing to [events](https://jasrusable.github.io/conveyor-mq/enums/eventtypes.html). Use `listener.on` to subscribe to various task, queue and worker related events.
+
+For more information, see [createListener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) and [Event](https://jasrusable.github.io/conveyor-mq/interfaces/event.html)
+
+```js
+import { createListener } from 'conveyor-mq';
+
+// Create a listener:
+const listener = await createListener({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+});
+
+// Listen for the 'task_complete' event:
+listener.on('task_complete', ({ event }) => {
+  console.log(`Task ${event.task.id} has completed!`),
+}
+);
+```
 
 ## API Reference
 
