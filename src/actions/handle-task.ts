@@ -11,6 +11,7 @@ import { getQueueTaskErrorChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
+import { updateTask as updateTaskAction } from './update-task';
 
 /**
  * @ignore
@@ -39,6 +40,18 @@ export type TaskErrorCb = ({ task, error }: { task: Task; error: any }) => any;
  * @ignore
  */
 export type TaskFailedCb = ({ task, error }: { task: Task; error: any }) => any;
+/**
+ * @ignore
+ */
+export type Handler = ({
+  task,
+  updateTaskProgress,
+  updateTask,
+}: {
+  task: Task;
+  updateTaskProgress: (progress: any) => Promise<Task>;
+  updateTask: ({ task }: { task: Task }) => Promise<Task>;
+}) => any;
 
 /**
  * @ignore
@@ -57,7 +70,7 @@ export const handleTask = async ({
   task: Task;
   queue: string;
   client: Redis;
-  handler: ({ task }: { task: Task }) => any;
+  handler: Handler;
   asOf: Moment;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: TaskSuccessCb;
@@ -113,9 +126,31 @@ export const handleTask = async ({
     return null;
   }
   try {
+    const updateTask = async ({ task: taskToUpdate }: { task: Task }) => {
+      const updatedTask = await updateTaskAction({
+        task: taskToUpdate,
+        queue,
+        client,
+      });
+      // eslint-disable-next-line no-param-reassign
+      task = updatedTask;
+      return updatedTask;
+    };
+    const updateTaskProgress = async (progress: any) => {
+      const updatedTask = await updateTaskAction({
+        task: { ...task, progress },
+        queue,
+        client,
+      });
+      // eslint-disable-next-line no-param-reassign
+      task = updatedTask;
+      return updatedTask;
+    };
+    const handlerFunction = () =>
+      handler({ task, updateTaskProgress, updateTask });
     const result = await (task.executionTimeout
-      ? pTimeout(handler({ task }), task.executionTimeout)
-      : handler({ task }));
+      ? pTimeout(handlerFunction(), task.executionTimeout)
+      : handlerFunction());
     const successfulTask = await markTaskSuccess({
       task,
       queue,

@@ -25,4 +25,5 @@ export interface Task {
   };
   result?: any;
   error?: any;
+  progress?: any;
 }

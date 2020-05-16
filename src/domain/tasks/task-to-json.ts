@@ -29,5 +29,6 @@ export const taskToJson = (task: Task) => {
     retryBackoff: task.retryBackoff,
     result: task.result,
     error: task.error,
+    progress: task.progress,
   };
 };

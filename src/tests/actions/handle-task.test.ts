@@ -270,4 +270,64 @@ describe('handleTask', () => {
       'Task execution duration exceeded executionTimeout',
     );
   });
+  it('handleTask updates task progress', async () => {
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+    };
+    await enqueueTask({ queue, task, client });
+    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const result = await handleTask({
+      queue,
+      client,
+      task: taskToHandle,
+      asOf: moment(),
+      handler: async ({ updateTaskProgress }) => {
+        await updateTaskProgress(1);
+        await updateTaskProgress(2);
+        await updateTaskProgress(3);
+        return 'some-result';
+      },
+    });
+    expect(result).toBe('some-result');
+
+    await sleep(50);
+    const completedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(completedTask.id).toBe(task.id);
+    expect(completedTask.progress).toBe(3);
+    expect(completedTask.status).toBe(TaskStatuses.Success);
+  });
+  it('handleTask updateTask updates task', async () => {
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+    };
+    await enqueueTask({ queue, task, client });
+    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const result = await handleTask({
+      queue,
+      client,
+      task: taskToHandle,
+      asOf: moment(),
+      handler: async ({ task: theTask, updateTask }) => {
+        await updateTask({ task: { ...theTask, data: 'new data' } });
+        return 'some-result';
+      },
+    });
+    expect(result).toBe('some-result');
+
+    await sleep(50);
+    const completedTask = (await getTask({
+      queue,
+      taskId: task.id,
+      client,
+    })) as Task;
+    expect(completedTask.id).toBe(task.id);
+    expect(completedTask.data).toBe('new data');
+    expect(completedTask.status).toBe(TaskStatuses.Success);
+  });
 });

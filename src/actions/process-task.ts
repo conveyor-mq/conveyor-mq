@@ -11,6 +11,7 @@ import {
   TaskSuccessCb,
   TaskErrorCb,
   TaskFailedCb,
+  Handler,
 } from './handle-task';
 import { Task } from '../domain/tasks/task';
 
@@ -32,7 +33,7 @@ export const processTask = async ({
   task: Task;
   queue: string;
   client: Redis;
-  handler: ({ task }: { task: Task }) => any;
+  handler: Handler;
   stallTimeout: number;
   taskAcknowledgementInterval: number;
   getRetryDelay?: getRetryDelayType;

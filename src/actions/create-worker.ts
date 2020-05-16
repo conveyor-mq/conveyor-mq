@@ -7,6 +7,7 @@ import {
   TaskSuccessCb,
   TaskErrorCb,
   TaskFailedCb,
+  Handler,
 } from './handle-task';
 import {
   createClient,
@@ -17,7 +18,6 @@ import {
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { processTask } from './process-task';
-import { Task } from '../domain/tasks/task';
 import { getWorkerStartedChannel, getWorkerPausedChannel } from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
@@ -60,7 +60,7 @@ export const createWorker = async ({
   redisConfig: RedisConfig;
   defaultStallTimeout?: number;
   defaultTaskAcknowledgementInterval?: number;
-  handler: ({ task }: { task: Task }) => any;
+  handler: Handler;
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: TaskSuccessCb;

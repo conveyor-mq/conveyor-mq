@@ -299,7 +299,8 @@ const worker = await createWorker({
   redisConfig: { host: 'localhost', port: 6379 },
 
   // A handler function to process tasks:
-  handler: ({ task }) => {
+  handler: async ({ task, updateTaskProgress }) => {
+    await updateTaskProgress(100);
     return 'some-task-result';
   },
 
@@ -352,7 +353,7 @@ A task is considered stalled if while it is being processed by a worker, the wor
 
 The time since a task was last acknowledged after which it is considered stalled is controlled by `Task.stallInterval` and otherwise falls back to `Worker.defaultStallInterval`.
 
-> *Note*: An orchestrator is required to be running on the queue which will monitor and re-enqueue any stalled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
+> _Note_: An orchestrator is required to be running on the queue which will monitor and re-enqueue any stalled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
 
 ### Scheduled tasks
 
@@ -373,7 +374,7 @@ const enqueuedTask = await manager.enqueueTask({ task: scheduledTask });
 /*
 ```
 
-> *Note*: An orchestrator is required to be running on the queue which will monitor and enqueue any scheduled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
+> _Note_: An orchestrator is required to be running on the queue which will monitor and enqueue any scheduled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
 
 ## API Reference
 
