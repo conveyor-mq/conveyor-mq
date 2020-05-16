@@ -4,6 +4,7 @@ import { map } from 'lodash';
 import { callLuaScript } from '../utils/redis';
 import { getDelayedSetKey, getQueuedListKey, getTaskKey } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
+import { TaskStatuses } from '../domain/tasks/task-statuses';
 
 /**
  * @ignore
@@ -24,6 +25,7 @@ export const enqueueDelayedTasks = async ({
       getQueuedListKey({ queue }),
       now.unix(),
       getTaskKey({ taskId: '', queue }),
+      TaskStatuses.Queued,
     ],
   })) as string[];
   const tasks = map(taskStrings, (taskString) => deSerializeTask(taskString));

@@ -7,6 +7,7 @@ import {
   getQueuedListKey,
   getQueueTaskQueuedChannel,
   getDelayedSetKey,
+  getQueueTaskScheduledChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createTaskId } from '../utils/general';
@@ -34,7 +35,7 @@ export const enqueueTasks = async ({
     queuedAt: moment(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
-    status: TaskStatuses.Queued,
+    status: task.enqueueAfter ? TaskStatuses.Scheduled : TaskStatuses.Queued,
     retries: task.retries || 0,
     errorRetries: task.errorRetries || 0,
     errorRetryLimit:
@@ -54,6 +55,14 @@ export const enqueueTasks = async ({
         getDelayedSetKey({ queue }),
         String(task.enqueueAfter.unix()),
         task.id,
+      );
+      multi.publish(
+        getQueueTaskScheduledChannel({ queue }),
+        serializeEvent({
+          createdAt: moment(),
+          type: EventTypes.TaskScheduled,
+          task,
+        }),
       );
     } else {
       multi.lpush(queuedListKey, task.id);

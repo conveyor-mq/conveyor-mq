@@ -13,6 +13,9 @@ export const getWorkerShutdownChannel = ({ queue }: { queue: string }) =>
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 
+export const getQueueTaskScheduledChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:task-scheduled`;
+
 export const getQueueTaskUpdatedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-updated`;
 

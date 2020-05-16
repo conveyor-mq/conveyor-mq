@@ -7,6 +7,7 @@ import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { enqueueDelayedTasks } from '../../actions/enqueue-delayed-tasks';
+import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
 describe('enqueueDelayedTasks', () => {
   const queue = createUuid();
@@ -34,6 +35,7 @@ describe('enqueueDelayedTasks', () => {
 
     const [delayedTask] = await enqueueDelayedTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
+    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
@@ -48,6 +50,7 @@ describe('enqueueDelayedTasks', () => {
 
     const [delayedTask] = await enqueueDelayedTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
+    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);

@@ -106,13 +106,14 @@ describe('enqueueTask', () => {
     expect(queuedTask.processingEndedAt).toBe(undefined);
   });
   it('enqueueTask schedules delayed task', async () => {
-    const enqueueAfter = moment();
+    const enqueueAfter = moment().add(1, 'hours');
     const task: Task = {
       id: 'a',
       data: 'b',
       enqueueAfter,
     };
-    await enqueueTask({ queue, client, task });
+    const enqueuedTask = await enqueueTask({ queue, client, task });
+    expect(enqueuedTask.status).toBe(TaskStatuses.Scheduled);
 
     const taskResult = await takeTask({ queue, client });
     expect(taskResult).toBe(null);

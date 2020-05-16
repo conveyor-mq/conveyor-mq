@@ -1,4 +1,5 @@
 import { Redis } from 'ioredis';
+import moment from 'moment';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
@@ -42,6 +43,21 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
+  });
+  it('createListener listens for task scheduled event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const promise = new Promise((resolve) => {
+      listener.on(EventTypes.TaskScheduled, ({ event }) => {
+        resolve(event);
+      });
+    });
+    const manager = await createManager({ queue, redisConfig });
+    const task = { id: 'b', data: 'c', enqueueAfter: moment().add(1, 'hours') };
+    await manager.enqueueTask({ task });
+    const event = await promise;
+    expect(event).toHaveProperty('task.id', task.id);
+    expect(event).toHaveProperty('task.data', task.data);
+    expect(event).toHaveProperty('task.status', TaskStatuses.Scheduled);
   });
   it('createListener listens for task processing event', async () => {
     const listener = await createListener({ queue, redisConfig });
