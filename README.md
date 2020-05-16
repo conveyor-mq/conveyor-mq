@@ -40,6 +40,7 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
   - Tasks which expire
   - Task execution timeouts
   - Delayed/Scheduled tasks
+  - Task progress
 - Events
   - Task, Queue and Worker events
 - Concurrent worker processing
