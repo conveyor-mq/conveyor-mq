@@ -24,6 +24,25 @@ export type getRetryDelayType = ({
 /**
  * @ignore
  */
+export type TaskSuccessCb = ({
+  task,
+  result,
+}: {
+  task: Task;
+  result: any;
+}) => any;
+/**
+ * @ignore
+ */
+export type TaskErrorCb = ({ task, error }: { task: Task; error: any }) => any;
+/**
+ * @ignore
+ */
+export type TaskFailedCb = ({ task, error }: { task: Task; error: any }) => any;
+
+/**
+ * @ignore
+ */
 export const handleTask = async ({
   task,
   queue,
@@ -41,9 +60,9 @@ export const handleTask = async ({
   handler: ({ task }: { task: Task }) => any;
   asOf: Moment;
   getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: ({ task }: { task: Task }) => any;
-  onTaskError?: ({ task }: { task: Task }) => any;
-  onTaskFailed?: ({ task }: { task: Task }) => any;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
 }): Promise<any | null> => {
   const retryLimitReached =
     task.retryLimit !== undefined &&
@@ -103,10 +122,14 @@ export const handleTask = async ({
       result,
       asOf: moment(),
     });
-    if (onTaskSuccess) onTaskSuccess({ task: successfulTask });
+    if (onTaskSuccess) onTaskSuccess({ task: successfulTask, result });
     return result;
   } catch (e) {
-    if (onTaskError) onTaskError({ task });
+    const error =
+      e instanceof pTimeout.TimeoutError
+        ? 'Task execution duration exceeded executionTimeout'
+        : e.message;
+    if (onTaskError) onTaskError({ task, error });
     client.publish(
       getQueueTaskErrorChannel({ queue }),
       serializeEvent({ createdAt: moment(), type: EventTypes.TaskError, task }),
@@ -148,13 +171,10 @@ export const handleTask = async ({
       task,
       queue,
       client,
-      error:
-        e instanceof pTimeout.TimeoutError
-          ? 'Task execution duration exceeded executionTimeout'
-          : e.message,
+      error,
       asOf: moment(),
     });
-    if (onTaskFailed) onTaskFailed({ task: failedTask });
+    if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;
   }
 };

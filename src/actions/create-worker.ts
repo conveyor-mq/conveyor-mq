@@ -2,7 +2,12 @@ import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
 import moment from 'moment';
 import { RedisConfig, sleep, createWorkerId } from '../utils/general';
-import { getRetryDelayType } from './handle-task';
+import {
+  getRetryDelayType,
+  TaskSuccessCb,
+  TaskErrorCb,
+  TaskFailedCb,
+} from './handle-task';
 import {
   createClient,
   ensureConnected,
@@ -23,30 +28,44 @@ import { Worker } from '../domain/workers/worker';
  *
  */
 export const createWorker = async ({
+  // Queue name:
   queue,
+  // Redis configuration:
   redisConfig,
-  stallTimeout = 1000,
+  defaultStallTimeout = 1000,
+  defaultTaskAcknowledgementInterval,
+  // A handler function to process tasks:
   handler,
+  // The number of concurrent tasks the worker can processes:
   concurrency = 1,
+  // The retry delay when retrying a task after it has errored:
   getRetryDelay,
+  // Task success callback:
   onTaskSuccess,
+  // Task error callback:
   onTaskError,
+  // Task fail callback:
   onTaskFailed,
   onHandlerError,
+  // Worker idle callback, called when the worker becomes idle:
   onIdle,
+  // Amount of time since processing a task after which the worker is considered idle and the onIdle callback is called.
   idleTimeout = 250,
+  // Worker ready callback, called once a worker is ready to start processing tasks:
   onReady,
+  // Control whether the worker should start automatically, else worker.start() must be called manually:
   autoStart = true,
 }: {
   queue: string;
   redisConfig: RedisConfig;
-  stallTimeout?: number;
+  defaultStallTimeout?: number;
+  defaultTaskAcknowledgementInterval?: number;
   handler: ({ task }: { task: Task }) => any;
   concurrency?: number;
   getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: ({ task }: { task: Task }) => any;
-  onTaskError?: ({ task }: { task: Task }) => any;
-  onTaskFailed?: ({ task }: { task: Task }) => any;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
   onHandlerError?: (error: any) => any;
   onIdle?: () => any;
   idleTimeout?: number;
@@ -83,7 +102,7 @@ export const createWorker = async ({
           takeTaskBlocking({
             queue,
             client: takerClient,
-            stallTimeout,
+            stallTimeout: defaultStallTimeout,
           }),
         () => isActive(),
       );
@@ -96,7 +115,11 @@ export const createWorker = async ({
                 queue,
                 client: workerClient,
                 handler,
-                stallTimeout,
+                stallTimeout: task.stallTimeout || defaultStallTimeout,
+                taskAcknowledgementInterval:
+                  task.taskAcknowledgementInterval ||
+                  defaultTaskAcknowledgementInterval ||
+                  defaultStallTimeout / 2,
                 getRetryDelay,
                 onTaskSuccess,
                 onTaskError,

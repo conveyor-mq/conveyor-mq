@@ -5,7 +5,13 @@ import {
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { acknowledgeTask } from './acknowledge-task';
-import { handleTask, getRetryDelayType } from './handle-task';
+import {
+  handleTask,
+  getRetryDelayType,
+  TaskSuccessCb,
+  TaskErrorCb,
+  TaskFailedCb,
+} from './handle-task';
 import { Task } from '../domain/tasks/task';
 
 /**
@@ -17,6 +23,7 @@ export const processTask = async ({
   client,
   handler,
   stallTimeout,
+  taskAcknowledgementInterval,
   getRetryDelay,
   onTaskSuccess,
   onTaskError,
@@ -27,11 +34,11 @@ export const processTask = async ({
   client: Redis;
   handler: ({ task }: { task: Task }) => any;
   stallTimeout: number;
+  taskAcknowledgementInterval: number;
   getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: ({ task }: { task: Task }) => any;
-  onTaskError?: ({ task }: { task: Task }) => any;
-  onTaskFailed?: ({ task }: { task: Task }) => any;
-  onHandlerError?: (error: any) => any;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
 }) => {
   const timer = setIntervalAsync(async () => {
     await acknowledgeTask({
@@ -40,7 +47,7 @@ export const processTask = async ({
       client,
       ttl: stallTimeout,
     });
-  }, stallTimeout / 2);
+  }, taskAcknowledgementInterval);
   const result = await handleTask({
     task,
     queue,

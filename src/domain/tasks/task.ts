@@ -11,6 +11,8 @@ export interface Task {
   executionTimeout?: number;
   processingStartedAt?: Moment;
   processingEndedAt?: Moment;
+  stallTimeout?: number;
+  taskAcknowledgementInterval?: number;
   retries?: number;
   retryLimit?: number | null;
   errorRetries?: number;
