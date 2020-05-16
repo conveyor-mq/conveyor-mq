@@ -101,14 +101,15 @@ export const handleTask = async ({
         message: 'Retry limit reached',
       },
     ];
+    const error = find(errorMessages, ({ condition }) => !!condition)?.message;
     const failedTask = await markTaskFailed({
       task,
       queue,
       client,
-      error: find(errorMessages, ({ condition }) => !!condition)?.message,
+      error,
       asOf: moment(),
     });
-    if (onTaskFailed) onTaskFailed({ task: failedTask });
+    if (onTaskFailed) onTaskFailed({ task: failedTask, error });
     return null;
   }
   try {
