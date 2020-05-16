@@ -9,7 +9,7 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 /**
  * @ignore
  */
-export const enqueueDelayedTasks = async ({
+export const enqueueScheduledTasks = async ({
   queue,
   client,
 }: {

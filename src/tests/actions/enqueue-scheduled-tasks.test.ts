@@ -6,10 +6,10 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { enqueueDelayedTasks } from '../../actions/enqueue-delayed-tasks';
+import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 
-describe('enqueueDelayedTasks', () => {
+describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
   let client: Redis;
 
@@ -25,7 +25,7 @@ describe('enqueueDelayedTasks', () => {
     await quit({ client });
   });
 
-  it('enqueueDelayedTasks enqueues tasks', async () => {
+  it('enqueueScheduledTasks enqueues tasks', async () => {
     const now = moment();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: now };
     await enqueueTask({ queue, task, client });
@@ -33,14 +33,14 @@ describe('enqueueDelayedTasks', () => {
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);
 
-    const [delayedTask] = await enqueueDelayedTasks({ queue, client });
+    const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
     expect(delayedTask?.status).toBe(TaskStatuses.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
   });
-  it('enqueueDelayedTasks enqueues past tasks', async () => {
+  it('enqueueScheduledTasks enqueues past tasks', async () => {
     const thePast = moment().subtract(1, 'hour');
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
     await enqueueTask({ queue, task, client });
@@ -48,14 +48,14 @@ describe('enqueueDelayedTasks', () => {
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);
 
-    const [delayedTask] = await enqueueDelayedTasks({ queue, client });
+    const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
     expect(delayedTask?.status).toBe(TaskStatuses.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
   });
-  it('enqueueDelayedTasks does not enqueue future task', async () => {
+  it('enqueueScheduledTasks does not enqueue future task', async () => {
     const theFuture = moment().add(1, 'hour');
     const task: Task = { id: 'b', data: 'c', enqueueAfter: theFuture };
     await enqueueTask({ queue, task, client });
@@ -63,7 +63,7 @@ describe('enqueueDelayedTasks', () => {
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);
 
-    const [delayedTask] = await enqueueDelayedTasks({ queue, client });
+    const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask).toBe(undefined);
 
     const result2 = await takeTask({ queue, client });

@@ -4,7 +4,7 @@ import {
 } from 'set-interval-async/dynamic';
 import { map } from 'lodash';
 import { processStalledTasks as processStalledTasksAction } from './process-stalled-tasks';
-import { enqueueDelayedTasks as enqueueDelayedTasksAction } from './enqueue-delayed-tasks';
+import { enqueueScheduledTasks as enqueueScheduledTasksAction } from './enqueue-scheduled-tasks';
 import { createClient, quit as redisQuit } from '../utils/redis';
 import { RedisConfig } from '../utils/general';
 
@@ -33,15 +33,15 @@ export const createOrchestrator = async ({
     stalledCheckInterval,
   );
 
-  const enqueueDelayedTasks = async () => {
+  const enqueueScheduledTasks = async () => {
     try {
-      await enqueueDelayedTasksAction({ queue, client });
+      await enqueueScheduledTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
   };
   const enqueueDelayedTasksTimer = await setIntervalAsync(
-    () => enqueueDelayedTasks(),
+    () => enqueueScheduledTasks(),
     delayedTasksCheckInterval,
   );
 
