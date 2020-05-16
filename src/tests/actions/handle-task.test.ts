@@ -52,12 +52,12 @@ describe('handleTask', () => {
     expect(failedTask.error).toBe('Task has expired');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
-  it('handleTask fails task if attempt count exceeded', async () => {
+  it('handleTask fails task if retry limit exceeded', async () => {
     const task: Task = {
       id: 'i',
       data: 'j',
-      maxAttemptCount: 2,
-      attemptCount: 3,
+      retryLimit: 2,
+      retries: 3,
     };
     const onTaskFailed = jest.fn();
     const result = await handleTask({
@@ -76,15 +76,15 @@ describe('handleTask', () => {
     })) as Task;
     expect(failedTask.id).toBe(task.id);
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.error).toBe('Task max attempt count exceeded');
+    expect(failedTask.error).toBe('Retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
-  it('handleTask fails task if error count exceeded', async () => {
+  it('handleTask fails task if error retry exceeded', async () => {
     const task: Task = {
       id: 'i',
       data: 'j',
-      maxErrorCount: 1,
-      errorCount: 2,
+      errorRetryLimit: 1,
+      errorRetries: 2,
     };
     const onTaskFailed = jest.fn();
     const result = await handleTask({
@@ -103,7 +103,7 @@ describe('handleTask', () => {
     })) as Task;
     expect(failedTask.id).toBe(task.id);
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.error).toBe('Task max error count exceeded');
+    expect(failedTask.error).toBe('Error retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
   it('handleTask handles task success case', async () => {
@@ -123,7 +123,7 @@ describe('handleTask', () => {
       onTaskError: onError,
       onTaskFailed: onFailure,
       handler: ({ task }: { task: Task }) => {
-        expect(task.attemptCount).toBe(1);
+        expect(task.retries).toBe(0);
         expect(task.id).toBe(theTask.id);
         return 'some-result';
       },
@@ -143,7 +143,7 @@ describe('handleTask', () => {
   });
   it('handleTask handles task failure case', async () => {
     const now = moment('2020-01-02');
-    const theTask: Task = { id: 'i', data: 'j' };
+    const theTask: Task = { id: 'i', data: 'j', retryLimit: 0 };
     await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     const onSuccess = jest.fn();
@@ -158,7 +158,7 @@ describe('handleTask', () => {
       onTaskError: onError,
       onTaskFailed: onFailure,
       handler: ({ task }) => {
-        expect(task.attemptCount).toBe(1);
+        expect(task.retries).toBe(0);
         throw new Error('some-error');
       },
     });
@@ -179,7 +179,7 @@ describe('handleTask', () => {
   });
   it('handleTask retires errored task', async () => {
     const now = moment('2020-01-02');
-    const task: Task = { id: 'i', data: 'j', maxAttemptCount: 2 };
+    const task: Task = { id: 'i', data: 'j', errorRetryLimit: 1 };
     await enqueueTask({ queue, task, client });
     const processingTask = (await takeTask({ queue, client })) as Task;
     const onSuccess = jest.fn();
@@ -195,7 +195,7 @@ describe('handleTask', () => {
       onTaskError: onError,
       onTaskFailed: onFailure,
       handler: ({ task: taskToHandle }) => {
-        expect(taskToHandle.attemptCount).toBe(1);
+        expect(taskToHandle.retries).toBe(0);
         throw new Error('some-error');
       },
     });
@@ -208,7 +208,7 @@ describe('handleTask', () => {
       taskId: task.id,
       client,
     })) as Task;
-    expect(handledTask.attemptCount).toBe(2);
+    expect(handledTask.retries).toBe(1);
     expect(handledTask.status).toBe(TaskStatuses.Queued);
     expect(handledTask.error).toBe(undefined);
     expect(handledTask.result).toBe(undefined);
@@ -224,7 +224,7 @@ describe('handleTask', () => {
       asOf: now,
       getRetryDelay: () => 0,
       handler: ({ task: taskToHandle }) => {
-        expect(taskToHandle.attemptCount).toBe(2);
+        expect(taskToHandle.retries).toBe(1);
         throw new Error('some-error');
       },
     });
@@ -233,14 +233,19 @@ describe('handleTask', () => {
       taskId: task.id,
       client,
     })) as Task;
-    expect(handledTask2.attemptCount).toBe(2);
+    expect(handledTask2.retries).toBe(1);
     expect(handledTask2.status).toBe(TaskStatuses.Failed);
     expect(handledTask2.error).toBe('some-error');
     expect(handledTask2.result).toBe(undefined);
     expect(await takeTask({ queue, client })).toBe(null);
   });
   it('handleTask times out task with executionTimeout', async () => {
-    const task: Task = { id: 'i', data: 'j', executionTimeout: 10 };
+    const task: Task = {
+      id: 'i',
+      data: 'j',
+      executionTimeout: 10,
+      retryLimit: 0,
+    };
     await enqueueTask({ queue, task, client });
     const taskToHandle = (await takeTask({ queue, client })) as Task;
     const result = await handleTask({

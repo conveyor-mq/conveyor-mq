@@ -20,10 +20,12 @@ export const taskToJson = (task: Task) => {
     processingEndedAt: task.processingEndedAt
       ? task.processingEndedAt.toISOString()
       : undefined,
-    attemptCount: task.attemptCount,
-    maxAttemptCount: task.maxAttemptCount,
-    errorCount: task.errorCount,
-    maxErrorCount: task.maxErrorCount,
+    retries: task.retries,
+    retryLimit: task.retryLimit,
+    errorRetries: task.errorRetries,
+    errorRetryLimit: task.errorRetryLimit,
+    stallRetries: task.stallRetries,
+    stallRetryLimit: task.stallRetryLimit,
     retryBackoff: task.retryBackoff,
     result: task.result,
     error: task.error,

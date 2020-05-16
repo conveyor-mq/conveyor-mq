@@ -20,33 +20,33 @@ export const handleStalledTasks = async ({
   const results = map(tasks, (task) => {
     return {
       task,
-      maxAttemptCountExceeded:
-        task.maxAttemptCount &&
-        (task.attemptCount || 1) >= task.maxAttemptCount,
-      maxErrorCountExceeded:
-        task.maxErrorCount && (task.errorCount || 0) >= task.maxErrorCount,
+      retryLimitReached:
+        task.retryLimit && (task.retries || 0) >= task.retryLimit,
+      stallRetryLimitReached:
+        task.stallRetryLimit &&
+        (task.stallRetries || 0) >= task.stallRetryLimit,
     };
   });
   const tasksToReQueue = map(
     filter(
       results,
-      ({ maxAttemptCountExceeded, maxErrorCountExceeded }) =>
-        !maxAttemptCountExceeded && !maxErrorCountExceeded,
+      ({ retryLimitReached, stallRetryLimitReached }) =>
+        !retryLimitReached && !stallRetryLimitReached,
     ),
     (result) => result.task,
   );
   const tasksAndErrors = map(
     filter(
       results,
-      ({ maxAttemptCountExceeded, maxErrorCountExceeded }) =>
-        !!maxAttemptCountExceeded || !!maxErrorCountExceeded,
+      ({ retryLimitReached, stallRetryLimitReached }) =>
+        !!retryLimitReached || !!stallRetryLimitReached,
     ),
-    ({ task, maxAttemptCountExceeded, maxErrorCountExceeded }) => {
+    ({ task, retryLimitReached, stallRetryLimitReached }) => {
       // eslint-disable-next-line no-nested-ternary
-      const error = maxAttemptCountExceeded
-        ? 'Max attempt count exceeded'
-        : maxErrorCountExceeded
-        ? 'Max error count exceeded'
+      const error = retryLimitReached
+        ? 'Retry limit reached'
+        : stallRetryLimitReached
+        ? 'Stall retry limit reached'
         : '';
       return { task, error };
     },

@@ -21,10 +21,12 @@ export const taskFromJson = (taskJson: any): Task => {
     processingEndedAt: taskJson.processingEndedAt
       ? moment(taskJson.processingEndedAt)
       : undefined,
-    attemptCount: taskJson.attemptCount,
-    maxAttemptCount: taskJson.maxAttemptCount,
-    errorCount: taskJson.errorCount,
-    maxErrorCount: taskJson.maxErrorCount,
+    retries: taskJson.retries,
+    retryLimit: taskJson.retryLimit,
+    errorRetries: taskJson.errorRetries,
+    errorRetryLimit: taskJson.errorRetryLimit,
+    stallRetries: taskJson.stallRetries,
+    stallRetryLimit: taskJson.stallRetryLimit,
     retryBackoff: taskJson.retryBackoff,
     result: taskJson.result,
     error: taskJson.error,

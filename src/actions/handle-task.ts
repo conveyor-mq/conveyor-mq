@@ -1,12 +1,12 @@
 import { Redis } from 'ioredis';
 import moment, { Moment } from 'moment';
 import pTimeout from 'p-timeout';
+import { find } from 'lodash';
 import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccess } from './mark-task-success';
 import { enqueueTask } from './enqueue-task';
 import { markTaskFailed } from './mark-task-failed';
 import { getRetryDelayDefault } from '../utils/retry-strategies';
-import { sleep } from '../utils/general';
 import { getQueueTaskErrorChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
@@ -45,21 +45,48 @@ export const handleTask = async ({
   onTaskError?: ({ task }: { task: Task }) => any;
   onTaskFailed?: ({ task }: { task: Task }) => any;
 }): Promise<any | null> => {
-  const maxAttemptCountExceeded =
-    task.maxAttemptCount && (task.attemptCount || 1) > task.maxAttemptCount;
-  const maxErrorCountExceeded =
-    task.maxErrorCount && (task.errorCount || 0) > task.maxErrorCount;
+  const retryLimitReached =
+    task.retryLimit !== undefined &&
+    task.retryLimit !== null &&
+    (task.retries || 0) > task.retryLimit;
+  const errorRetryLimitReached =
+    task.errorRetryLimit !== undefined &&
+    task.errorRetryLimit !== null &&
+    (task.errorRetries || 0) > task.errorRetryLimit;
+  const stallRetryLimitReached =
+    task.stallRetryLimit !== undefined &&
+    task.stallRetryLimit !== null &&
+    (task.stallRetries || 0) > task.stallRetryLimit;
   const hasExpired = hasTaskExpired({ task, asOf });
-  if (maxAttemptCountExceeded || maxErrorCountExceeded || hasExpired) {
+  if (
+    retryLimitReached ||
+    errorRetryLimitReached ||
+    stallRetryLimitReached ||
+    hasExpired
+  ) {
+    const errorMessages = [
+      {
+        condition: !!hasExpired,
+        message: 'Task has expired',
+      },
+      {
+        condition: !!errorRetryLimitReached,
+        message: 'Error retry limit reached',
+      },
+      {
+        condition: !!stallRetryLimitReached,
+        message: 'Stall retry limit reached',
+      },
+      {
+        condition: !!retryLimitReached,
+        message: 'Retry limit reached',
+      },
+    ];
     const failedTask = await markTaskFailed({
       task,
       queue,
       client,
-      error: hasExpired
-        ? 'Task has expired'
-        : `Task max ${
-            maxAttemptCountExceeded ? 'attempt' : 'error'
-          } count exceeded`,
+      error: find(errorMessages, ({ condition }) => !!condition)?.message,
       asOf: moment(),
     });
     if (onTaskFailed) onTaskFailed({ task: failedTask });
@@ -84,13 +111,23 @@ export const handleTask = async ({
       getQueueTaskErrorChannel({ queue }),
       serializeEvent({ createdAt: moment(), type: EventTypes.TaskError, task }),
     );
-    const willMaxAttemptCountBeExceeded =
-      task.maxAttemptCount &&
-      task.attemptCount &&
-      task.attemptCount >= task.maxAttemptCount;
-    const willMaxErrorCountBeExceeded =
-      task.maxErrorCount && (task.errorCount || 0) >= task.maxErrorCount;
-    if (!willMaxErrorCountBeExceeded && !willMaxAttemptCountBeExceeded) {
+    const willRetryLimitBeReached =
+      task.retryLimit !== undefined &&
+      task.retryLimit !== null &&
+      (task.retries || 0) >= task.retryLimit;
+    const willErrorRetryLimitBeReached =
+      task.errorRetryLimit !== undefined &&
+      task.errorRetryLimit !== null &&
+      (task.errorRetries || 0) >= task.errorRetryLimit;
+    const willStallRetryLimitBeReached =
+      task.stallRetryLimit !== undefined &&
+      task.stallRetryLimit !== null &&
+      (task.stallRetries || 0) >= task.stallRetryLimit;
+    if (
+      !willRetryLimitBeReached &&
+      !willErrorRetryLimitBeReached &&
+      !willStallRetryLimitBeReached
+    ) {
       const retryDelay = await getRetryDelay({ task });
       await enqueueTask({
         task: {
@@ -98,7 +135,8 @@ export const handleTask = async ({
           enqueueAfter: retryDelay
             ? moment().add(retryDelay, 'milliseconds')
             : undefined,
-          errorCount: (task.errorCount || 0) + 1,
+          retries: (task.retries || 0) + 1,
+          errorRetries: (task.errorRetries || 0) + 1,
           processingEndedAt: moment(),
         },
         queue,

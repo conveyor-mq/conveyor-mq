@@ -35,9 +35,13 @@ export const enqueueTasks = async ({
     processingStartedAt: undefined,
     processingEndedAt: undefined,
     status: TaskStatuses.Queued,
-    maxAttemptCount: task.maxAttemptCount || 1,
-    attemptCount: (task.attemptCount || 0) + 1,
-    errorCount: task.errorCount || 0,
+    retries: task.retries || 0,
+    errorRetries: task.errorRetries || 0,
+    errorRetryLimit:
+      task.errorRetryLimit === undefined ? 0 : task.errorRetryLimit,
+    stallRetries: task.stallRetries || 0,
+    stallRetryLimit:
+      task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
   }));
   const queuedListKey = getQueuedListKey({ queue });
   const multi = client.multi();

@@ -32,6 +32,40 @@ describe('enqueueTask', () => {
     await quit({ client });
   });
 
+  it('enqueueTask sets task defaults', async () => {
+    const task: Task = { id: 'a', data: 'b' };
+    const queuedTask = await enqueueTask({ queue, client, task });
+    expect(queuedTask.data).toBe(task.data);
+    expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedAt).toBe(undefined);
+    expect(queuedTask.processingEndedAt).toBe(undefined);
+    expect(queuedTask.retries).toBe(0);
+    expect(queuedTask.retryLimit).toBe(undefined);
+    expect(queuedTask.errorRetries).toBe(0);
+    expect(queuedTask.errorRetryLimit).toBe(0);
+    expect(queuedTask.stallRetries).toBe(0);
+    expect(queuedTask.stallRetryLimit).toBe(1);
+  });
+  it('enqueueTask handles null retry limits', async () => {
+    const task: Task = {
+      id: 'a',
+      data: 'b',
+      retryLimit: null,
+      errorRetryLimit: null,
+      stallRetryLimit: null,
+    };
+    const queuedTask = await enqueueTask({ queue, client, task });
+    expect(queuedTask.data).toBe(task.data);
+    expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedAt).toBe(undefined);
+    expect(queuedTask.processingEndedAt).toBe(undefined);
+    expect(queuedTask.retries).toBe(0);
+    expect(queuedTask.retryLimit).toBe(null);
+    expect(queuedTask.errorRetries).toBe(0);
+    expect(queuedTask.errorRetryLimit).toBe(null);
+    expect(queuedTask.stallRetries).toBe(0);
+    expect(queuedTask.stallRetryLimit).toBe(null);
+  });
   it('enqueueTask adds task to a queue', async () => {
     const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await enqueueTask({ queue, client, task });
@@ -41,7 +75,6 @@ describe('enqueueTask', () => {
     expect(queuedTask.processingEndedAt).toBe(undefined);
     expect(queuedTask.status).toBe(TaskStatuses.Queued);
     expect(queuedTask.data).toBe(task.data);
-    expect(queuedTask.attemptCount).toBe(1);
 
     const fetchedTask = (await getTask({
       queue,

@@ -24,13 +24,14 @@ export const enqueueStalledTasks = async ({
   tasks: Task[];
   client: Redis;
 }): Promise<Task[]> => {
-  const tasksToQueue = map(tasks, (task) => ({
+  const tasksToQueue: Task[] = map(tasks, (task) => ({
     ...task,
     queuedOn: moment(),
     processingStartedOn: undefined,
     processingEndedOn: undefined,
     status: TaskStatuses.Queued,
-    attemptCount: (task.attemptCount || 1) + 1,
+    retries: (task.retries || 0) + 1,
+    stallRetries: (task.stallRetries || 0) + 1,
   }));
   const queuedListKey = getQueuedListKey({ queue });
   const processingListKey = getProcessingListKey({ queue });

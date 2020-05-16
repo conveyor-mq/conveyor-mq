@@ -11,10 +11,12 @@ export interface Task {
   executionTimeout?: number;
   processingStartedAt?: Moment;
   processingEndedAt?: Moment;
-  attemptCount?: number;
-  maxAttemptCount?: number;
-  errorCount?: number;
-  maxErrorCount?: number;
+  retries?: number;
+  retryLimit?: number | null;
+  errorRetries?: number;
+  errorRetryLimit?: number | null;
+  stallRetries?: number;
+  stallRetryLimit?: number | null;
   retryBackoff?: {
     strategy: 'constant' | 'linear' | 'exponential' | string;
     factor: number;

@@ -28,7 +28,7 @@ describe('handleStalledTasks', () => {
     const taskToRequeue: Task = {
       id: 'a',
       data: 'c',
-      maxAttemptCount: 2,
+      retryLimit: 2,
     };
     await enqueueTask({ queue, task: taskToRequeue, client });
 
@@ -37,8 +37,9 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToRequeue.id,
     })) as Task;
-    expect(retrievedTaskToRequeue.attemptCount).toBe(1);
-    expect(retrievedTaskToRequeue.maxAttemptCount).toBe(2);
+    expect(retrievedTaskToRequeue.retries).toBe(0);
+    expect(retrievedTaskToRequeue.stallRetries).toBe(0);
+    expect(retrievedTaskToRequeue.retryLimit).toBe(2);
 
     const { failedTasks, reQueuedTasks } = await handleStalledTasks({
       queue,
@@ -46,26 +47,28 @@ describe('handleStalledTasks', () => {
       tasks: [retrievedTaskToRequeue],
     });
     expect(failedTasks.length).toBe(0);
-
     expect(reQueuedTasks.length).toBe(1);
     expect(reQueuedTasks[0].id).toBe(taskToRequeue.id);
+
     const retriedTask = (await getTask({
       queue,
       client,
       taskId: taskToRequeue.id,
     })) as Task;
     expect(retriedTask.status).toBe(TaskStatuses.Queued);
-    expect(retriedTask.attemptCount).toBe(2);
+    expect(retriedTask.retries).toBe(1);
+    expect(retriedTask.stallRetries).toBe(1);
     expect(retriedTask.processingStartedAt).toBe(undefined);
     expect(retriedTask.processingEndedAt).toBe(undefined);
     expect(retriedTask.error).toBe(undefined);
     expect(retriedTask.result).toBe(undefined);
   });
-  it('handleStalledTasks fails task exceeding maxAttemptCount', async () => {
+  it('handleStalledTasks fails task exceeding retryLimit', async () => {
     const taskToFail: Task = {
       id: 'b',
       data: 'c',
-      maxAttemptCount: 1,
+      retries: 1,
+      retryLimit: 1,
     };
     await enqueueTask({ queue, task: taskToFail, client });
 
@@ -74,37 +77,37 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToFail.id,
     })) as Task;
-    expect(retrievedTaskToFail.attemptCount).toBe(1);
-    expect(retrievedTaskToFail.maxAttemptCount).toBe(1);
+    expect(retrievedTaskToFail.retries).toBe(1);
+    expect(retrievedTaskToFail.retryLimit).toBe(1);
 
     const { failedTasks, reQueuedTasks } = await handleStalledTasks({
       queue,
       client,
       tasks: [retrievedTaskToFail],
     });
-
     expect(reQueuedTasks.length).toBe(0);
-
     expect(failedTasks.length).toBe(1);
     expect(failedTasks[0].id).toBe(taskToFail.id);
+
     const failedTask = (await getTask({
       queue,
       client,
       taskId: taskToFail.id,
     })) as Task;
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.attemptCount).toBe(1);
-    expect(failedTask.maxAttemptCount).toBe(1);
-    expect(failedTask.errorCount).toBe(0);
-    expect(failedTask.error).toBe('Max attempt count exceeded');
+    expect(failedTask.retries).toBe(1);
+    expect(failedTask.retryLimit).toBe(1);
+    expect(failedTask.errorRetries).toBe(0);
+    expect(failedTask.stallRetries).toBe(0);
+    expect(failedTask.error).toBe('Retry limit reached');
   });
-  it('handleStalledTasks fails task exceeding maxErrorCount', async () => {
+  it('handleStalledTasks fails task exceeding stallRetryLimit', async () => {
     const taskToFail: Task = {
       id: 'b',
       data: 'c',
-      errorCount: 1,
-      maxErrorCount: 1,
-      maxAttemptCount: 2,
+      stallRetries: 1,
+      stallRetryLimit: 1,
+      retryLimit: 2,
     };
     await enqueueTask({ queue, task: taskToFail, client });
 
@@ -113,28 +116,32 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToFail.id,
     })) as Task;
-    expect(retrievedTaskToFail.errorCount).toBe(1);
-    expect(retrievedTaskToFail.maxErrorCount).toBe(1);
+    expect(retrievedTaskToFail.errorRetries).toBe(0);
+    expect(retrievedTaskToFail.errorRetryLimit).toBe(0);
+    expect(retrievedTaskToFail.stallRetries).toBe(1);
+    expect(retrievedTaskToFail.stallRetryLimit).toBe(1);
+    expect(retrievedTaskToFail.retryLimit).toBe(2);
 
     const { failedTasks, reQueuedTasks } = await handleStalledTasks({
       queue,
       client,
       tasks: [retrievedTaskToFail],
     });
-
     expect(reQueuedTasks.length).toBe(0);
-
     expect(failedTasks.length).toBe(1);
     expect(failedTasks[0].id).toBe(taskToFail.id);
+
     const failedTask = (await getTask({
       queue,
       client,
       taskId: taskToFail.id,
     })) as Task;
     expect(failedTask.status).toBe(TaskStatuses.Failed);
-    expect(failedTask.attemptCount).toBe(1);
-    expect(failedTask.maxAttemptCount).toBe(2);
-    expect(failedTask.errorCount).toBe(1);
-    expect(failedTask.error).toBe('Max error count exceeded');
+    expect(failedTask.retries).toBe(0);
+    expect(failedTask.retryLimit).toBe(2);
+    expect(failedTask.errorRetries).toBe(0);
+    expect(failedTask.stallRetries).toBe(1);
+    expect(failedTask.stallRetryLimit).toBe(1);
+    expect(failedTask.error).toBe('Stall retry limit reached');
   });
 });

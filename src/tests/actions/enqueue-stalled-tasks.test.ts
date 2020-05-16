@@ -8,8 +8,9 @@ import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { enqueueStalledTasks } from '../../actions/enqueue-stalled-tasks';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
+import { getTask } from '../../actions/get-task';
 
-describe('putStalledTask', () => {
+describe('enqueueStalledTasks', () => {
   const queue = createUuid();
   let client: Redis;
 
@@ -25,7 +26,7 @@ describe('putStalledTask', () => {
     await quit({ client });
   });
 
-  it('putStalledTask re queues stalled tasks', async () => {
+  it('enqueueStalledTasks re queues stalled tasks', async () => {
     const taskA = { id: 'a', data: 'f' };
     const taskB = { id: 'b', data: 'g' };
     await enqueueTask({ queue, task: taskA, client });
@@ -53,5 +54,18 @@ describe('putStalledTask', () => {
     const processingTasks = await getProcessingTasks({ queue, client });
     expect(processingTasks.length).toBe(1);
     expect(processingTasks[0].id).toBe(taskB.id);
+  });
+  it('enqueueStalledTasks increments retries', async () => {
+    const taskA = { id: 'a', data: 'f' };
+
+    const enqueuedTask = await enqueueTask({ queue, task: taskA, client });
+    expect(enqueuedTask?.retries).toBe(0);
+    expect(enqueuedTask?.stallRetries).toBe(0);
+
+    await enqueueStalledTasks({ queue, tasks: [enqueuedTask], client });
+    const retrievedTask = await getTask({ queue, taskId: taskA.id, client });
+
+    expect(retrievedTask?.retries).toBe(1);
+    expect(retrievedTask?.stallRetries).toBe(1);
   });
 });

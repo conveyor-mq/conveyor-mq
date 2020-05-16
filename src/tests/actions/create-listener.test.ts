@@ -10,6 +10,7 @@ import { createWorker } from '../../actions/create-worker';
 import { takeTask } from '../../actions/take-task';
 import { processStalledTasks } from '../../actions/process-stalled-tasks';
 import { updateTask } from '../../actions/update-task';
+import { Task } from '../../domain/tasks/task';
 
 describe('createListener', () => {
   const queue = createUuid();
@@ -115,7 +116,7 @@ describe('createListener', () => {
       });
     });
     const manager = await createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c' };
+    const task: Task = { id: 'b', data: 'c', retryLimit: 0 };
     await manager.enqueueTask({ task });
     const worker = await createWorker({
       queue,
@@ -161,7 +162,7 @@ describe('createListener', () => {
       });
     });
     const manager = await createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c' };
+    const task: Task = { id: 'b', data: 'c', stallRetryLimit: 1 };
     await manager.enqueueTask({ task });
 
     await takeTask({ queue, client, stallTimeout: 1 });
