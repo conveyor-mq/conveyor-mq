@@ -87,6 +87,8 @@ You will also need Redis >=3.2
 A [task](https://jasrusable.github.io/conveyor-mq/interfaces/task.html) is an object containing at least a `data` key.
 The value of `data` should be JSON serializable as it will need to be transferred over the wire to and from Redis.
 
+For more information, see [Tasks](https://github.com/jasrusable/conveyor-mq#tasks) and [Task](https://jasrusable.github.io/conveyor-mq/interfaces/task.html)
+
 ```js
 // A task:
 const myTask = { data: { x: 1, y: 2 } };
@@ -96,7 +98,10 @@ const myTask = { data: { x: 1, y: 2 } };
 
 A [manager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager) is responsible for enqueuing tasks, as well as querying various properties of a queue.
 Create a manager by calling `createManager` and passing a `queue` and `redisConfig` parameter.
+
 Add a task to the queue by calling `manager.enqueueTask` with an object `{ task: { data: x: 1, y: 2} }`.
+
+For more information, see [createManager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager), [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
 
 ```js
 import { createManager } from 'conveyor-mq';
@@ -128,7 +133,12 @@ const task = await manager.getTask({ taskId: 'my-task-id' });
 ### Worker
 
 A [worker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) is responsible for taking enqueued tasks off of the queue and processing them.
-Create a worker by calling `createWorker` with a `queue`, `redisConfig` and `handler` parameter. The `handler` parameter should be a function which receives a task and is responsible for processing the task.
+Create a worker by calling `createWorker` with a `queue`, `redisConfig` and `handler` parameter.
+
+The `handler` parameter should be a function which receives a task and is responsible for processing the task.
+The handler should return a promise which should resolve if the task was successful, or reject if failed.
+
+For more information, see [createWorker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) and [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
 
 ```js
 import { createWorker } from 'conveyor-mq';
@@ -149,6 +159,8 @@ const worker = await createWorker({
 An [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) is responsible for various queue maintenance operations including re-enqueueing stalled tasks, and enqueueing delayed/scheduled tasks.
 Create an orchestrator by calling `createOrchestrator` with a `queue` and `redisConfig` parameter. The orchestrator will then begin monitoring the queue for stalled tasks and re-enqueueing them if needed, as well as enqueueing scheduled tasks.
 
+For more information, see [createOrchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) and [Stalling tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
+
 ```js
 import { createOrchestrator } from 'conveyor-mq';
 
@@ -162,6 +174,8 @@ const orchestrator = await createOrchestrator({
 ### Listener
 
 A [listener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) is responsible for listening and subscribing to [events](https://jasrusable.github.io/conveyor-mq/enums/eventtypes.html). Use `listener.on` to subscribe to various task, queue and worker related events.
+
+For more information, see [createListener](https://jasrusable.github.io/conveyor-mq/index.html#createlistener) and [Event](https://jasrusable.github.io/conveyor-mq/interfaces/event.html)
 
 ```js
 import { createListener } from 'conveyor-mq';
@@ -270,7 +284,7 @@ const enqueuedTask = await manager.enqueueTask({ task: myTask });
 
 ### Processing tasks
 
-Tasks are processed on the queue by workers. A worker can be created using `createWorker`.
+Tasks are processed on the queue by workers which can be created using `createWorker`.
 
 ```js
 import { createWorker } from 'conveyor-mq';
@@ -294,13 +308,15 @@ const worker = await createWorker({
   getRetryDelay: ({ task }) => (task.retries + 1) * 100,
 
   // Task success callback:
-  onTaskSuccess: ({ task }) => console.log('Task processed successfully', result),
+  onTaskSuccess: ({ task }) =>
+    console.log('Task processed successfully', result),
 
   // Task error callback:
   onTaskError: ({ task, error }) => console.log('Task had an error', error),
 
   // Task fail callback:
-  onTaskFailed: ({ task, error }) => console.log('Task failed with error', error),
+  onTaskFailed: ({ task, error }) =>
+    console.log('Task failed with error', error),
 
   // Worker idle callback. Called when the worker becomes idle:
   onIdle: () => console.log('worker is now idle and not processing tasks'),
@@ -325,6 +341,8 @@ While a `worker` is busy processing a task, it will periodically acknowledge tha
 A task is considered stalled if while it is being processed by a worker, the worker fails to acknowledge that it is currently working on the task. This situation occurs mainly when either a worker goes offline or crashes unexpectedly whilst processing a task, or if the Node event loop on the worker becomes blocked while processing a task.
 
 The time since a task was last acknowledged after which it is considered stalled is controlled by `Task.stallInterval` and otherwise falls back to `Worker.defaultStallInterval`.
+
+*Note: An orchestrator is required to be running on the queue which will monitor and re-enqueue any stalled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
 
 ## API Reference
 
