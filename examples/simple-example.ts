@@ -2,12 +2,13 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { createManager } from '../src/actions/create-manager';
-import { createWorker } from '../src/actions/create-worker';
-import { createOrchestrator } from '../src/actions/create-orchestrator';
-import { createListener } from '../src/actions/create-listener';
-import { EventTypes } from '../src/domain/events/event-types';
+import {
+  createManager,
+  createListener,
+  createWorker,
+  EventTypes,
+  createOrchestrator,
+} from 'conveyor-mq';
 
 const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
@@ -45,7 +46,7 @@ const main = async () => {
       console.log(e);
     }
   };
-  setIntervalAsync(addTasks, 3000);
+  setInterval(addTasks, 3000);
 };
 
 main();

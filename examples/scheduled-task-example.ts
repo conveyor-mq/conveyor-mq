@@ -1,13 +1,10 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import moment from 'moment';
-import { createManager } from '../src/actions/create-manager';
-import { createWorker } from '../src/actions/create-worker';
-import { createOrchestrator } from '../src/actions/create-orchestrator';
-import { createListener } from '../src/actions/create-listener';
-import { EventTypes } from '../src/domain/events/event-types';
+import {
+  createListener,
+  EventTypes,
+  createWorker,
+  createOrchestrator,
+  createManager,
+} from 'conveyor-mq';
 
 const main = async () => {
   const redisConfig = { host: '127.0.0.1', port: 6379 };
@@ -36,9 +33,11 @@ const main = async () => {
     queue,
     redisConfig,
   });
+  const futureDate = new Date();
+  futureDate.setSeconds(futureDate.getSeconds() + 5);
   const task = {
     data: 'some-task-data',
-    enqueueAfter: moment().add(3, 'seconds').toDate(),
+    enqueueAfter: futureDate,
   };
   await manager.enqueueTask({ task });
 };
