@@ -476,7 +476,7 @@ const { task: enqueuedTask } = await manager.enqueueTask({ task: scheduledTask }
     enqueueAfter: '2020-05-15',
     ...
   }
-/*
+*/
 ```
 
 > _Note_: An orchestrator is required to be running on the queue which will monitor and enqueue any scheduled tasks. It is recommended to have only a single orchestrator run per queue to minimize Redis overhead, however multiple orchestrators can be run simultaneously.
