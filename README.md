@@ -65,6 +65,7 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
    - [Tasks](https://github.com/jasrusable/conveyor-mq#tasks)
    - [Manager](https://github.com/jasrusable/conveyor-mq#manager)
    - [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
+   - [Task retries](https://github.com/jasrusable/conveyor-mq#task-retries)
    - [Worker](https://github.com/jasrusable/conveyor-mq#worker)
    - [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
    - [Orchestrator](https://github.com/jasrusable/conveyor-mq#orchestrator)
@@ -267,6 +268,76 @@ const manager = await createManager({
 });
 
 const enqueuedTask = await manager.enqueueTask({ task: myTask });
+```
+
+### Task retries
+
+Conveyor MQ implements a number of different task retry mechanisms which can be controlled by various task properties.
+
+`errorRetryLimit` controls the maximum number of times a task is allowed to be retried after encountering an error whilst being processed.
+
+```js
+// Create a task which can be retried on error a maximum of 2 times:
+const task = { data: { x: 1, y: 2 }, errorRetryLimit: 2 };
+```
+
+`errorRetries` is the number of times a task has been retried because of an error.
+
+```js
+// See how many times a task has been retried due to an error:
+const task = await manager.getTask('my-task-id');
+/*
+  task = {
+    ...
+    id: 'my-task-id',
+    errorRetries: 2,
+    ...
+  }
+*/
+```
+
+`stallRetryLimit` controls the maximum number of times a task is allowed to be retried after encountering becoming stalled whilst being processed.
+
+```js
+// Create a task which can be retried on stall a maximum of 2 times:
+const task = { data: { x: 1, y: 2 }, stallRetryLimit: 2 };
+```
+
+`stallRetries` is the number of times a task has been retried after having stalled:
+
+```js
+// See how many times a task has been retried due to an error:
+const task = await manager.getTask('my-task-id');
+/*
+  task = {
+    ...
+    id: 'my-task-id',
+    stallRetries: 2,
+    ...
+  }
+*/
+```
+
+`retryLimit` controls the maximum number of times a task is allowed to be retried after either stalling or erroring whilst being processed.
+
+```js
+// Create a task which can be retried on stall or error a maximum of 2 times:
+const task = { data: { x: 1, y: 2 }, retryLimit: 2 };
+```
+
+`retries` is the number of times a task has been retried in total (error + stall retries)
+
+```js
+// See how many times a task has been retried in total:
+const task = await manager.getTask('my-task-id');
+/*
+  task = {
+    ...
+    id: 'my-task-id',
+    retries: 2,
+    ...
+  }
+*/
 ```
 
 ### Worker
