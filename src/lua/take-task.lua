@@ -9,23 +9,23 @@ local stallingHashKey = KEYS[8]
 local eventType = KEYS[9]
 local status = KEYS[10]
 
-local taskId = redis.call('RPOPLPUSH', fromQueue, toQueue)
+local taskId = redis.call('rpoplpush', fromQueue, toQueue)
 
 if taskId then
     local taskKey = taskKeyPrefix .. taskId
-    local taskJson = redis.call('GET', taskKey)
+    local taskJson = redis.call('get', taskKey)
     local task = cjson.decode(taskJson)
     task['status'] = status
     task['processingStartedAt'] = datetime
 
     local lockKey = queue .. ':acknowledged-tasks:' .. taskId
-    redis.call('SET', lockKey, '', 'PX', task['stallTimeout'] or defaultStallTimeout)
-    redis.call('HSET', stallingHashKey, taskId, '')
+    redis.call('set', lockKey, '', 'px', task['stallTimeout'] or defaultStallTimeout)
+    redis.call('hset', stallingHashKey, taskId, '')
 
     local processingTaskJson = cjson.encode(task)
-    redis.call('SET', taskKey, processingTaskJson)
+    redis.call('set', taskKey, processingTaskJson)
     local event = {createdAt = datetime, type = eventType, task = task}
-    redis.call('PUBLISH', publishChannel, cjson.encode(event))
+    redis.call('publish', publishChannel, cjson.encode(event))
 
     return processingTaskJson
 end

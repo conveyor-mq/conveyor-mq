@@ -90,6 +90,22 @@ export const exec = (multi_: Pipeline) => {
   }) as Promise<(string | number)[]>;
 };
 
+export const rpoplpush = ({
+  client,
+  fromKey,
+  toKey,
+}: {
+  client: Redis;
+  fromKey: string;
+  toKey: string;
+}) => {
+  return new Promise((resolve, reject) => {
+    client.rpoplpush(fromKey, toKey, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
+  });
+};
+
 export const zrangebyscore = ({
   client,
   key,

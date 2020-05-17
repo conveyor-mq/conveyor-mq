@@ -23,6 +23,11 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
       filePath: './enqueue-delayed-tasks.lua',
       numberOfKeys: 5,
     },
+    {
+      name: 'acknowledgeOrphanedProcessingTasks',
+      filePath: './acknowledge-orphaned-processing-tasks.lua',
+      numberOfKeys: 5,
+    },
   ];
   await Promise.all(
     map(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {

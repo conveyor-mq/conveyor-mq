@@ -20,13 +20,13 @@ if #delayedTaskIds > 0 then
     -- TODO: Use map and MSET
     for i, taskId in ipairs(delayedTaskIds) do
         local taskKey = getTaskKey(taskId)
-        local taskString = redis.call("GET", taskKey)
+        local taskString = redis.call('get', taskKey)
         local task = cjson.decode(taskString)
         task['status'] = status
         local updatedTaskString = cjson.encode(task)
-        redis.call('SET', taskKey, updatedTaskString)
+        redis.call('set', taskKey, updatedTaskString)
     end
-    return redis.call('MGET', unpack(map(getTaskKey, delayedTaskIds)))
+    return redis.call('mget', unpack(map(getTaskKey, delayedTaskIds)))
 end
 
 return {}

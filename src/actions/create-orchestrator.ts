@@ -7,22 +7,30 @@ import { processStalledTasks as processStalledTasksAction } from './process-stal
 import { enqueueScheduledTasks as enqueueScheduledTasksAction } from './enqueue-scheduled-tasks';
 import { createClient, quit as redisQuit } from '../utils/redis';
 import { RedisConfig } from '../utils/general';
+import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
 
 export const createOrchestrator = async ({
   queue,
   redisConfig,
   stalledCheckInterval = 1000,
   delayedTasksCheckInterval = 1000,
+  defaultStallTimeout = 1000,
 }: {
   queue: string;
   redisConfig: RedisConfig;
   stalledCheckInterval?: number;
   delayedTasksCheckInterval?: number;
+  defaultStallTimeout?: number;
 }) => {
   const client = await createClient(redisConfig);
 
   const processStalledTasks = async () => {
     try {
+      await acknowledgeOrphanedProcessingTasks({
+        queue,
+        defaultStallTimeout,
+        client,
+      });
       await processStalledTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
