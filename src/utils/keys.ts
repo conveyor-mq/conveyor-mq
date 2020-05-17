@@ -1,6 +1,47 @@
+/*
+  Data structure keys:
+*/
+export const getTaskKey = ({
+  taskId,
+  queue,
+}: {
+  taskId: string;
+  queue: string;
+}) => {
+  return `${queue}:tasks:${taskId}`;
+};
+
+export const getTaskAcknowledgedKey = ({
+  taskId,
+  queue,
+}: {
+  taskId: string;
+  queue: string;
+}) => {
+  return `${queue}:acknowledged-tasks:${taskId}`;
+};
+
+export const getScheduledSetKey = ({ queue }: { queue: string }) =>
+  `${queue}:sets:scheduled`;
+
+export const getQueuedListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:queued`;
+
+export const getProcessingListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:processing`;
+
+export const getSuccessListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:success`;
+
+export const getFailedListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:failed`;
+
 export const getStallingHashKey = ({ queue }: { queue: string }) =>
   `queue:${queue}:stalling-tasks`;
 
+/*
+  Channels
+*/
 export const getWorkerPausedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:worker-paused`;
 
@@ -42,32 +83,3 @@ export const getQueueTaskFailedChannel = ({ queue }: { queue: string }) =>
 
 export const getQueueTaskCompleteChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-complete`;
-
-export const getTaskKey = ({
-  taskId,
-  queue,
-}: {
-  taskId: string;
-  queue: string;
-}) => {
-  return `${queue}:tasks:${taskId}`;
-};
-
-export const getTaskAcknowledgedKey = ({
-  taskId,
-  queue,
-}: {
-  taskId: string;
-  queue: string;
-}) => {
-  return `${queue}:acknowledged-tasks:${taskId}`;
-};
-
-export const getDelayedSetKey = ({ queue }: { queue: string }) =>
-  `${queue}:sets:delayed`;
-
-export const getQueuedListKey = ({ queue }: { queue: string }) =>
-  `${queue}:lists:queued`;
-
-export const getProcessingListKey = ({ queue }: { queue: string }) =>
-  `${queue}:lists:processing`;

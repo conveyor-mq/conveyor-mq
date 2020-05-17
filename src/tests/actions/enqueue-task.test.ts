@@ -10,7 +10,7 @@ import {
 } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getTask } from '../../actions/get-task';
-import { getQueuedListKey, getDelayedSetKey } from '../../utils/keys';
+import { getQueuedListKey, getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
@@ -120,7 +120,7 @@ describe('enqueueTask', () => {
 
     const [taskId] = await zrangebyscore({
       client,
-      key: getDelayedSetKey({ queue }),
+      key: getScheduledSetKey({ queue }),
       min: 0,
       max: moment(enqueueAfter).unix(),
     });

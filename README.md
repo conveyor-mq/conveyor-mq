@@ -396,7 +396,7 @@ Tasks can be scheduled to be added to the queue at some future point in time. To
 ```js
 const scheduledTask = { data: { x: 1, y: 2 }, enqueueAfter: new Date('2020-05-15') };
 
-const enqueuedTask = await manager.enqueueTask({ task: scheduledTask });
+const { task: enqueuedTask } = await manager.enqueueTask({ task: scheduledTask });
 /*
   enqueuedTask = {
     ...

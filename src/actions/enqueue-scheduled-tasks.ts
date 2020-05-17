@@ -2,7 +2,11 @@ import { Redis } from 'ioredis';
 import moment from 'moment';
 import { map } from 'lodash';
 import { callLuaScript } from '../utils/redis';
-import { getDelayedSetKey, getQueuedListKey, getTaskKey } from '../utils/keys';
+import {
+  getScheduledSetKey,
+  getQueuedListKey,
+  getTaskKey,
+} from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 
@@ -21,7 +25,7 @@ export const enqueueScheduledTasks = async ({
     client,
     script: 'enqueueDelayedTasks',
     args: [
-      getDelayedSetKey({ queue }),
+      getScheduledSetKey({ queue }),
       getQueuedListKey({ queue }),
       now.unix(),
       getTaskKey({ taskId: '', queue }),

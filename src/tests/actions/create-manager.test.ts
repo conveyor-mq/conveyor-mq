@@ -156,4 +156,12 @@ describe('createManager', () => {
     await manager.quit();
     await worker.shutdown();
   });
+  it('createManager getTaskCounts gets counts', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    await manager.enqueueTasks([{ task: { data: 'a' } }]);
+    const { queuedCount, processingCount } = await manager.getTaskCounts();
+    expect(queuedCount).toBe(1);
+    expect(processingCount).toBe(0);
+    await manager.quit();
+  });
 });

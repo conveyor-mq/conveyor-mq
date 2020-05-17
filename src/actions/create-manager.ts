@@ -10,6 +10,7 @@ import { Event } from '../domain/events/event';
 import { createListener } from './create-listener';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { getTaskCounts } from './get-task-counts';
 
 /**
  * @ignore
@@ -120,8 +121,9 @@ export const createManager = async ({
 
   return {
     enqueueTask,
-    onTaskComplete,
     enqueueTasks,
+    onTaskComplete,
+    getTaskCounts: () => getTaskCounts({ queue, client }),
     getTask: (taskId: string) => getTask({ taskId, queue, client }),
     getTasks: (taskIds: string[]) => getTasks({ taskIds, queue, client }),
     quit: () => ensureDisconnected({ client }),

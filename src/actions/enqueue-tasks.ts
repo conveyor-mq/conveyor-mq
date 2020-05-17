@@ -6,7 +6,7 @@ import {
   getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
-  getDelayedSetKey,
+  getScheduledSetKey,
   getQueueTaskScheduledChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
@@ -52,7 +52,7 @@ export const enqueueTasks = async ({
     multi.set(taskKey, taskString);
     if (task.enqueueAfter) {
       multi.zadd(
-        getDelayedSetKey({ queue }),
+        getScheduledSetKey({ queue }),
         String(moment(task.enqueueAfter).unix()),
         task.id,
       );

@@ -5,6 +5,7 @@ import {
   getQueueTaskSuccessChannel,
   getQueueTaskCompleteChannel,
   getStallingHashKey,
+  getSuccessListKey,
 } from '../utils/keys';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
@@ -44,6 +45,7 @@ export const markTaskSuccess = async ({
     multi.del(taskKey);
   } else {
     multi.set(taskKey, serializeTask(successfulTask));
+    multi.lpush(getSuccessListKey({ queue }), task.id);
   }
   multi.lrem(processingListKey, 1, task.id);
   multi.hdel(getStallingHashKey({ queue }), task.id);

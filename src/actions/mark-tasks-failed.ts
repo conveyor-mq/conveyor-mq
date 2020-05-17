@@ -6,6 +6,7 @@ import {
   getQueueTaskCompleteChannel,
   getQueueTaskFailedChannel,
   getStallingHashKey,
+  getFailedListKey,
 } from '../utils/keys';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
@@ -44,6 +45,7 @@ export const markTasksFailed = async ({
       multi.del(taskKey);
     } else {
       multi.set(taskKey, serializeTask(failedTask));
+      multi.lpush(getFailedListKey({ queue }), task.id);
     }
     multi.lrem(processingListKey, 1, task.id);
     multi.hdel(getStallingHashKey({ queue }), task.id);
