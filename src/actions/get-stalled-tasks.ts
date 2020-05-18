@@ -2,7 +2,7 @@ import { filter, map } from 'lodash';
 import { Redis } from 'ioredis';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';
-import { getTasks } from './get-tasks';
+import { getTasksById } from './get-tasks-by-id';
 import { areTasksStalled } from './are-tasks-stalled';
 import { Task } from '../domain/tasks/task';
 
@@ -32,7 +32,7 @@ export const getStalledTasks = async ({
     filter(results, (result) => !!result.isStalled),
     (result) => result.taskId,
   );
-  const stalledTasks = await getTasks({
+  const stalledTasks = await getTasksById({
     queue,
     taskIds: stalledTasksIds,
     client,

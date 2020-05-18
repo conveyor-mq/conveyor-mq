@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { redisConfig } from '../config';
 import { takeTask } from '../../actions/take-task';
 import { Task } from '../../domain/tasks/task';
@@ -27,7 +27,7 @@ describe('getTask', () => {
   it('getTask gets tasks', async () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task, client });
-    const retrievedTask = (await getTask({
+    const retrievedTask = (await getTaskById({
       queue,
       client,
       taskId: task.id,
@@ -36,7 +36,7 @@ describe('getTask', () => {
     expect(retrievedTask.status).toBe(TaskStatuses.Queued);
 
     await takeTask({ queue, client, stallTimeout: 100 });
-    const retrievedTask2 = (await getTask({
+    const retrievedTask2 = (await getTaskById({
       queue,
       client,
       taskId: task.id,
@@ -45,7 +45,7 @@ describe('getTask', () => {
     expect(retrievedTask2.status).toBe(TaskStatuses.Processing);
   });
   it('getTask returns null for missing task', async () => {
-    const retrievedTask = (await getTask({
+    const retrievedTask = (await getTaskById({
       queue,
       client,
       taskId: 'some-nonexistent-id',

@@ -3,7 +3,7 @@ import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { getTasks } from '../../actions/get-tasks';
+import { getTasksById } from '../../actions/get-tasks-by-id';
 import { redisConfig } from '../config';
 
 describe('getTasks', () => {
@@ -32,7 +32,7 @@ describe('getTasks', () => {
         });
       }),
     );
-    const tasks = await getTasks({
+    const tasks = await getTasksById({
       queue,
       taskIds: map(puttedTasks, (task) => task.id),
       client,
@@ -40,7 +40,7 @@ describe('getTasks', () => {
     expect(tasks.length).toBe(10);
   });
   it('getTasks returns empty array for non-existant tasks', async () => {
-    const tasks = await getTasks({
+    const tasks = await getTasksById({
       queue,
       taskIds: ['non-existant-id', 'another-non-existant-id'],
       client,

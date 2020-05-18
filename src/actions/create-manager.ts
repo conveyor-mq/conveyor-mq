@@ -2,8 +2,8 @@
 import { forEach, map, set } from 'lodash';
 import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import { createClient, ensureDisconnected } from '../utils/redis';
-import { getTask } from './get-task';
-import { getTasks } from './get-tasks';
+import { getTaskById } from './get-task-by-id';
+import { getTasksById } from './get-tasks-by-id';
 import { RedisConfig, createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
@@ -67,7 +67,7 @@ export const createManager = async ({
         ({ event }: { event: Event }) => resolve(event.task),
       );
     });
-    const task = await getTask({ queue, taskId, client });
+    const task = await getTaskById({ queue, taskId, client });
     if (
       task &&
       task.status &&
@@ -124,8 +124,9 @@ export const createManager = async ({
     enqueueTasks,
     onTaskComplete,
     getTaskCounts: () => getTaskCounts({ queue, client }),
-    getTask: (taskId: string) => getTask({ taskId, queue, client }),
-    getTasks: (taskIds: string[]) => getTasks({ taskIds, queue, client }),
+    getTaskById: (taskId: string) => getTaskById({ taskId, queue, client }),
+    getTasksById: (taskIds: string[]) =>
+      getTasksById({ taskIds, queue, client }),
     quit: () => ensureDisconnected({ client }),
   };
 };

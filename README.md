@@ -206,7 +206,7 @@ const manager = await createManager({
 await manager.enqueueTask({ task: { data: { x: 1, y: 2 } } });
 
 // Get a task:
-const task = await manager.getTask({ taskId: 'my-task-id' });
+const task = await manager.getTaskById('my-task-id');
 /*
   task = {
     ...
@@ -285,7 +285,7 @@ const task = { data: { x: 1, y: 2 }, errorRetryLimit: 2 };
 
 ```js
 // See how many times a task has been retried due to an error:
-const task = await manager.getTask('my-task-id');
+const task = await manager.getTaskById('my-task-id');
 /*
   task = {
     ...
@@ -307,7 +307,7 @@ const task = { data: { x: 1, y: 2 }, stallRetryLimit: 2 };
 
 ```js
 // See how many times a task has been retried due to an error:
-const task = await manager.getTask('my-task-id');
+const task = await manager.getTaskById('my-task-id');
 /*
   task = {
     ...
@@ -329,7 +329,7 @@ const task = { data: { x: 1, y: 2 }, retryLimit: 2 };
 
 ```js
 // See how many times a task has been retried in total:
-const task = await manager.getTask('my-task-id');
+const task = await manager.getTaskById('my-task-id');
 /*
   task = {
     ...

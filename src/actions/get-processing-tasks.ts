@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';
-import { getTasks } from './get-tasks';
+import { getTasksById } from './get-tasks-by-id';
 import { Task } from '../domain/tasks/task';
 
 // TODO: paging.
@@ -21,6 +21,6 @@ export const getProcessingTasks = async ({
     client,
     key: getProcessingListKey({ queue }),
   });
-  const tasks = await getTasks({ queue, taskIds, client });
+  const tasks = await getTasksById({ queue, taskIds, client });
   return tasks;
 };

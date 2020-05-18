@@ -32,7 +32,7 @@ describe('createManager', () => {
     const result = await manager.enqueueTask({ task });
     expect(result.task.id).toBe(task.id);
     expect(result.task.status).toBe(TaskStatuses.Queued);
-    const retrievedTask = (await manager.getTask(task.id)) as Task;
+    const retrievedTask = (await manager.getTaskById(task.id)) as Task;
     expect(retrievedTask.id).toBe(task.id);
     await manager.quit();
   });
@@ -49,7 +49,7 @@ describe('createManager', () => {
     expect(resultA.task.status).toBe(TaskStatuses.Queued);
     expect(resultB.task.id).toBe(taskB.id);
     expect(resultB.task.status).toBe(TaskStatuses.Queued);
-    const [retrievedTaskA, retrievedTaskB] = await manager.getTasks([
+    const [retrievedTaskA, retrievedTaskB] = await manager.getTasksById([
       taskA.id,
       taskB.id,
     ]);

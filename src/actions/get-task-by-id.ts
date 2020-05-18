@@ -1,11 +1,11 @@
 import { Redis } from 'ioredis';
-import { getTasks } from './get-tasks';
+import { getTasksById } from './get-tasks-by-id';
 import { Task } from '../domain/tasks/task';
 
 /**
  * @ignore
  */
-export const getTask = async ({
+export const getTaskById = async ({
   queue,
   taskId,
   client,
@@ -14,6 +14,6 @@ export const getTask = async ({
   taskId: string;
   client: Redis;
 }): Promise<Task | null> => {
-  const [task] = await getTasks({ queue, taskIds: [taskId], client });
+  const [task] = await getTasksById({ queue, taskIds: [taskId], client });
   return task || null;
 };

@@ -8,7 +8,7 @@ import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { enqueueStalledTasks } from '../../actions/enqueue-stalled-tasks';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 
 describe('enqueueStalledTasks', () => {
   const queue = createUuid();
@@ -63,7 +63,11 @@ describe('enqueueStalledTasks', () => {
     expect(enqueuedTask?.stallRetries).toBe(0);
 
     await enqueueStalledTasks({ queue, tasks: [enqueuedTask], client });
-    const retrievedTask = await getTask({ queue, taskId: taskA.id, client });
+    const retrievedTask = await getTaskById({
+      queue,
+      taskId: taskA.id,
+      client,
+    });
 
     expect(retrievedTask?.retries).toBe(1);
     expect(retrievedTask?.stallRetries).toBe(1);

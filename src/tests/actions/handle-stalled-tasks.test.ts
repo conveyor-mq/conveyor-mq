@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { handleStalledTasks } from '../../actions/handle-stalled-tasks';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
@@ -32,7 +32,7 @@ describe('handleStalledTasks', () => {
     };
     await enqueueTask({ queue, task: taskToRequeue, client });
 
-    const retrievedTaskToRequeue = (await getTask({
+    const retrievedTaskToRequeue = (await getTaskById({
       queue,
       client,
       taskId: taskToRequeue.id,
@@ -50,7 +50,7 @@ describe('handleStalledTasks', () => {
     expect(reQueuedTasks.length).toBe(1);
     expect(reQueuedTasks[0].id).toBe(taskToRequeue.id);
 
-    const retriedTask = (await getTask({
+    const retriedTask = (await getTaskById({
       queue,
       client,
       taskId: taskToRequeue.id,
@@ -72,7 +72,7 @@ describe('handleStalledTasks', () => {
     };
     await enqueueTask({ queue, task: taskToFail, client });
 
-    const retrievedTaskToFail = (await getTask({
+    const retrievedTaskToFail = (await getTaskById({
       queue,
       client,
       taskId: taskToFail.id,
@@ -89,7 +89,7 @@ describe('handleStalledTasks', () => {
     expect(failedTasks.length).toBe(1);
     expect(failedTasks[0].id).toBe(taskToFail.id);
 
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       client,
       taskId: taskToFail.id,
@@ -111,7 +111,7 @@ describe('handleStalledTasks', () => {
     };
     await enqueueTask({ queue, task: taskToFail, client });
 
-    const retrievedTaskToFail = (await getTask({
+    const retrievedTaskToFail = (await getTaskById({
       queue,
       client,
       taskId: taskToFail.id,
@@ -131,7 +131,7 @@ describe('handleStalledTasks', () => {
     expect(failedTasks.length).toBe(1);
     expect(failedTasks[0].id).toBe(taskToFail.id);
 
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       client,
       taskId: taskToFail.id,

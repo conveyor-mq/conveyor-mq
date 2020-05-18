@@ -8,7 +8,7 @@ import { Task } from '../domain/tasks/task';
 /**
  * @ignore
  */
-export const getTasks = async ({
+export const getTasksById = async ({
   queue,
   taskIds,
   client,

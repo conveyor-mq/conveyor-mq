@@ -7,7 +7,7 @@ import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { getSuccessListKey } from '../../utils/keys';
 
 describe('markTaskSuccessful', () => {
@@ -40,7 +40,7 @@ describe('markTaskSuccessful', () => {
     expect(successfulTask).toHaveProperty('status', TaskStatuses.Success);
     expect(successfulTask).toHaveProperty('result', 'horaay!');
 
-    const fetchedSuccessfulTask = await getTask({
+    const fetchedSuccessfulTask = await getTaskById({
       queue,
       taskId: task.id,
       client,

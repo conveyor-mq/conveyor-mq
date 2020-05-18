@@ -9,7 +9,7 @@ import {
   zrangebyscore,
 } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { getQueuedListKey, getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
@@ -76,7 +76,7 @@ describe('enqueueTask', () => {
     expect(queuedTask.status).toBe(TaskStatuses.Queued);
     expect(queuedTask.data).toBe(task.data);
 
-    const fetchedTask = (await getTask({
+    const fetchedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,

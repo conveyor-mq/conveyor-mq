@@ -4,7 +4,7 @@ import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { createWorker } from '../../actions/create-worker';
 import { redisConfig } from '../config';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { Task } from '../../domain/tasks/task';
 import { createListener } from '../../actions/create-listener';
@@ -54,7 +54,7 @@ describe('createWorker', () => {
       },
     });
     await sleep(50);
-    const processedTask = (await getTask({
+    const processedTask = (await getTaskById({
       queue,
       taskId: theTask.id,
       client,
@@ -129,7 +129,7 @@ describe('createWorker', () => {
     });
     await sleep(50);
 
-    const fetchedTaskA = (await getTask({
+    const fetchedTaskA = (await getTaskById({
       queue,
       taskId: taskA.id,
       client,
@@ -145,7 +145,7 @@ describe('createWorker', () => {
       client,
     });
     await sleep(50);
-    const fetchedTaskB = (await getTask({
+    const fetchedTaskB = (await getTaskById({
       queue,
       taskId: taskB.id,
       client,
@@ -156,7 +156,7 @@ describe('createWorker', () => {
     await worker.start();
     await sleep(50);
 
-    const fetchedTaskB2 = (await getTask({
+    const fetchedTaskB2 = (await getTaskById({
       queue,
       taskId: taskB.id,
       client,
@@ -184,12 +184,12 @@ describe('createWorker', () => {
     });
     await sleep(50);
     await expect(
-      getTask({ queue, taskId: theTask.id, client }),
+      getTaskById({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Queued);
     await worker.start();
     await sleep(50);
     await expect(
-      getTask({ queue, taskId: theTask.id, client }),
+      getTaskById({ queue, taskId: theTask.id, client }),
     ).resolves.toHaveProperty('status', TaskStatuses.Success);
     await worker.shutdown();
   });

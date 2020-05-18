@@ -4,7 +4,7 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { hasTaskExpired } from '../../actions/has-task-expired';
 import { handleTask } from '../../actions/handle-task';
-import { getTask } from '../../actions/get-task';
+import { getTaskById } from '../../actions/get-task-by-id';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { redisConfig } from '../config';
@@ -42,7 +42,7 @@ describe('handleTask', () => {
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       taskId: expiredTask.id,
       client,
@@ -69,7 +69,7 @@ describe('handleTask', () => {
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -96,7 +96,7 @@ describe('handleTask', () => {
       handler: () => 'some-result',
     });
     expect(result).toBe(null);
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -128,7 +128,7 @@ describe('handleTask', () => {
         return 'some-result';
       },
     });
-    const handledTask = (await getTask({
+    const handledTask = (await getTaskById({
       queue,
       taskId: theTask.id,
       client,
@@ -163,7 +163,7 @@ describe('handleTask', () => {
       },
     });
     expect(result).toBe(null);
-    const handledTask = (await getTask({
+    const handledTask = (await getTaskById({
       queue,
       taskId: theTask.id,
       client,
@@ -203,7 +203,7 @@ describe('handleTask', () => {
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onFailure).toHaveBeenCalledTimes(0);
 
-    const handledTask = (await getTask({
+    const handledTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -228,7 +228,7 @@ describe('handleTask', () => {
         throw new Error('some-error');
       },
     });
-    const handledTask2 = (await getTask({
+    const handledTask2 = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -259,7 +259,7 @@ describe('handleTask', () => {
       },
     });
     expect(result).toBe(null);
-    const failedTask = (await getTask({
+    const failedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -292,7 +292,7 @@ describe('handleTask', () => {
     expect(result).toBe('some-result');
 
     await sleep(50);
-    const completedTask = (await getTask({
+    const completedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
@@ -321,7 +321,7 @@ describe('handleTask', () => {
     expect(result).toBe('some-result');
 
     await sleep(50);
-    const completedTask = (await getTask({
+    const completedTask = (await getTaskById({
       queue,
       taskId: task.id,
       client,
