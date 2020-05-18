@@ -8,7 +8,7 @@ import { Task } from '../../domain/tasks/task';
 import { createWorker } from '../../actions/create-worker';
 import { Event } from '../../domain/events/event';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
-import { getQueuedListKey } from '../../utils/keys';
+import { getQueuedListKey, getTaskKey } from '../../utils/keys';
 
 describe('createManager', () => {
   const queue = createUuid();
@@ -171,6 +171,16 @@ describe('createManager', () => {
     expect(await client.exists(getQueuedListKey({ queue }))).toBe(1);
     await manager.destroyQueue();
     expect(await client.exists(getQueuedListKey({ queue }))).toBe(0);
+    await manager.quit();
+  });
+  it('createManager removeTaskById removes task', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    const { task } = await manager.enqueueTask({ task: { data: 'a' } });
+    expect(await client.llen(getQueuedListKey({ queue }))).toBe(1);
+    expect(await client.exists(getTaskKey({ taskId: task.id, queue }))).toBe(1);
+    await manager.removeTaskById(task.id);
+    expect(await client.llen(getQueuedListKey({ queue }))).toBe(0);
+    expect(await client.exists(getTaskKey({ taskId: task.id, queue }))).toBe(0);
     await manager.quit();
   });
 });

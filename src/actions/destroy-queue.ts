@@ -10,6 +10,9 @@ import {
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 
+/**
+ * @ignore
+ */
 export const destroyQueue = async ({
   queue,
   client,

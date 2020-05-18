@@ -12,6 +12,7 @@ import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { getTaskCounts } from './get-task-counts';
 import { destroyQueue as destroyQueueAction } from './destroy-queue';
+import { removeTaskById } from './remove-task-by-id';
 
 /**
  * @ignore
@@ -129,6 +130,8 @@ export const createManager = async ({
     getTasksById: (taskIds: string[]) =>
       getTasksById({ taskIds, queue, client }),
     destroyQueue: () => destroyQueueAction({ queue, client }),
+    removeTaskById: (taskId: string) =>
+      removeTaskById({ taskId, queue, client }),
     quit: () => ensureDisconnected({ client }),
   };
 };

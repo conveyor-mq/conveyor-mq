@@ -8,6 +8,9 @@ import {
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 
+/**
+ * @ignore
+ */
 export const getTaskCounts = async ({
   queue,
   client,

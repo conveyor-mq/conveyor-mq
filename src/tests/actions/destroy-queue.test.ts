@@ -1,9 +1,6 @@
 import { Redis } from 'ioredis';
-import { isTaskStalled } from '../../actions/is-task-stalled';
-import { acknowledgeTask } from '../../actions/acknowledge-task';
 import { flushAll, quit, createClient } from '../../utils/redis';
-import { sleep, createUuid } from '../../utils/general';
-import { enqueueTask } from '../../actions/enqueue-task';
+import { createUuid } from '../../utils/general';
 import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { enqueueTasks } from '../../actions/enqueue-tasks';
