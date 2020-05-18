@@ -57,28 +57,28 @@ Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for N
 
 ## Table of Contents
 
-1. [Introduction](https://github.com/jasrusable/conveyor-mq#introduction)
-2. [Features](https://github.com/jasrusable/conveyor-mq#features)
-3. [Table of Contents](https://github.com/jasrusable/conveyor-mq#table-of-contents)
-4. [Quick Start Guide](https://github.com/jasrusable/conveyor-mq#quick-start-guide)
-5. [Overview](https://github.com/jasrusable/conveyor-mq#overview)
-   - [Tasks](https://github.com/jasrusable/conveyor-mq#tasks)
-   - [Manager](https://github.com/jasrusable/conveyor-mq#manager)
-   - [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
-   - [Task retries](https://github.com/jasrusable/conveyor-mq#task-retries)
-   - [Worker](https://github.com/jasrusable/conveyor-mq#worker)
-   - [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
-   - [Orchestrator](https://github.com/jasrusable/conveyor-mq#orchestrator)
-   - [Stalled tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
-   - [Scheduled tasks](https://github.com/jasrusable/conveyor-mq#scheduled-tasks)
-   - [Listener](https://github.com/jasrusable/conveyor-mq#listener)
-6. [API Reference](https://github.com/jasrusable/conveyor-mq#api-reference)
-7. [Examples](https://github.com/jasrusable/conveyor-mq#examples)
-   - [Simple example](https://github.com/jasrusable/conveyor-mq#simple-example)
-   - [Scheduled task example](https://github.com/jasrusable/conveyor-mq#scheduled-task-example)
-8. [Roadmap](https://github.com/jasrusable/conveyor-mq#roadmap)
-9. [Contributing](https://github.com/jasrusable/conveyor-mq#contributing)
-10. [License](https://github.com/jasrusable/conveyor-mq#license)
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Table of Contents](#table-of-contents)
+4. [Quick Start Guide](#quick-start-guide)
+5. [Overview](#overview)
+   - [Tasks](#tasks)
+   - [Manager](#manager)
+   - [Enqueuing tasks](#enqueuing-tasks)
+   - [Task retries](#task-retries)
+   - [Worker](#worker)
+   - [Processing tasks](#processing-tasks)
+   - [Orchestrator](#orchestrator)
+   - [Stalled tasks](#stalled-tasks)
+   - [Scheduled tasks](#scheduled-tasks)
+   - [Listener](#listener)
+6. [API Reference](#api-reference)
+7. [Examples](#examples)
+   - [Simple example](#simple-example)
+   - [Scheduled task example](#scheduled-task-example)
+8. [Roadmap](#roadmap)
+9. [Contributing](#contributing)
+10. [License](#license)
 
 ## Installation
 
@@ -191,7 +191,7 @@ Create a manager by calling `createManager` and passing a `queue` and `redisConf
 
 Add a task to the queue by calling `manager.enqueueTask` with an object `{ task: { data: x: 1, y: 2} }`.
 
-For more information, see [createManager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager), [Enqueuing tasks](https://github.com/jasrusable/conveyor-mq#enqueuing-tasks)
+For more information, see [createManager](https://jasrusable.github.io/conveyor-mq/index.html#createmanager), [Enqueuing tasks](#enqueuing-tasks)
 
 ```js
 import { createManager } from 'conveyor-mq';
@@ -348,7 +348,7 @@ Create a worker by calling `createWorker` with a `queue`, `redisConfig` and `han
 The `handler` parameter should be a function which receives a task and is responsible for processing the task.
 The handler should return a promise which should resolve if the task was successful, or reject if failed.
 
-For more information, see [createWorker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) and [Processing tasks](https://github.com/jasrusable/conveyor-mq#processing-tasks)
+For more information, see [createWorker](https://jasrusable.github.io/conveyor-mq/index.html#createworker) and [Processing tasks](#processing-tasks)
 
 ```js
 import { createWorker } from 'conveyor-mq';
@@ -436,7 +436,7 @@ const worker = await createWorker({
 An [orchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) is responsible for various queue maintenance operations including re-enqueueing stalled tasks, and enqueueing delayed/scheduled tasks.
 Create an orchestrator by calling `createOrchestrator` with a `queue` and `redisConfig` parameter. The orchestrator will then begin monitoring the queue for stalled tasks and re-enqueueing them if needed, as well as enqueueing scheduled tasks.
 
-For more information, see [createOrchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) and [Stalling tasks](https://github.com/jasrusable/conveyor-mq#stalled-tasks)
+For more information, see [createOrchestrator](https://jasrusable.github.io/conveyor-mq/index.html#createorchestrator) and [Stalling tasks](#stalled-tasks)
 
 ```js
 import { createOrchestrator } from 'conveyor-mq';
@@ -534,4 +534,4 @@ See [CONTRIBUTING.md](https://github.com/jasrusable/conveyor-mq/blob/master/CONT
 
 ## License
 
-See [LICENSE.md](https://github.com/jasrusable/conveyor-mq/blob/master/LICENSE)
+See [LICENSE](https://github.com/jasrusable/conveyor-mq/blob/master/LICENSE)
