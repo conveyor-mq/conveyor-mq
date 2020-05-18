@@ -504,8 +504,7 @@ const listener = await createListener({
 // Listen for the 'task_complete' event:
 listener.on('task_complete', ({ event }) => {
   console.log(`Task ${event.task.id} has completed!`),
-}
-);
+});
 ```
 
 ## API Reference
