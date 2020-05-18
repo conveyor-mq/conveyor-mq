@@ -465,9 +465,14 @@ The time since a task was last acknowledged after which it is considered stalled
 Tasks can be scheduled to be added to the queue at some future point in time. To schedule a task, include a `enqueueAfter` property on a task:
 
 ```js
-const scheduledTask = { data: { x: 1, y: 2 }, enqueueAfter: new Date('2020-05-15') };
+const scheduledTask = {
+  data: { x: 1, y: 2 },
+  enqueueAfter: new Date('2020-05-15'),
+};
 
-const { task: enqueuedTask } = await manager.enqueueTask({ task: scheduledTask });
+const { task: enqueuedTask } = await manager.enqueueTask({
+  task: scheduledTask,
+});
 /*
   enqueuedTask = {
     ...
@@ -515,12 +520,19 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 
 ## Roadmap
 
-TODO
+- [ ] Improve documentation
+- [ ] Task priorities
+- [ ] Recurring tasks
+- [ ] Queue pause/resume
+- [ ] Task rate limiting
+- [ ] Performance optimisations
+- [ ] Child process workers
+- [ ] Web UI
 
 ## Contributing
 
-TODO
+See [CONTRIBUTING.md](https://github.com/jasrusable/conveyor-mq/blob/master/CONTRIBUTING.md)
 
 ## License
 
-TODO
+See [LICENSE.md](https://github.com/jasrusable/conveyor-mq/blob/master/LICENSE)

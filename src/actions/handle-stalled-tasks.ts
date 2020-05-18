@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
 import { map, filter } from 'lodash';
-import moment from 'moment';
 import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';
