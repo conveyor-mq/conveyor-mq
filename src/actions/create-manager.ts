@@ -11,6 +11,7 @@ import { createListener } from './create-listener';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { getTaskCounts } from './get-task-counts';
+import { destroyQueue as destroyQueueAction } from './destroy-queue';
 
 /**
  * @ignore
@@ -127,6 +128,7 @@ export const createManager = async ({
     getTaskById: (taskId: string) => getTaskById({ taskId, queue, client }),
     getTasksById: (taskIds: string[]) =>
       getTasksById({ taskIds, queue, client }),
+    destroyQueue: () => destroyQueueAction({ queue, client }),
     quit: () => ensureDisconnected({ client }),
   };
 };

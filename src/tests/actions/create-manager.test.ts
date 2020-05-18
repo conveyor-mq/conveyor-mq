@@ -8,6 +8,7 @@ import { Task } from '../../domain/tasks/task';
 import { createWorker } from '../../actions/create-worker';
 import { Event } from '../../domain/events/event';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { getQueuedListKey } from '../../utils/keys';
 
 describe('createManager', () => {
   const queue = createUuid();
@@ -162,6 +163,14 @@ describe('createManager', () => {
     const { queuedCount, processingCount } = await manager.getTaskCounts();
     expect(queuedCount).toBe(1);
     expect(processingCount).toBe(0);
+    await manager.quit();
+  });
+  it('createManager destroyQueue destroys queue', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    await manager.enqueueTasks([{ task: { data: 'a' } }]);
+    expect(await client.exists(getQueuedListKey({ queue }))).toBe(1);
+    await manager.destroyQueue();
+    expect(await client.exists(getQueuedListKey({ queue }))).toBe(0);
     await manager.quit();
   });
 });
