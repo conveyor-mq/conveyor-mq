@@ -11,11 +11,13 @@ export const takeTaskBlocking = async ({
   timeout = 0,
   queue,
   client,
+  client2,
   stallTimeout = 1000,
 }: {
   timeout?: number;
   queue: string;
   client: Redis;
+  client2: Redis;
   stallTimeout?: number;
 }): Promise<Task | null> => {
   const taskId = await brpoplpush({
@@ -29,7 +31,7 @@ export const takeTaskBlocking = async ({
     taskId,
     stallTimeout,
     queue,
-    client,
+    client: client2,
   });
   return task;
 };

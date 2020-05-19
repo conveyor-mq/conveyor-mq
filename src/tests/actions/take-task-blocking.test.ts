@@ -27,7 +27,11 @@ describe('takeTaskBlocking', () => {
   it('takeTaskBlocking takes task off a queue and returns task', async () => {
     const task = { id: 'e', data: 'f' };
     await enqueueTask({ queue, client, task });
-    const processingTask = await takeTaskBlocking({ queue, client });
+    const processingTask = await takeTaskBlocking({
+      queue,
+      client,
+      client2: client,
+    });
     expect(processingTask).toHaveProperty('id', task.id);
     expect(processingTask).toHaveProperty('status', TaskStatuses.Processing);
     expect(await takeTask({ queue, client })).toBe(null);
@@ -35,7 +39,7 @@ describe('takeTaskBlocking', () => {
   it('takeTaskBlocking acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, client, task });
-    await takeTaskBlocking({ queue, client });
+    await takeTaskBlocking({ queue, client, client2: client });
     const isStalled = await isTaskStalled({ taskId: task.id, queue, client });
     expect(isStalled).toBe(false);
   });
@@ -44,6 +48,7 @@ describe('takeTaskBlocking', () => {
     const task = await takeTaskBlocking({
       queue,
       client: blockingClient,
+      client2: client,
       timeout: 1,
     });
     expect(task).toBe(null);

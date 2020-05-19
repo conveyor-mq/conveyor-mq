@@ -107,6 +107,7 @@ export const createWorker = async ({
           takeTaskBlocking({
             queue,
             client: takerClient,
+            client2: workerClient,
             stallTimeout: defaultStallTimeout,
           }),
         () => isActive(),
