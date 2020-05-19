@@ -1,20 +1,12 @@
-import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import {
-  flushAll,
-  quit,
-  lrange,
-  createClient,
-  zrangebyscore,
-} from '../../utils/redis';
+import { flushAll, quit, lrange, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getTaskById } from '../../actions/get-task-by-id';
-import { getQueuedListKey, getScheduledSetKey } from '../../utils/keys';
+import { getQueuedListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
-import { takeTask } from '../../actions/take-task';
 
 describe('enqueueTask', () => {
   const queue = createUuid();
@@ -36,6 +28,7 @@ describe('enqueueTask', () => {
     const task: Task = { id: 'a', data: 'b' };
     const queuedTask = await enqueueTask({ queue, client, task });
     expect(queuedTask.data).toBe(task.data);
+    expect(typeof queuedTask.createdAt).toBe('object'); // Moment date is type 'object'.
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
@@ -104,26 +97,5 @@ describe('enqueueTask', () => {
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
-  });
-  it('enqueueTask schedules delayed task', async () => {
-    const enqueueAfter = moment().add(1, 'hours').toDate();
-    const task: Task = {
-      id: 'a',
-      data: 'b',
-      enqueueAfter,
-    };
-    const enqueuedTask = await enqueueTask({ queue, client, task });
-    expect(enqueuedTask.status).toBe(TaskStatuses.Scheduled);
-
-    const taskResult = await takeTask({ queue, client });
-    expect(taskResult).toBe(null);
-
-    const [taskId] = await zrangebyscore({
-      client,
-      key: getScheduledSetKey({ queue }),
-      min: 0,
-      max: moment(enqueueAfter).unix(),
-    });
-    expect(taskId).toBe(task.id);
   });
 });

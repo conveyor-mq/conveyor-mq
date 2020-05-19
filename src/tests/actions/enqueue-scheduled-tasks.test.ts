@@ -8,6 +8,7 @@ import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { scheduleTask } from '../../actions/schedule-task';
 
 describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
@@ -28,7 +29,7 @@ describe('enqueueScheduledTasks', () => {
   it('enqueueScheduledTasks enqueues tasks', async () => {
     const now = new Date();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: now };
-    await enqueueTask({ queue, task, client });
+    await scheduleTask({ queue, task, client });
 
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);
@@ -43,7 +44,7 @@ describe('enqueueScheduledTasks', () => {
   it('enqueueScheduledTasks enqueues past tasks', async () => {
     const thePast = moment().subtract(1, 'hour').toDate();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
-    await enqueueTask({ queue, task, client });
+    await scheduleTask({ queue, task, client });
 
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);
@@ -58,7 +59,7 @@ describe('enqueueScheduledTasks', () => {
   it('enqueueScheduledTasks does not enqueue future task', async () => {
     const theFuture = moment().add(1, 'hour').toDate();
     const task: Task = { id: 'b', data: 'c', enqueueAfter: theFuture };
-    await enqueueTask({ queue, task, client });
+    await scheduleTask({ queue, task, client });
 
     const result = await takeTask({ queue, client });
     expect(result).toBe(null);

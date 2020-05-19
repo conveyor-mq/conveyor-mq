@@ -1,13 +1,10 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { map, forEach } from 'lodash';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import {
   getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
-  getScheduledSetKey,
-  getQueueTaskScheduledChannel,
 } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { createTaskId } from '../utils/general';
@@ -19,23 +16,23 @@ import { EventTypes } from '../domain/events/event-types';
 /**
  * @ignore
  */
-// TODO: Consider enqueueing task with enqueueAfter < now.
 export const enqueueTasks = async ({
-  queue,
   tasks,
+  queue,
   client,
 }: {
-  queue: string;
   tasks: Partial<Task>[];
+  queue: string;
   client: Redis;
 }): Promise<Task[]> => {
   const tasksToQueue: Task[] = map(tasks, (task) => ({
     ...task,
     id: task.id || createTaskId(),
+    createdAt: new Date(),
     queuedAt: new Date(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
-    status: task.enqueueAfter ? TaskStatuses.Scheduled : TaskStatuses.Queued,
+    status: TaskStatuses.Queued,
     retries: task.retries || 0,
     errorRetries: task.errorRetries || 0,
     errorRetryLimit:
@@ -50,31 +47,15 @@ export const enqueueTasks = async ({
     const taskKey = getTaskKey({ taskId: task.id, queue });
     const taskString = serializeTask(task);
     multi.set(taskKey, taskString);
-    if (task.enqueueAfter) {
-      multi.zadd(
-        getScheduledSetKey({ queue }),
-        String(moment(task.enqueueAfter).unix()),
-        task.id,
-      );
-      multi.publish(
-        getQueueTaskScheduledChannel({ queue }),
-        serializeEvent({
-          createdAt: new Date(),
-          type: EventTypes.TaskScheduled,
-          task,
-        }),
-      );
-    } else {
-      multi.lpush(queuedListKey, task.id);
-      multi.publish(
-        getQueueTaskQueuedChannel({ queue }),
-        serializeEvent({
-          createdAt: new Date(),
-          type: EventTypes.TaskQueued,
-          task,
-        }),
-      );
-    }
+    multi.lpush(queuedListKey, task.id);
+    multi.publish(
+      getQueueTaskQueuedChannel({ queue }),
+      serializeEvent({
+        createdAt: new Date(),
+        type: EventTypes.TaskQueued,
+        task,
+      }),
+    );
   });
   await exec(multi);
   return tasksToQueue;

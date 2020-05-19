@@ -8,6 +8,7 @@ import { enqueueTasks } from '../../actions/enqueue-tasks';
 import { markTaskSuccess } from '../../actions/mark-task-success';
 import { markTaskFailed } from '../../actions/mark-task-failed';
 import { getTaskCounts } from '../../actions/get-task-counts';
+import { scheduleTask } from '../../actions/schedule-task';
 
 describe('getTaskCounts', () => {
   const queue = createUuid();
@@ -32,9 +33,10 @@ describe('getTaskCounts', () => {
     const task4 = { id: '4', data: 'c' };
     const task5 = { id: '5', data: 'c' };
     const task6 = { id: '6', data: 'c' };
+    await scheduleTask({ task: task1, queue, client });
     await enqueueTasks({
       queue,
-      tasks: [task1, task2, task3, task4, task5, task6],
+      tasks: [task2, task3, task4, task5, task6],
       client,
     });
     await takeTask({ queue, client });

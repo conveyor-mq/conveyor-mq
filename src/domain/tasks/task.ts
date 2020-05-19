@@ -4,6 +4,7 @@ export interface Task {
   id: string;
   status?: TaskStatuses;
   data?: any;
+  createdAt?: Date;
   queuedAt?: Date;
   enqueueAfter?: Date;
   expiresAt?: Date;

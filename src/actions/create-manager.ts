@@ -13,6 +13,8 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { getTaskCounts } from './get-task-counts';
 import { destroyQueue as destroyQueueAction } from './destroy-queue';
 import { removeTaskById } from './remove-task-by-id';
+import { scheduleTask } from './schedule-task';
+import { scheduleTasks } from './schedule-tasks';
 
 /**
  * @ignore
@@ -124,6 +126,10 @@ export const createManager = async ({
   return {
     enqueueTask,
     enqueueTasks,
+    scheduleTask: ({ task }: { task: Task }) =>
+      scheduleTask({ task, queue, client }),
+    scheduleTasks: ({ tasks }: { tasks: Task[] }) =>
+      scheduleTasks({ tasks, queue, client }),
     onTaskComplete,
     getTaskCounts: () => getTaskCounts({ queue, client }),
     getTaskById: (taskId: string) => getTaskById({ taskId, queue, client }),

@@ -1,11 +1,11 @@
 import { Redis } from 'ioredis';
-import { enqueueTasks } from './enqueue-tasks';
 import { Task } from '../domain/tasks/task';
+import { scheduleTasks } from './schedule-tasks';
 
 /**
  * @ignore
  */
-export const enqueueTask = async ({
+export const scheduleTask = async ({
   task,
   queue,
   client,
@@ -14,6 +14,6 @@ export const enqueueTask = async ({
   queue: string;
   client: Redis;
 }): Promise<Task> => {
-  const [queuedTask] = await enqueueTasks({ queue, tasks: [task], client });
-  return queuedTask;
+  const [scheduledTask] = await scheduleTasks({ queue, tasks: [task], client });
+  return scheduledTask;
 };

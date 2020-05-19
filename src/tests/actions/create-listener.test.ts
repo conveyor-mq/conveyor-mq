@@ -57,7 +57,7 @@ describe('createListener', () => {
       data: 'c',
       enqueueAfter: moment().add(1, 'hours').toDate(),
     };
-    await manager.enqueueTask({ task });
+    await manager.scheduleTask({ task });
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);

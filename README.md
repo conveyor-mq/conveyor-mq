@@ -462,7 +462,7 @@ The time since a task was last acknowledged after which it is considered stalled
 
 ### Scheduled tasks
 
-Tasks can be scheduled to be added to the queue at some future point in time. To schedule a task, include a `enqueueAfter` property on a task:
+Tasks can be scheduled to be added to the queue at some future point in time. To schedule a task, include a `enqueueAfter` property on a task and call `manager.scheduleTask`:
 
 ```js
 const scheduledTask = {
@@ -470,7 +470,7 @@ const scheduledTask = {
   enqueueAfter: new Date('2020-05-15'),
 };
 
-const { task: enqueuedTask } = await manager.enqueueTask({
+const { task: enqueuedTask } = await manager.scheduleTask({
   task: scheduledTask,
 });
 /*

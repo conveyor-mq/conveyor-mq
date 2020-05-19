@@ -8,6 +8,7 @@ export const taskFromJson = (taskJson: any): Task => {
     id: taskJson.id,
     status: taskJson.status,
     data: taskJson.data,
+    createdAt: taskJson.createdAt ? new Date(taskJson.createdAt) : undefined,
     queuedAt: taskJson.queuedAt ? new Date(taskJson.queuedAt) : undefined,
     enqueueAfter: taskJson.enqueueAfter
       ? new Date(taskJson.enqueueAfter)

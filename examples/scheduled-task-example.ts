@@ -39,7 +39,7 @@ const main = async () => {
     data: 'some-task-data',
     enqueueAfter: futureDate,
   };
-  await manager.enqueueTask({ task });
+  await manager.scheduleTask({ task });
 };
 
 main();
