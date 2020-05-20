@@ -93,7 +93,8 @@ export const createWorker = async ({
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
   const [takerClient, workerClient] = await Promise.all([
-    createClient({ ...redisConfig, lazy: true }),
+    // Disable enableReadyCheck as a workaround for handling client disconnect/reconnect
+    createClient({ ...redisConfig, lazy: true, enableReadyCheck: false }),
     createClient({ ...redisConfig, lazy: true }),
   ]);
 

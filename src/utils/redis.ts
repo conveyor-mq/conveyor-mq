@@ -6,16 +6,19 @@ export const createClient = async ({
   host,
   port,
   lazy: lazyConnect,
+  enableReadyCheck,
 }: {
   host: string;
   port: number;
   lazy?: boolean;
+  enableReadyCheck?: boolean;
 }) => {
   const client = new RedisClient({
     host,
     port,
     lazyConnect,
     maxRetriesPerRequest: null,
+    enableReadyCheck,
   });
   const updatedClient = await loadScripts({ client });
   return updatedClient;
