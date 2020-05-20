@@ -26,10 +26,6 @@ const callbackKey = (taskId: string) => `${taskId}-cb`;
  */
 const promiseKey = (taskId: string) => `${taskId}-promise`;
 
-/**
- * Regular description
- *
- */
 export const createManager = async ({
   queue,
   redisConfig,

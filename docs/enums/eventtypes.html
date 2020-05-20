@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>EventTypes | conveyor-mq</title>
-	<meta name="description" content="Documentation for conveyor-mq">
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -21,6 +21,8 @@
 					<ul class="results">
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
 					</ul>
 					<a href="../index.html" class="title">conveyor-mq</a>
 				</div>
@@ -53,39 +55,44 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../index.html">Globals</a>
-				</li>
-				<li>
 					<a href="eventtypes.html">EventTypes</a>
 				</li>
 			</ul>
-			<h1>Enumeration EventTypes</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../index.html" style="display:none"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Enumeration EventTypes</h1>
 			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
 							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskcomplete" class="tsd-kind-icon">Task<wbr>Complete</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskerror" class="tsd-kind-icon">Task<wbr>Error</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskfail" class="tsd-kind-icon">Task<wbr>Fail</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskprocessing" class="tsd-kind-icon">Task<wbr>Processing</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskprogressupdated" class="tsd-kind-icon">Task<wbr>Progress<wbr>Updated</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskqueued" class="tsd-kind-icon">Task<wbr>Queued</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskscheduled" class="tsd-kind-icon">Task<wbr>Scheduled</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskstalled" class="tsd-kind-icon">Task<wbr>Stalled</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#tasksuccess" class="tsd-kind-icon">Task<wbr>Success</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskupdated" class="tsd-kind-icon">Task<wbr>Updated</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workerpaused" class="tsd-kind-icon">Worker<wbr>Paused</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workershutdown" class="tsd-kind-icon">Worker<wbr>Shutdown</a></li>
-								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workerstarted" class="tsd-kind-icon">Worker<wbr>Started</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskcomplete" class="tsd-kind-icon">TaskComplete</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskerror" class="tsd-kind-icon">TaskError</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskfail" class="tsd-kind-icon">TaskFail</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskprocessing" class="tsd-kind-icon">TaskProcessing</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskprogressupdated" class="tsd-kind-icon">TaskProgressUpdated</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskqueued" class="tsd-kind-icon">TaskQueued</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskscheduled" class="tsd-kind-icon">TaskScheduled</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskstalled" class="tsd-kind-icon">TaskStalled</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#tasksuccess" class="tsd-kind-icon">TaskSuccess</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#taskupdated" class="tsd-kind-icon">TaskUpdated</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workerpaused" class="tsd-kind-icon">WorkerPaused</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workershutdown" class="tsd-kind-icon">WorkerShutdown</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtypes.html#workerstarted" class="tsd-kind-icon">WorkerStarted</a></li>
 							</ul>
 						</section>
 					</div>
@@ -99,7 +106,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Complete<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_complete&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L9">domain/events/event-types.ts:9</a></li>
+							<li>Defined in domain/events/event-types.ts:9</li>
 						</ul>
 					</aside>
 				</section>
@@ -109,7 +116,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_error&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L10">domain/events/event-types.ts:10</a></li>
+							<li>Defined in domain/events/event-types.ts:10</li>
 						</ul>
 					</aside>
 				</section>
@@ -119,7 +126,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Fail<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_fail&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L11">domain/events/event-types.ts:11</a></li>
+							<li>Defined in domain/events/event-types.ts:11</li>
 						</ul>
 					</aside>
 				</section>
@@ -129,7 +136,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Processing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_processing&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L7">domain/events/event-types.ts:7</a></li>
+							<li>Defined in domain/events/event-types.ts:7</li>
 						</ul>
 					</aside>
 				</section>
@@ -139,7 +146,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Progress<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_progress_updated&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L5">domain/events/event-types.ts:5</a></li>
+							<li>Defined in domain/events/event-types.ts:5</li>
 						</ul>
 					</aside>
 				</section>
@@ -149,7 +156,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Queued<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_queued&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L3">domain/events/event-types.ts:3</a></li>
+							<li>Defined in domain/events/event-types.ts:3</li>
 						</ul>
 					</aside>
 				</section>
@@ -159,7 +166,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Scheduled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_scheduled&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L2">domain/events/event-types.ts:2</a></li>
+							<li>Defined in domain/events/event-types.ts:2</li>
 						</ul>
 					</aside>
 				</section>
@@ -169,7 +176,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Stalled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_stalled&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L6">domain/events/event-types.ts:6</a></li>
+							<li>Defined in domain/events/event-types.ts:6</li>
 						</ul>
 					</aside>
 				</section>
@@ -179,7 +186,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Success<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_success&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L8">domain/events/event-types.ts:8</a></li>
+							<li>Defined in domain/events/event-types.ts:8</li>
 						</ul>
 					</aside>
 				</section>
@@ -189,7 +196,7 @@
 					<div class="tsd-signature tsd-kind-icon">Task<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_updated&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L4">domain/events/event-types.ts:4</a></li>
+							<li>Defined in domain/events/event-types.ts:4</li>
 						</ul>
 					</aside>
 				</section>
@@ -199,7 +206,7 @@
 					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Paused<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_paused&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L13">domain/events/event-types.ts:13</a></li>
+							<li>Defined in domain/events/event-types.ts:13</li>
 						</ul>
 					</aside>
 				</section>
@@ -209,7 +216,7 @@
 					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Shutdown<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_shutdown&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L14">domain/events/event-types.ts:14</a></li>
+							<li>Defined in domain/events/event-types.ts:14</li>
 						</ul>
 					</aside>
 				</section>
@@ -219,25 +226,19 @@
 					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Started<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_started&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jasrusable/conveyor-mq/blob/1b6336c/src/domain/events/event-types.ts#L12">domain/events/event-types.ts:12</a></li>
+							<li>Defined in domain/events/event-types.ts:12</li>
 						</ul>
 					</aside>
 				</section>
 			</section>
+			<!--{&quot;options&quot;:&quot;/Users/jason/projects/conveyor&quot;,&quot;tsconfig&quot;:&quot;/Users/jason/projects/conveyor&quot;,&quot;inputFiles&quot;:[&quot;/Users/jason/projects/conveyor/src/index.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/acknowledge-orphaned-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/acknowledge-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/are-tasks-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/create-listener.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/create-manager.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/create-orchestrator.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/create-worker.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/destroy-queue.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/enqueue-scheduled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/enqueue-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/enqueue-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/enqueue-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-stalling-task-ids.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-task-counts.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/get-tasks-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/handle-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/handle-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/has-task-expired.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/is-task-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/mark-task-failed.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/mark-task-processing.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/mark-task-success.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/mark-tasks-failed.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/process-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/process-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/remove-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/schedule-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/schedule-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/take-task-blocking.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/take-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/update-task-progress.ts&quot;,&quot;/Users/jason/projects/conveyor/src/actions/update-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/deserialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/event-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/event-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/event-types.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/event.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/events/serialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/deserialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/serialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/task-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/task-statuses.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/task-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/tasks/task.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/workers/worker-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/workers/worker-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor/src/domain/workers/worker.ts&quot;,&quot;/Users/jason/projects/conveyor/src/lua/index.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/config.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/acknowledge-orphaned-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/acknowledge-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/are-tasks-stalled.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/create-listener.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/create-manager.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/create-worker.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/destroy-queue.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/enqueue-scheduled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/enqueue-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/enqueue-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/get-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/get-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/get-task-counts.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/get-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/get-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/handle-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/handle-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/has-task-expired.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/mark-task-failed.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/mark-task-successful.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/remove-task-by-id.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/schedule-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/take-task-blocking.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/tests/actions/take-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor/src/utils/general.ts&quot;,&quot;/Users/jason/projects/conveyor/src/utils/keys.ts&quot;,&quot;/Users/jason/projects/conveyor/src/utils/redis.ts&quot;,&quot;/Users/jason/projects/conveyor/src/utils/retry-strategies.ts&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;./src/tests/**&quot;,&quot;./src/utils/**&quot;,&quot;./src/lua/**&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;none&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="../index.html"><em>Globals</em></a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-enum">
+					<li class="current tsd-kind-enum root">
 						<a href="eventtypes.html" class="tsd-kind-icon">Event<wbr>Types</a>
 						<ul>
 							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
@@ -283,31 +284,28 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-enum">
+					<li class=" tsd-kind-enum root">
 						<a href="taskstatuses.html" class="tsd-kind-icon">Task<wbr>Statuses</a>
 					</li>
-					<li class=" tsd-kind-interface">
+					<li class=" tsd-kind-interface root">
 						<a href="../interfaces/event.html" class="tsd-kind-icon">Event</a>
 					</li>
-					<li class=" tsd-kind-interface">
+					<li class=" tsd-kind-interface root">
 						<a href="../interfaces/task.html" class="tsd-kind-icon">Task</a>
 					</li>
-					<li class=" tsd-kind-interface">
+					<li class=" tsd-kind-interface root">
 						<a href="../interfaces/worker.html" class="tsd-kind-icon">Worker</a>
 					</li>
-					<li class=" tsd-kind-function">
-						<a href="../index.html#acknowledgeorphanedprocessingtasks" class="tsd-kind-icon">acknowledge<wbr>Orphaned<wbr>Processing<wbr>Tasks</a>
-					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="../index.html#createlistener" class="tsd-kind-icon">create<wbr>Listener</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="../index.html#createmanager" class="tsd-kind-icon">create<wbr>Manager</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="../index.html#createorchestrator" class="tsd-kind-icon">create<wbr>Orchestrator</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="../index.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
 					</li>
 				</ul>
@@ -316,17 +314,9 @@
 	</div>
 </div>
 <footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>

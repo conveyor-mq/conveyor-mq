@@ -1,10 +1,11 @@
 {
   "name": "conveyor-mq",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A fast, robust and extensible distributed task/job queue for Node.js",
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc && cp -r ./src/lua/*.lua ./dist/lua/",
+    "build-docs": "typedoc --theme ./node_modules/typedoc-neo-theme/bin/default",
     "test": "jest --runInBand --forceExit ./src",
     "test:watch": "jest --runInBand --watch ./src",
     "start": "ts-node ./src/index.ts",
@@ -63,6 +64,7 @@
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
     "typedoc": "^0.17.7",
+    "typedoc-neo-theme": "^1.0.8",
     "typescript": "^3.9.3"
   }
 }

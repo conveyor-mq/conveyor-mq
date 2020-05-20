@@ -6,6 +6,9 @@ import {
   getTaskKey,
 } from '../utils/keys';
 
+/**
+ * @ignore
+ */
 export const acknowledgeOrphanedProcessingTasks = async ({
   queue,
   defaultStallTimeout = 1000,
