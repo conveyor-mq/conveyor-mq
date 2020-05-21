@@ -5,6 +5,7 @@ import {
   getStallingHashKey,
   getTaskKey,
 } from '../utils/keys';
+import { ScriptNames } from '../lua';
 
 /**
  * @ignore
@@ -20,7 +21,7 @@ export const acknowledgeOrphanedProcessingTasks = async ({
 }) => {
   const acknowledgedTaskIds = (await callLuaScript({
     client,
-    script: 'acknowledgeOrphanedProcessingTasks',
+    script: ScriptNames.acknowledgeOrphanedProcessingTasks,
     args: [
       getProcessingListKey({ queue }),
       getStallingHashKey({ queue }),

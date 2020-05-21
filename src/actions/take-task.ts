@@ -12,6 +12,7 @@ import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { Task } from '../domain/tasks/task';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { ScriptNames } from '../lua';
 
 /**
  * @ignore
@@ -27,7 +28,7 @@ export const takeTask = async ({
 }): Promise<Task | null> => {
   const taskString = (await callLuaScript({
     client,
-    script: 'takeTask',
+    script: ScriptNames.takeTask,
     args: [
       getQueuedListKey({ queue }),
       getProcessingListKey({ queue }),

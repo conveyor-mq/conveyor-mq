@@ -6,25 +6,32 @@ import { map } from 'lodash';
 
 const readFile = util.promisify(fs.readFile);
 
+export enum ScriptNames {
+  takeTask = 'takeTask',
+  markTaskProcessing = 'markTaskProcessing',
+  enqueueDelayedTasks = 'enqueueDelayedTasks',
+  acknowledgeOrphanedProcessingTasks = 'acknowledgeOrphanedProcessingTasks',
+}
+
 export const loadScripts = async ({ client }: { client: Redis }) => {
   const commandDefinitions = [
     {
-      name: 'takeTask',
+      name: ScriptNames.takeTask,
       filePath: './take-task.lua',
       numberOfKeys: 10,
     },
     {
-      name: 'markTaskProcessing',
+      name: ScriptNames.markTaskProcessing,
       filePath: './mark-task-processing.lua',
       numberOfKeys: 9,
     },
     {
-      name: 'enqueueDelayedTasks',
+      name: ScriptNames.enqueueDelayedTasks,
       filePath: './enqueue-delayed-tasks.lua',
       numberOfKeys: 5,
     },
     {
-      name: 'acknowledgeOrphanedProcessingTasks',
+      name: ScriptNames.acknowledgeOrphanedProcessingTasks,
       filePath: './acknowledge-orphaned-processing-tasks.lua',
       numberOfKeys: 5,
     },

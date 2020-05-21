@@ -9,6 +9,7 @@ import {
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { ScriptNames } from '../lua';
 
 /**
  * @ignore
@@ -23,7 +24,7 @@ export const enqueueScheduledTasks = async ({
   const now = moment();
   const taskStrings = (await callLuaScript({
     client,
-    script: 'enqueueDelayedTasks',
+    script: ScriptNames.enqueueDelayedTasks,
     args: [
       getScheduledSetKey({ queue }),
       getQueuedListKey({ queue }),

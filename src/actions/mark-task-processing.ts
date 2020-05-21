@@ -9,6 +9,7 @@ import {
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { EventTypes } from '../domain/events/event-types';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { ScriptNames } from '../lua';
 
 /**
  * @ignore
@@ -26,7 +27,7 @@ export const markTaskProcessing = async ({
 }) => {
   const taskString = (await callLuaScript({
     client,
-    script: 'markTaskProcessing',
+    script: ScriptNames.markTaskProcessing,
     args: [
       taskId,
       getTaskKey({ taskId: '', queue }),
