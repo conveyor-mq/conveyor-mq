@@ -2,69 +2,54 @@ import { Redis } from 'ioredis';
 import {
   getTaskKey,
   getProcessingListKey,
-  getQueueTaskSuccessChannel,
-  getQueueTaskCompleteChannel,
   getStallingHashKey,
   getSuccessListKey,
+  getQueueTaskSuccessChannel,
+  getQueueTaskCompleteChannel,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
-import { exec } from '../utils/redis';
-import { Task } from '../domain/tasks/task';
+import { callLuaScript } from '../utils/redis';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
-import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
+import { ScriptNames } from '../lua';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
 /**
  * @ignore
  */
 export const markTaskSuccess = async ({
-  task,
+  taskId,
   queue,
   client,
   result,
   asOf,
   remove,
 }: {
-  task: Task;
+  taskId: string;
   queue: string;
   client: Redis;
   result?: any;
   asOf: Date;
   remove?: boolean;
 }) => {
-  const taskKey = getTaskKey({ taskId: task.id, queue });
-  const processingListKey = getProcessingListKey({ queue });
-  const successfulTask: Task = {
-    ...task,
-    processingEndedAt: asOf,
-    status: TaskStatuses.Success,
-    result,
-  };
-  const multi = client.multi();
-  if (remove) {
-    multi.del(taskKey);
-  } else {
-    multi.set(taskKey, serializeTask(successfulTask));
-    multi.lpush(getSuccessListKey({ queue }), task.id);
-  }
-  multi.lrem(processingListKey, 1, task.id);
-  multi.hdel(getStallingHashKey({ queue }), task.id);
-  multi.publish(
-    getQueueTaskSuccessChannel({ queue }),
-    serializeEvent({
-      createdAt: new Date(),
-      type: EventTypes.TaskSuccess,
-      task: successfulTask,
-    }),
-  );
-  multi.publish(
-    getQueueTaskCompleteChannel({ queue }),
-    serializeEvent({
-      createdAt: new Date(),
-      type: EventTypes.TaskComplete,
-      task: successfulTask,
-    }),
-  );
-  await exec(multi);
+  const taskString = (await callLuaScript({
+    client,
+    script: ScriptNames.markTaskSuccess,
+    args: [
+      taskId,
+      TaskStatuses.Success,
+      JSON.stringify(result),
+      getTaskKey({ taskId, queue }),
+      asOf.toISOString(),
+      String(!!remove),
+      getSuccessListKey({ queue }),
+      getProcessingListKey({ queue }),
+      getStallingHashKey({ queue }),
+      EventTypes.TaskSuccess,
+      EventTypes.TaskComplete,
+      getQueueTaskSuccessChannel({ queue }),
+      getQueueTaskCompleteChannel({ queue }),
+    ],
+  })) as string;
+  const successfulTask = deSerializeTask(taskString);
   return successfulTask;
 };

@@ -29,6 +29,7 @@ export const updateTask = async ({
       JSON.stringify(taskUpdateData),
       new Date().toISOString(),
       getQueueTaskUpdatedChannel({ queue }),
+      EventTypes.TaskUpdated,
     ],
   })) as string | undefined;
   if (!taskString) {

@@ -114,7 +114,7 @@ describe('areTasksStalled', () => {
     expect(result2.isStalled).toBe(true);
 
     await markTaskSuccess({
-      task: taskA,
+      taskId: taskA.id,
       queue,
       client,
       result: 'some-result',

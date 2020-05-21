@@ -12,10 +12,16 @@ export enum ScriptNames {
   enqueueDelayedTasks = 'enqueueDelayedTasks',
   acknowledgeOrphanedProcessingTasks = 'acknowledgeOrphanedProcessingTasks',
   updateTask = 'updateTask',
+  markTaskSuccess = 'markTaskSuccess',
 }
 
 export const loadScripts = async ({ client }: { client: Redis }) => {
   const commandDefinitions = [
+    {
+      name: ScriptNames.markTaskSuccess,
+      filePath: './mark-task-success.lua',
+      numberOfKeys: 13,
+    },
     {
       name: ScriptNames.takeTask,
       filePath: './take-task.lua',
@@ -39,7 +45,7 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     {
       name: ScriptNames.updateTask,
       filePath: './update-task.lua',
-      numberOfKeys: 4,
+      numberOfKeys: 5,
     },
   ];
   await Promise.all(

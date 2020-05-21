@@ -43,7 +43,7 @@ describe('getTaskCounts', () => {
     const successfulTask = (await takeTask({ queue, client })) as Task;
     const failedTask = (await takeTask({ queue, client })) as Task;
     await markTaskSuccess({
-      task: successfulTask,
+      taskId: successfulTask.id,
       queue,
       client,
       result: 'some-result',

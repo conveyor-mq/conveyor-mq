@@ -160,7 +160,7 @@ export const handleTask = async ({
       ? pTimeout(handlerFunction(), task.executionTimeout)
       : handlerFunction());
     const successfulTask = await markTaskSuccess({
-      task,
+      taskId: task.id,
       queue,
       client,
       result,

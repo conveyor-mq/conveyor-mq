@@ -31,7 +31,7 @@ describe('markTaskSuccessful', () => {
     await enqueueTask({ queue, client, task });
     const acquiredTask = (await takeTask({ queue, client })) as Task;
     const successfulTask = await markTaskSuccess({
-      task: acquiredTask,
+      taskId: acquiredTask.id,
       queue,
       client,
       result: 'horaay!',
