@@ -313,8 +313,8 @@ describe('handleTask', () => {
       client,
       task: taskToHandle,
       asOf: new Date(),
-      handler: async ({ task: theTask, updateTask }) => {
-        await updateTask({ task: { ...theTask, data: 'new data' } });
+      handler: async ({ updateTask }) => {
+        await updateTask({ data: 'new data' });
         return 'some-result';
       },
     });

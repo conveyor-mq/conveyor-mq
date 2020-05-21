@@ -1,34 +1,39 @@
 import { Redis } from 'ioredis';
-import { serializeTask } from '../domain/tasks/serialize-task';
-import { exec } from '../utils/redis';
+import { callLuaScript } from '../utils/redis';
 import { getTaskKey, getQueueTaskUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
-import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
+import { ScriptNames } from '../lua';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
 /**
  * @ignore
  */
 export const updateTask = async ({
-  task,
+  taskId,
+  taskUpdateData,
   queue,
   client,
 }: {
-  task: Task;
+  taskId: string;
+  taskUpdateData: Partial<Task>;
   queue: string;
   client: Redis;
 }) => {
-  const taskKey = getTaskKey({ taskId: task.id, queue });
-  const multi = client.multi();
-  multi.set(taskKey, serializeTask(task));
-  multi.publish(
-    getQueueTaskUpdatedChannel({ queue }),
-    serializeEvent({
-      createdAt: new Date(),
-      type: EventTypes.TaskUpdated,
-      task,
-    }),
-  );
-  await exec(multi);
+  const taskKey = getTaskKey({ taskId, queue });
+  const taskString = (await callLuaScript({
+    client,
+    script: ScriptNames.updateTask,
+    args: [
+      taskKey,
+      JSON.stringify(taskUpdateData),
+      new Date().toISOString(),
+      getQueueTaskUpdatedChannel({ queue }),
+    ],
+  })) as string | undefined;
+  if (!taskString) {
+    throw new Error(`Task with id '${taskId}' not found.`);
+  }
+  const task = deSerializeTask(taskString);
   return task;
 };

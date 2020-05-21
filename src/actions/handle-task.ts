@@ -51,7 +51,7 @@ export type Handler = ({
 }: {
   task: Task;
   updateTaskProgress: (progress: any) => Promise<Task>;
-  updateTask: ({ task }: { task: Task }) => Promise<Task>;
+  updateTask: (taskUpdateData: Partial<Task>) => Promise<Task>;
 }) => any;
 
 /**
@@ -132,9 +132,10 @@ export const handleTask = async ({
     return null;
   }
   try {
-    const updateTask = async ({ task: taskToUpdate }: { task: Task }) => {
+    const updateTask = async (taskUpdateData: Partial<Task>) => {
       const updatedTask = await updateTaskAction({
-        task: taskToUpdate,
+        taskId: task.id,
+        taskUpdateData,
         queue,
         client,
       });

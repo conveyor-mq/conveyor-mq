@@ -11,6 +11,7 @@ export enum ScriptNames {
   markTaskProcessing = 'markTaskProcessing',
   enqueueDelayedTasks = 'enqueueDelayedTasks',
   acknowledgeOrphanedProcessingTasks = 'acknowledgeOrphanedProcessingTasks',
+  updateTask = 'updateTask',
 }
 
 export const loadScripts = async ({ client }: { client: Redis }) => {
@@ -34,6 +35,11 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
       name: ScriptNames.acknowledgeOrphanedProcessingTasks,
       filePath: './acknowledge-orphaned-processing-tasks.lua',
       numberOfKeys: 5,
+    },
+    {
+      name: ScriptNames.updateTask,
+      filePath: './update-task.lua',
+      numberOfKeys: 4,
     },
   ];
   await Promise.all(

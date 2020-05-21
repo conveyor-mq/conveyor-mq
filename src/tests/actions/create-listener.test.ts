@@ -205,11 +205,16 @@ describe('createListener', () => {
     const task = { id: 'b', data: 'c' };
     const { task: enqueuedTask } = await manager.enqueueTask({ task });
 
-    await updateTask({ task: enqueuedTask, queue, client });
+    await updateTask({
+      taskId: enqueuedTask.id,
+      taskUpdateData: { data: 'b' },
+      queue,
+      client,
+    });
 
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
-    expect(event).toHaveProperty('task.data', task.data);
+    expect(event).toHaveProperty('task.data', 'b');
     expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
   });
   it('createListener listens for task progress updated event', async () => {
