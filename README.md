@@ -111,19 +111,23 @@ const queue = 'myQueue';
 
 const main = async () => {
   // Create a manager which is used to add tasks to the queue, and query various properties of a queue:
-  const manager = await createManager({
-    queue,
-    redisConfig,
-  });
+  const manager = await createManager({ queue, redisConfig });
 
   // Add a task to the queue by calling manager.enqueueTask:
-  const task = { data: x: 1, y: 2 };
+  const task = { data: { x: 1, y: 2 } };
   await manager.enqueueTask({ task });
+
+  // Schedule a task to be added to the queue later by calling manager.scheduleTask:
+  const scheduledTask = {
+    data: { x: 1, y: 2 },
+    enqueueAfter: new Date('2020-05-03'),
+  };
+  await manager.enqueueTask({ task: scheduledTask });
 
   // Create a listener and subscribe to the task_complete event:
   const listener = await createListener({ queue, redisConfig });
   listener.on('task_complete', ({ event }) =>
-    console.log('Task complete:', event?.task?.id),
+    console.log('Task complete:', event.task.id),
   );
 
   // Create a worker which will process tasks on the queue:
@@ -136,10 +140,7 @@ const main = async () => {
   });
 
   // Create an orchestrator to monitor the queue for stalled tasks, and enqueue scheduled tasks:
-  const orchestrator = await createOrchestrator({
-    queue,
-    redisConfig,
-  });
+  const orchestrator = await createOrchestrator({ queue, redisConfig });
 };
 
 main();
