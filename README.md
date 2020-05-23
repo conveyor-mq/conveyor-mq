@@ -1,6 +1,6 @@
 # Conveyor MQ
 
-A fast, robust and extensible distributed task/job queue for Node.js.
+A fast, robust and extensible distributed task/job queue for Node.js, powered by Redis.
 
 ![Tests](https://github.com/jasrusable/conveyor-mq/workflows/Tests/badge.svg)
 ![npm](https://img.shields.io/npm/v/conveyor-mq)
