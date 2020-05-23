@@ -525,6 +525,10 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 - [manager.destroyQueue](#managerdestroyQueue)
 - [manager.quit](#managerquit)
 
+### Worker
+
+- [createWorker](#createWorker)
+
 #### createManager
 
 Creates a manager instance which is responsible for adding tasks to the queue, as well as querying various properties of the queue.
@@ -534,8 +538,8 @@ Returns a promise which resolves with a manager instance.
 import { createManager } from 'conveyor-mq';
 
 const manager = await createManager({
-  queue: 'my-queue', // Queue name:
-  redisConfig: { host: 'localhost', port: 6379 }, // Redis configuration:
+  queue: 'my-queue', // Queue name.
+  redisConfig: { host: 'localhost', port: 6379 }, // Redis configuration.
 });
 ```
 
@@ -674,6 +678,94 @@ Quits a manager, disconnecting all redis connections and listeners. Returns a pr
 
 ```js
 await manager.quit();
+```
+
+### Worker
+
+#### Create worker
+
+A is responsible for taking enqueued tasks off of the queue and processing them. Create a worker by calling `createWorker` with at least a `queue`, `redisConfig` and `handler` parameter.
+
+The `handler` parameter should be a function which receives a task and is responsible for processing the task.
+The handler should return a promise which should resolve if the task was successful, or reject if failed.
+
+```js
+import { createWorker } from 'conveyor-mq';
+
+// Create a worker which will start monitoring the queue for tasks and process them:
+const worker = await createWorker({
+  queue: 'my-queue',
+  redisConfig: { host: 'localhost', port: 6379 },
+  // Pass a handler which receives tasks, processes them, and then returns the result of a task:
+  handler: ({ task }) => {
+    return task.data.x + task.data.y;
+  },
+});
+```
+
+All worker params:
+
+```js
+import { createWorker } from 'conveyor-mq';
+
+const worker = await createWorker({
+  // Queue name:
+  queue: 'my-queue',
+
+  // Redis configuration:
+  redisConfig: { host: 'localhost', port: 6379 },
+
+  // A handler function to process tasks.
+  // If the handler function throws an error or returns a promise which rejects, the task will be considered to have errorerd and the thrown or rejected error will be set to the task's `error` field.
+    // If the handler function returns a result, or returns a promise which resolves, the task will be considered successfully processed and the return or resolve value will be set to the task's `result` field.
+  handler: async ({ task, updateTaskProgress }) => {
+    await updateTaskProgress(100);
+    return 'some-task-result';
+  },
+
+  // The number of concurrent tasks the worker can processes at a time:
+  concurrency: 10,
+
+  // The retry delay when retrying a task after it has errored or stalled:
+  getRetryDelay: ({ task }) => (task.retries + 1) * 100,
+
+  // Task success callback:
+  onTaskSuccess: ({ task }) => {
+    console.log('Task processed successfully', result);
+  },
+
+  // Task error callback:
+  onTaskError: ({ task, error }) => {
+    console.log('Task had an error', error);
+  },
+
+  // Task fail callback:
+  onTaskFailed: ({ task, error }) => {
+    console.log('Task failed with error', error);
+  },
+
+  // Worker idle callback. Called when the worker becomes idle:
+  onIdle: () => {
+    console.log('worker is now idle and not processing tasks');
+  },
+
+  // Amount of time since processing a task after which the worker is considered idle and the onIdle callback is called.
+  idleTimeout: 250,
+
+  // Worker ready callback, called once a worker is ready to start processing tasks:
+  onReady: () => {
+    console.log('Worker is now ready to start processing tasks');
+  },
+
+  // Control whether the worker should start automatically, else worker.start() must be called manually:
+  autoStart: true,
+
+  // Remove tasks once they are processed successfully
+  removeOnSuccess = false,
+
+  // Remove tasks once they are fail to be processed successfully
+  removeOnFailed = false,
+});
 ```
 
 ## Examples
