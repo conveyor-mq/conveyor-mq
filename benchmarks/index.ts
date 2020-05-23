@@ -3,7 +3,8 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { createManager, createWorker } from 'conveyor-mq';
-import Queue from 'bee-queue';
+import BeeQueue from 'bee-queue';
+import BullQueue from 'bull';
 
 const redisConfig = { host: 'localhost', port: 6379 };
 
@@ -71,7 +72,7 @@ const benchmarks = {
         concurrency = 1,
         handlerTimeout = 0,
       }) => {
-        const queue = new Queue('bee-queue');
+        const queue = new BeeQueue('bee-queue');
         const ready = new Promise((resolve) => {
           queue.on('ready', () => {
             resolve();
@@ -83,7 +84,40 @@ const benchmarks = {
             return queue.createJob('i').save();
           }),
         );
-
+        const { next, done } = countdown(numberOfTasks);
+        const startTime = Date.now();
+        queue.process(concurrency, () => {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              next();
+              resolve('result');
+            }, handlerTimeout);
+          });
+        });
+        await done;
+        const endTime = Date.now();
+        await queue.close();
+        return {
+          startTime,
+          endTime,
+          name: 'Bee Queue',
+        };
+      },
+    },
+    {
+      name: 'Bull',
+      run: async ({
+        numberOfTasks = 1000,
+        concurrency = 1,
+        handlerTimeout = 0,
+      }) => {
+        const queue = new BullQueue('bull-queue');
+        await queue.isReady();
+        await Promise.all(
+          Array.from({ length: numberOfTasks }).map(() => {
+            return queue.add({ x: 1 });
+          }),
+        );
         const { next, done } = countdown(numberOfTasks);
         const startTime = Date.now();
         queue.process(concurrency, () => {
@@ -101,7 +135,7 @@ const benchmarks = {
         return {
           startTime,
           endTime,
-          name: 'Bee Queue',
+          name: 'Bull',
         };
       },
     },
@@ -109,13 +143,13 @@ const benchmarks = {
 };
 
 const main = async () => {
-  const concurrency = 20;
+  const concurrency = 30;
   const numberOfTasks = 1000;
   for (const benchmark of benchmarks.processTasks) {
     const { name, startTime, endTime } = await benchmark.run({
       concurrency,
       numberOfTasks,
-      handlerTimeout: 50,
+      handlerTimeout: 30,
     });
     const time = endTime - startTime;
     console.log(
