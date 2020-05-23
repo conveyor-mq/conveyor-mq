@@ -4,7 +4,7 @@ import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import { createClient, ensureDisconnected } from '../utils/redis';
 import { getTaskById } from './get-task-by-id';
 import { getTasksById } from './get-tasks-by-id';
-import { RedisConfig, createTaskId } from '../utils/general';
+import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
 import { createListener } from './create-listener';
@@ -13,8 +13,7 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { getTaskCounts } from './get-task-counts';
 import { destroyQueue as destroyQueueAction } from './destroy-queue';
 import { removeTaskById } from './remove-task-by-id';
-import { scheduleTask } from './schedule-task';
-import { scheduleTasks } from './schedule-tasks';
+import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
 
 /**
  * @ignore
@@ -59,14 +58,14 @@ export const createManager = async ({
     });
   });
 
-  const onTaskComplete = async ({ taskId }: { taskId: string }) => {
+  const onTaskComplete = async (taskId: string) => {
     const promise = new Promise((resolve) => {
       set(
         eventSubscriptions,
         `${EventTypes.TaskComplete}.${promiseKey(taskId)}`,
         ({ event }: { event: Event }) => resolve(event.task),
       );
-    });
+    }) as Promise<Task>;
     const task = await getTaskById({ queue, taskId, client });
     if (
       task &&
@@ -76,64 +75,48 @@ export const createManager = async ({
       delete eventSubscriptions[promiseKey(taskId)];
       return task;
     }
-    return promise as Promise<Task>;
+    return promise;
   };
 
-  const enqueueTasks = async (
-    params: {
-      task: Partial<Task>;
-      onTaskComplete?: ({ event }: { event: Event }) => any;
-    }[],
-  ) => {
-    const tasks: Task[] = map(
-      params,
-      ({ task, onTaskComplete: onTaskCompleteCb }) => {
-        const taskId = task.id || createTaskId();
-        if (onTaskCompleteCb) {
-          set(
-            eventSubscriptions,
-            `${EventTypes.TaskComplete}.${callbackKey(taskId)}`,
-            onTaskCompleteCb,
-          );
-        }
-        return { ...task, id: taskId };
-      },
-    );
+  const enqueueTasks = async (tasks: Partial<Task>[]) => {
     const enqueuedTasks = await enqueueTasksAction({ queue, tasks, client });
     return map(enqueuedTasks, (task) => ({
       task,
-      onTaskComplete: () => onTaskComplete({ taskId: task.id }),
+      onTaskComplete: () => onTaskComplete(task.id),
     }));
   };
 
-  const enqueueTask = async ({
-    task,
-    onTaskComplete: onTaskCompleteCb,
-  }: {
-    task: Partial<Task>;
-    onTaskComplete?: ({ event }: { event: Event }) => any;
-  }) => {
-    const [result] = await enqueueTasks([
-      { task, onTaskComplete: onTaskCompleteCb },
-    ]);
+  const enqueueTask = async (task: Partial<Task>) => {
+    const [result] = await enqueueTasks([task]);
+    return result;
+  };
+
+  const scheduleTasks = async (tasks: Partial<Task>[]) => {
+    const scheduledTasks = await scheduleTasksAction({ tasks, queue, client });
+    return map(scheduledTasks, (task) => ({
+      task,
+      onTaskComplete: () => onTaskComplete(task.id),
+    }));
+  };
+
+  const scheduleTask = async (task: Partial<Task>) => {
+    const [result] = await scheduleTasks([task]);
     return result;
   };
 
   return {
     enqueueTask,
     enqueueTasks,
-    scheduleTask: ({ task }: { task: Task }) =>
-      scheduleTask({ task, queue, client }),
-    scheduleTasks: ({ tasks }: { tasks: Task[] }) =>
-      scheduleTasks({ tasks, queue, client }),
+    scheduleTask,
+    scheduleTasks,
     onTaskComplete,
-    getTaskCounts: () => getTaskCounts({ queue, client }),
     getTaskById: (taskId: string) => getTaskById({ taskId, queue, client }),
     getTasksById: (taskIds: string[]) =>
       getTasksById({ taskIds, queue, client }),
-    destroyQueue: () => destroyQueueAction({ queue, client }),
+    getTaskCounts: () => getTaskCounts({ queue, client }),
     removeTaskById: (taskId: string) =>
       removeTaskById({ taskId, queue, client }),
+    destroyQueue: () => destroyQueueAction({ queue, client }),
     quit: () => ensureDisconnected({ client }),
   };
 };

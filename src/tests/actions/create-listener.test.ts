@@ -38,7 +38,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
@@ -57,7 +57,7 @@ describe('createListener', () => {
       data: 'c',
       enqueueAfter: moment().add(1, 'hours').toDate(),
     };
-    await manager.scheduleTask({ task });
+    await manager.scheduleTask(task);
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
@@ -72,7 +72,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -93,7 +93,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -114,7 +114,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -137,7 +137,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task: Task = { id: 'b', data: 'c', retryLimit: 0 };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -160,7 +160,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -183,7 +183,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task: Task = { id: 'b', data: 'c', stallRetryLimit: 1 };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
 
     await takeTask({ queue, client, stallTimeout: 1 });
     await sleep(50);
@@ -203,7 +203,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    const { task: enqueuedTask } = await manager.enqueueTask({ task });
+    const { task: enqueuedTask } = await manager.enqueueTask(task);
 
     await updateTask({
       taskId: enqueuedTask.id,
@@ -226,7 +226,7 @@ describe('createListener', () => {
     });
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
 
     const worker = await createWorker({
       queue,

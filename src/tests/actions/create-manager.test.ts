@@ -6,7 +6,6 @@ import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { createWorker } from '../../actions/create-worker';
-import { Event } from '../../domain/events/event';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { getQueuedListKey, getTaskKey } from '../../utils/keys';
 
@@ -30,7 +29,7 @@ describe('createManager', () => {
     const manager = await createManager({ queue, redisConfig });
     expect(typeof manager.quit).toBe('function');
     const task = { id: 'b', data: 'c' };
-    const result = await manager.enqueueTask({ task });
+    const result = await manager.enqueueTask(task);
     expect(result.task.id).toBe(task.id);
     expect(result.task.status).toBe(TaskStatuses.Queued);
     const retrievedTask = (await manager.getTaskById(task.id)) as Task;
@@ -42,10 +41,7 @@ describe('createManager', () => {
     expect(typeof manager.quit).toBe('function');
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
-    const [resultA, resultB] = await manager.enqueueTasks([
-      { task: taskA },
-      { task: taskB },
-    ]);
+    const [resultA, resultB] = await manager.enqueueTasks([taskA, taskB]);
     expect(resultA.task.id).toBe(taskA.id);
     expect(resultA.task.status).toBe(TaskStatuses.Queued);
     expect(resultB.task.id).toBe(taskB.id);
@@ -58,52 +54,10 @@ describe('createManager', () => {
     expect(retrievedTaskB.id).toBe(taskB.id);
     await manager.quit();
   });
-  it('createManager enqueueTasks calls onTaskComplete', async () => {
-    const manager = await createManager({ queue, redisConfig });
-    expect(typeof manager.quit).toBe('function');
-    const taskA = { id: 'a', data: 'c' };
-    const promise = new Promise((resolve) => {
-      manager.enqueueTasks([
-        { task: taskA, onTaskComplete: ({ event }) => resolve(event) },
-      ]);
-    }) as Promise<Event>;
-    const worker = await createWorker({
-      queue,
-      redisConfig,
-      handler: () => 'some result',
-    });
-    const event = await promise;
-    expect(typeof event.createdAt).toBe('object');
-    expect(event?.task?.id).toBe(taskA.id);
-    expect(event?.task?.data).toBe(taskA.data);
-    await manager.quit();
-    await worker.shutdown();
-  });
-  it('createManager enqueueTask calls onTaskComplete', async () => {
-    const manager = await createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c' };
-    const promise = new Promise((resolve) => {
-      manager.enqueueTask({
-        task,
-        onTaskComplete: ({ event }) => resolve(event),
-      });
-    }) as Promise<Event>;
-    const worker = await createWorker({
-      queue,
-      redisConfig,
-      handler: () => 'some result',
-    });
-    const event = await promise;
-    expect(typeof event.createdAt).toBe('object');
-    expect(event?.task?.id).toBe(task.id);
-    expect(event?.task?.data).toBe(task.data);
-    await manager.quit();
-    await worker.shutdown();
-  });
   it('createManager onTaskComplete resolves', async () => {
     const manager = await createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     const worker = await createWorker({
       queue,
       redisConfig,
@@ -111,7 +65,7 @@ describe('createManager', () => {
         return 'some-result';
       },
     });
-    const completedTask = await manager.onTaskComplete({ taskId: task.id });
+    const completedTask = await manager.onTaskComplete(task.id);
     expect(completedTask.result).toBe('some-result');
     await manager.quit();
     await worker.shutdown();
@@ -126,9 +80,9 @@ describe('createManager', () => {
       },
     });
     const manager = await createManager({ queue, redisConfig });
-    await manager.enqueueTask({ task });
+    await manager.enqueueTask(task);
     await sleep(100);
-    const completedTask = await manager.onTaskComplete({ taskId: task.id });
+    const completedTask = await manager.onTaskComplete(task.id);
     expect(completedTask.result).toBe('some-result');
     await manager.quit();
     await worker.shutdown();
@@ -142,24 +96,24 @@ describe('createManager', () => {
       },
     });
     const manager = await createManager({ queue, redisConfig });
-    const params = map(Array.from({ length: 10 }), (val, index) => ({
-      task: { id: `${index}a` },
+    const tasks = map(Array.from({ length: 10 }), (val, index) => ({
+      id: `${index}a`,
     }));
-    await manager.enqueueTasks(params);
+    await manager.enqueueTasks(tasks);
     await sleep(100);
     const results = await Promise.all(
-      map(params, ({ task }) => manager.onTaskComplete({ taskId: task.id })),
+      map(tasks, (task) => manager.onTaskComplete(task.id)),
     );
-    expect(results.length).toBe(params.length);
+    expect(results.length).toBe(tasks.length);
     forEach(results, (result, index) => {
-      expect(result.id).toBe(params[index].task.id);
+      expect(result.id).toBe(tasks[index].id);
     });
     await manager.quit();
     await worker.shutdown();
   });
   it('createManager getTaskCounts gets counts', async () => {
     const manager = await createManager({ queue, redisConfig });
-    await manager.enqueueTasks([{ task: { data: 'a' } }]);
+    await manager.enqueueTasks([{ data: 'a' }]);
     const { queuedCount, processingCount } = await manager.getTaskCounts();
     expect(queuedCount).toBe(1);
     expect(processingCount).toBe(0);
@@ -167,7 +121,7 @@ describe('createManager', () => {
   });
   it('createManager destroyQueue destroys queue', async () => {
     const manager = await createManager({ queue, redisConfig });
-    await manager.enqueueTasks([{ task: { data: 'a' } }]);
+    await manager.enqueueTasks([{ data: 'a' }]);
     expect(await client.exists(getQueuedListKey({ queue }))).toBe(1);
     await manager.destroyQueue();
     expect(await client.exists(getQueuedListKey({ queue }))).toBe(0);
@@ -175,7 +129,7 @@ describe('createManager', () => {
   });
   it('createManager removeTaskById removes task', async () => {
     const manager = await createManager({ queue, redisConfig });
-    const { task } = await manager.enqueueTask({ task: { data: 'a' } });
+    const { task } = await manager.enqueueTask({ data: 'a' });
     expect(await client.llen(getQueuedListKey({ queue }))).toBe(1);
     expect(await client.exists(getTaskKey({ taskId: task.id, queue }))).toBe(1);
     await manager.removeTaskById(task.id);
