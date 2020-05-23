@@ -513,17 +513,17 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 ### Manager
 
 - [createManager](#createManager)
-- [manager.enqueueTask](#manager.enqueueTask)
-- [manager.enqueueTasks](#manager.enqueueTasks)
-- [manager.scheduleTask](#manager.scheduleTask)
-- [manager.scheduleTasks](#manager.scheduleTasks)
-- [manager.onTaskComplete](#manager.onTaskComplete)
-- [manager.getTaskById](#manager.getTaskById)
-- [manager.getTasksById](#manager.getTasksById)
-- [manager.getTaskCounts](#manager.getTasksCounts)
-- [manager.removeTaskById](#manager.removeTaskById)
-- [manager.destroyQueue](#manager.destroyQueue)
-- [manager.quit](#manager.quit)
+- [manager.enqueueTask](#managerenqueueTask)
+- [manager.enqueueTasks](#managerenqueueTasks)
+- [manager.scheduleTask](#managerscheduleTask)
+- [manager.scheduleTasks](#managerscheduleTasks)
+- [manager.onTaskComplete](#manageronTaskComplete)
+- [manager.getTaskById](#managergetTaskById)
+- [manager.getTasksById](#managergetTasksById)
+- [manager.getTaskCounts](#managergetTasksCounts)
+- [manager.removeTaskById](#managerremoveTaskById)
+- [manager.destroyQueue](#managerdestroyQueue)
+- [manager.quit](#managerquit)
 
 #### createManager
 
