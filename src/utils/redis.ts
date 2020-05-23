@@ -200,3 +200,24 @@ export const lrange = ({
       err ? reject(err) : resolve(result),
     );
   });
+
+export const keys = ({
+  pattern,
+  client,
+}: {
+  pattern: string;
+  client: Redis;
+}): Promise<string[]> =>
+  new Promise((resolve, reject) => {
+    client.keys(pattern, (err, result) =>
+      err ? reject(err) : resolve(result),
+    );
+  });
+
+export const mget = ({
+  keys: mgetKeys,
+  client,
+}: {
+  keys: string[];
+  client: Redis;
+}) => client.mget(...mgetKeys);

@@ -1,6 +1,25 @@
 /*
   Data structure keys:
 */
+
+export const getWorkerKeyPrefix = ({ queue }: { queue: string }) => {
+  return `${queue}:worker:`;
+};
+
+export const getWorkerKey = ({
+  workerId,
+  queue,
+}: {
+  workerId: string;
+  queue: string;
+}) => {
+  return `${getWorkerKeyPrefix({ queue })}${workerId}`;
+};
+
+export const getTaskKeyPrefix = ({ queue }: { queue: string }) => {
+  return `${queue}:tasks:`;
+};
+
 export const getTaskKey = ({
   taskId,
   queue,
@@ -8,7 +27,7 @@ export const getTaskKey = ({
   taskId: string;
   queue: string;
 }) => {
-  return `${queue}:tasks:${taskId}`;
+  return `${getTaskKeyPrefix({ queue })}${taskId}`;
 };
 
 export const getTaskAcknowledgedKey = ({

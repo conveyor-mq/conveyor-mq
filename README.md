@@ -521,6 +521,7 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 - [manager.getTaskById](#managergetTaskById)
 - [manager.getTasksById](#managergetTasksById)
 - [manager.getTaskCounts](#managergetTasksCounts)
+- [manager.getWorkers](#managergetworkers)
 - [manager.removeTaskById](#managerremoveTaskById)
 - [manager.destroyQueue](#managerdestroyQueue)
 - [manager.quit](#managerquit)
@@ -654,6 +655,14 @@ const {
   successCount,
   failedCount,
 } = await manager.getTaskCounts();
+```
+
+#### manager.getWorkers
+
+Gets the workers connected to the queue. Returns a promise that resolves with a list of workers.
+
+```js
+const workers = await manager.getWorkers();
 ```
 
 #### manager.removeTaskById

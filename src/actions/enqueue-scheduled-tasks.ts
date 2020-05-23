@@ -5,7 +5,7 @@ import { callLuaScript } from '../utils/redis';
 import {
   getScheduledSetKey,
   getQueuedListKey,
-  getTaskKey,
+  getTaskKeyPrefix,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
@@ -29,7 +29,7 @@ export const enqueueScheduledTasks = async ({
       getScheduledSetKey({ queue }),
       getQueuedListKey({ queue }),
       now.unix(),
-      getTaskKey({ taskId: '', queue }),
+      getTaskKeyPrefix({ queue }),
       TaskStatuses.Queued,
     ],
   })) as string[];

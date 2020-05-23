@@ -4,9 +4,9 @@ import { callLuaScript } from '../utils/redis';
 import {
   getQueuedListKey,
   getProcessingListKey,
-  getTaskKey,
   getQueueTaskProcessingChannel,
   getStallingHashKey,
+  getTaskKeyPrefix,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { Task } from '../domain/tasks/task';
@@ -32,7 +32,7 @@ export const takeTask = async ({
     args: [
       getQueuedListKey({ queue }),
       getProcessingListKey({ queue }),
-      getTaskKey({ taskId: '', queue }),
+      getTaskKeyPrefix({ queue }),
       stallTimeout,
       queue,
       moment().toISOString(),

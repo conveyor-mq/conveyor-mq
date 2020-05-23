@@ -137,4 +137,16 @@ describe('createManager', () => {
     expect(await client.exists(getTaskKey({ taskId: task.id, queue }))).toBe(0);
     await manager.quit();
   });
+  it('createManager getWorkers gets workers', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+    });
+    const workers = await manager.getWorkers();
+    expect(workers.length).toBe(1);
+    await manager.quit();
+    await worker.shutdown();
+  });
 });

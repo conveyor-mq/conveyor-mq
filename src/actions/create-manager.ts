@@ -14,6 +14,7 @@ import { getTaskCounts } from './get-task-counts';
 import { destroyQueue as destroyQueueAction } from './destroy-queue';
 import { removeTaskById } from './remove-task-by-id';
 import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
+import { getWorkers } from './get-workers';
 
 /**
  * @ignore
@@ -123,6 +124,7 @@ export const createManager = async ({
     getTasksById: (taskIds: string[]) =>
       getTasksById({ taskIds, queue, client }),
     getTaskCounts: () => getTaskCounts({ queue, client }),
+    getWorkers: () => getWorkers({ queue, client }),
     removeTaskById: (taskId: string) =>
       removeTaskById({ taskId, queue, client }),
     destroyQueue: () => destroyQueueAction({ queue, client }),

@@ -1,5 +1,10 @@
 import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
+import {
+  setIntervalAsync,
+  clearIntervalAsync,
+  SetIntervalAsyncTimer,
+} from 'set-interval-async/dynamic';
 import { RedisConfig, sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -14,13 +19,19 @@ import {
   tryIgnore,
   ensureDisconnected,
   publish,
+  set,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { processTask } from './process-task';
-import { getWorkerStartedChannel, getWorkerPausedChannel } from '../utils/keys';
+import {
+  getWorkerStartedChannel,
+  getWorkerPausedChannel,
+  getWorkerKey,
+} from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 import { Worker } from '../domain/workers/worker';
+import { serializeWorker } from '../domain/workers/serialize-worker';
 
 export const createWorker = async ({
   // Queue name:
@@ -77,6 +88,7 @@ export const createWorker = async ({
   let isPaused = true;
   let isShuttingDown = false;
   let isShutdown = false;
+  let upsertInterval: SetIntervalAsyncTimer;
 
   const worker: Worker = {
     id: createWorkerId(),
@@ -153,11 +165,24 @@ export const createWorker = async ({
     }
   };
 
+  const upsertWorker = async () => {
+    await set({
+      key: getWorkerKey({
+        workerId: worker.id,
+        queue,
+      }),
+      client: workerClient,
+      value: serializeWorker(worker),
+      ttl: 30000,
+    });
+  };
+
   const pause = async (params?: { killProcessingTasks?: boolean }) => {
     if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
     isPausing = true;
+    await clearIntervalAsync(upsertInterval);
     forEach(
       params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
       (q) => {
@@ -201,6 +226,8 @@ export const createWorker = async ({
           ensureConnected({ client }),
         ),
       );
+      await upsertWorker();
+      upsertInterval = setIntervalAsync(async () => upsertWorker(), 15000);
       takerQueue.addAll(
         map(Array.from({ length: concurrency }), () => takeAndProcessTask),
       );
@@ -225,6 +252,7 @@ export const createWorker = async ({
       throw new Error('Cannot shutdown a pausing worker.');
     }
     isShuttingDown = true;
+    await clearIntervalAsync(upsertInterval);
     forEach(
       params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
       (q) => {

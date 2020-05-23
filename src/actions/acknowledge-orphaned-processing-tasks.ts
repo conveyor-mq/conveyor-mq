@@ -3,7 +3,7 @@ import { callLuaScript } from '../utils/redis';
 import {
   getProcessingListKey,
   getStallingHashKey,
-  getTaskKey,
+  getTaskKeyPrefix,
 } from '../utils/keys';
 import { ScriptNames } from '../lua';
 
@@ -25,7 +25,7 @@ export const acknowledgeOrphanedProcessingTasks = async ({
     args: [
       getProcessingListKey({ queue }),
       getStallingHashKey({ queue }),
-      getTaskKey({ taskId: '', queue }),
+      getTaskKeyPrefix({ queue }),
       queue,
       defaultStallTimeout,
     ],
