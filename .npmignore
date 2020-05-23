@@ -2,6 +2,7 @@
 examples
 docs
 coverage
+benchmarks
 src
 .eslintrc.js
 .prettierignore
