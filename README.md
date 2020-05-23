@@ -518,16 +518,17 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 - [manager.scheduleTask](#manager.scheduleTask)
 - [manager.scheduleTasks](#manager.scheduleTasks)
 - [manager.onTaskComplete](#manager.onTaskComplete)
-- manager.getTaskById
-- manager.getTasksById
-- manager.getTaskCounts
-- manager.removeTaskById
-- manager.destroyQueue
-- manager.quit
+- [manager.getTaskById](#manager.getTaskById)
+- [manager.getTasksById](#manager.getTasksById)
+- [manager.getTaskCounts](#manager.getTasksCounts)
+- [manager.removeTaskById](#manager.removeTaskById)
+- [manager.destroyQueue](#manager.destroyQueue)
+- [manager.quit](#manager.quit)
 
 #### createManager
 
 Creates a manager instance which is responsible for adding tasks to the queue, as well as querying various properties of the queue.
+Returns a promise which resolves with a manager instance.
 
 ```js
 import { createManager } from 'conveyor-mq';
@@ -541,6 +542,7 @@ const manager = await createManager({
 #### manager.enqueueTask
 
 Enqueues a task on the queue.
+Returns a promise which resolves with a `TaskResponse`.
 
 ```js
 const task = {
@@ -565,6 +567,7 @@ const {
 #### manager.enqueueTasks
 
 Enqueues multiple tasks in a single transaction.
+Returns a promise which resolves with a list of `TaskResponse`'s.
 
 ```js
 const task1 = { data: { x: 1 } };
@@ -579,6 +582,7 @@ const [
 #### manager.scheduleTask
 
 Schedules a task to be enqueued at a later time.
+Returns a promise which resolves with a `TaskResponse`.
 
 ```js
 const myScheduledTask = {
@@ -595,6 +599,7 @@ const {
 #### manager.scheduleTasks
 
 Schedules a task to be enqueued at a later time.
+Returns a promise which resolves with a list of `TaskResponse`'s.
 
 ```js
 const myScheduledTask = {
@@ -609,12 +614,66 @@ const [{ task, onTaskComplete }] = await manager.scheduleTasks([
 
 #### manager.onTaskComplete
 
-A function which takes a `taskId` and returns a promise that resolves once the task has completed.
+A function which takes a `taskId` and returns a promise that resolves with the task once the task has completed.
 
 ```js
 const task = await manager.enqueueTask({ data: { x: 1, y: 2 } });
 await manager.onTaskComplete(task.id);
 console.log('Task has completed!');
+```
+
+#### manager.getTaskById
+
+Gets a task from the queue. Returns a promise that resolves with the task from the queue.
+
+```js
+const task = await manager.getTaskById('my-task-id');
+```
+
+#### manager.getTasksById
+
+Gets multiple tasks from the queue in a transaction. Returns a promises that resolves with a list of tasks.
+
+```js
+const tasks = await manager.getTasksById(['task-id-1', 'task-id-2']);
+```
+
+#### manager.getTaskCounts
+
+Gets the count of tasks per status. Returns a promise that resolves with the counts of tasks per status.
+
+```js
+const {
+  scheduledCount,
+  queuedCount,
+  processingCount,
+  successCount,
+  failedCount,
+} = await manager.getTaskCounts();
+```
+
+#### manager.removeTaskById
+
+Removes a given task from the queue by id. Returns a promise.
+
+```js
+await manager.removeTaskById('some-task-id');
+```
+
+#### manager.destroyQueue
+
+Destroys all queue data and data structures. Returns a promise.
+
+```js
+await manager.destroyQueue();
+```
+
+#### manager.quit
+
+Quits a manager, disconnecting all redis connections and listeners. Returns a promise.
+
+```js
+await manager.quit();
 ```
 
 ## Examples

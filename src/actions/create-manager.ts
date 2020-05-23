@@ -25,6 +25,11 @@ const callbackKey = (taskId: string) => `${taskId}-cb`;
  */
 const promiseKey = (taskId: string) => `${taskId}-promise`;
 
+export interface TaskResponse {
+  task: Task;
+  onTaskComplete: () => Promise<Task>;
+}
+
 export const createManager = async ({
   queue,
   redisConfig,
@@ -78,7 +83,9 @@ export const createManager = async ({
     return promise;
   };
 
-  const enqueueTasks = async (tasks: Partial<Task>[]) => {
+  const enqueueTasks = async (
+    tasks: Partial<Task>[],
+  ): Promise<TaskResponse[]> => {
     const enqueuedTasks = await enqueueTasksAction({ queue, tasks, client });
     return map(enqueuedTasks, (task) => ({
       task,
@@ -86,12 +93,14 @@ export const createManager = async ({
     }));
   };
 
-  const enqueueTask = async (task: Partial<Task>) => {
+  const enqueueTask = async (task: Partial<Task>): Promise<TaskResponse> => {
     const [result] = await enqueueTasks([task]);
     return result;
   };
 
-  const scheduleTasks = async (tasks: Partial<Task>[]) => {
+  const scheduleTasks = async (
+    tasks: Partial<Task>[],
+  ): Promise<TaskResponse[]> => {
     const scheduledTasks = await scheduleTasksAction({ tasks, queue, client });
     return map(scheduledTasks, (task) => ({
       task,
@@ -99,7 +108,7 @@ export const createManager = async ({
     }));
   };
 
-  const scheduleTask = async (task: Partial<Task>) => {
+  const scheduleTask = async (task: Partial<Task>): Promise<TaskResponse> => {
     const [result] = await scheduleTasks([task]);
     return result;
   };
