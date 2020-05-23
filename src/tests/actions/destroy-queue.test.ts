@@ -49,7 +49,7 @@ describe('destroyQueue', () => {
     const successfulTask = (await takeTask({ queue, client })) as Task;
     const failedTask = (await takeTask({ queue, client })) as Task;
     await markTaskSuccess({
-      taskId: successfulTask.id,
+      task: successfulTask,
       queue,
       client,
       result: 'some-result',
@@ -60,7 +60,6 @@ describe('destroyQueue', () => {
       queue,
       client,
       error: 'some-error',
-      asOf: new Date(),
     });
     await destroyQueue({ queue, client });
     const exists = await client.exists(

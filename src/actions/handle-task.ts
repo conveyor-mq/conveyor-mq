@@ -1,11 +1,11 @@
-import { Redis } from 'ioredis';
+import { Redis, Pipeline } from 'ioredis';
 import moment from 'moment';
 import pTimeout from 'p-timeout';
 import { find } from 'lodash';
 import { hasTaskExpired } from './has-task-expired';
-import { markTaskSuccess } from './mark-task-success';
-import { enqueueTask } from './enqueue-task';
-import { markTaskFailed } from './mark-task-failed';
+import { markTaskSuccessMulti } from './mark-task-success';
+import { enqueueTaskMulti } from './enqueue-task';
+import { markTaskFailedMulti } from './mark-task-failed';
 import { getRetryDelayDefault } from '../utils/retry-strategies';
 import { getQueueTaskErrorChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
@@ -13,6 +13,7 @@ import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 import { updateTask as updateTaskAction } from './update-task';
 import { updateTaskProgress as updateTaskProgressAction } from './update-task-progress';
+import { exec } from '../utils/redis';
 
 /**
  * @ignore
@@ -53,35 +54,42 @@ export type Handler = ({
   updateTaskProgress: (progress: any) => Promise<Task>;
   updateTask: (taskUpdateData: Partial<Task>) => Promise<Task>;
 }) => any;
+/**
+ * @ignore
+ */
+interface Response {
+  name: 'taskSuccess' | 'taskError' | 'taskFailed';
+  params: {
+    task: Task;
+    error?: any;
+    result?: any;
+  };
+}
 
 /**
  * @ignore
  */
-export const handleTask = async ({
+export const handleTaskMulti = async ({
   task,
   queue,
   client,
+  multi,
   handler,
   asOf,
   getRetryDelay = getRetryDelayDefault,
-  onTaskSuccess,
-  onTaskError,
-  onTaskFailed,
   removeOnSuccess,
   removeOnFailed,
 }: {
   task: Task;
   queue: string;
   client: Redis;
+  multi: Pipeline;
   handler: Handler;
   asOf: Date;
   getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: TaskSuccessCb;
-  onTaskError?: TaskErrorCb;
-  onTaskFailed?: TaskFailedCb;
   removeOnSuccess?: boolean;
   removeOnFailed?: boolean;
-}): Promise<any | null> => {
+}): Promise<Response> => {
   const retryLimitReached =
     task.retryLimit !== undefined &&
     task.retryLimit !== null &&
@@ -120,16 +128,17 @@ export const handleTask = async ({
       },
     ];
     const error = find(errorMessages, ({ condition }) => !!condition)?.message;
-    const failedTask = await markTaskFailed({
+    const failedTask = await markTaskFailedMulti({
       task,
       queue,
-      client,
+      multi,
       error,
-      asOf: new Date(),
       remove: removeOnFailed,
     });
-    if (onTaskFailed) onTaskFailed({ task: failedTask, error });
-    return null;
+    return {
+      name: 'taskFailed',
+      params: { task: failedTask, error },
+    };
   }
   try {
     const updateTask = async (taskUpdateData: Partial<Task>) => {
@@ -159,28 +168,29 @@ export const handleTask = async ({
     const result = await (task.executionTimeout
       ? pTimeout(handlerFunction(), task.executionTimeout)
       : handlerFunction());
-    const successfulTask = await markTaskSuccess({
-      taskId: task.id,
+    const successfulTask = await markTaskSuccessMulti({
+      task,
       queue,
-      client,
+      multi,
       result,
       asOf: new Date(),
       remove: removeOnSuccess,
     });
-    if (onTaskSuccess) onTaskSuccess({ task: successfulTask, result });
-    return result;
+    return {
+      name: 'taskSuccess',
+      params: { task: successfulTask, result },
+    };
   } catch (e) {
     const error =
       e instanceof pTimeout.TimeoutError
         ? 'Task execution duration exceeded executionTimeout'
         : e.message;
-    if (onTaskError) onTaskError({ task, error });
-    client.publish(
+    multi.publish(
       getQueueTaskErrorChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
         type: EventTypes.TaskError,
-        task,
+        task: { ...task, error },
       }),
     );
     const willRetryLimitBeReached =
@@ -201,30 +211,113 @@ export const handleTask = async ({
       !willStallRetryLimitBeReached
     ) {
       const retryDelay = await getRetryDelay({ task });
-      await enqueueTask({
-        task: {
-          ...task,
-          enqueueAfter: retryDelay
-            ? moment().add(retryDelay, 'milliseconds').toDate()
-            : undefined,
-          retries: (task.retries || 0) + 1,
-          errorRetries: (task.errorRetries || 0) + 1,
-          processingEndedAt: new Date(),
+      const taskToEnqueue = {
+        ...task,
+        enqueueAfter: retryDelay
+          ? moment().add(retryDelay, 'milliseconds').toDate()
+          : undefined,
+        retries: (task.retries || 0) + 1,
+        errorRetries: (task.errorRetries || 0) + 1,
+        processingEndedAt: new Date(),
+      };
+      await enqueueTaskMulti({ task: taskToEnqueue, queue, multi });
+      return {
+        name: 'taskError',
+        params: {
+          error,
+          task: taskToEnqueue,
         },
-        queue,
-        client,
-      });
-      return null;
+      };
     }
-    const failedTask = await markTaskFailed({
+    const failedTask = await markTaskFailedMulti({
       task,
       queue,
-      client,
+      multi,
       error,
-      asOf: new Date(),
       remove: removeOnFailed,
     });
-    if (onTaskFailed) onTaskFailed({ task: failedTask, error });
-    return null;
+    return {
+      name: 'taskFailed',
+      params: { task: failedTask, error },
+    };
   }
+};
+
+/**
+ * @ignore
+ */
+export const handleCallbacks = ({
+  response,
+  onTaskSuccess,
+  onTaskError,
+  onTaskFailed,
+}: {
+  response: Response;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
+}) => {
+  const {
+    params: { task, result, error },
+  } = response;
+  const callbacks: { [key: string]: any } = {
+    taskSuccess: () =>
+      onTaskSuccess &&
+      onTaskSuccess({
+        task,
+        result,
+      }),
+    taskError: () => onTaskError && onTaskError({ task, error }),
+    taskFailed: () => {
+      if (onTaskFailed) onTaskFailed({ task, error });
+      if (onTaskError) onTaskError({ task, error });
+    },
+  };
+  const callback = callbacks[response.name];
+  callback();
+};
+
+/**
+ * @ignore
+ */
+export const handleTask = async ({
+  task,
+  queue,
+  client,
+  handler,
+  asOf,
+  getRetryDelay = getRetryDelayDefault,
+  onTaskSuccess,
+  onTaskError,
+  onTaskFailed,
+  removeOnSuccess,
+  removeOnFailed,
+}: {
+  task: Task;
+  queue: string;
+  client: Redis;
+  handler: Handler;
+  asOf: Date;
+  getRetryDelay?: getRetryDelayType;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
+}): Promise<any | null> => {
+  const multi = client.multi();
+  const response = await handleTaskMulti({
+    task,
+    queue,
+    client,
+    multi,
+    handler,
+    asOf,
+    getRetryDelay,
+    removeOnSuccess,
+    removeOnFailed,
+  });
+  await exec(multi);
+  await handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed });
+  return response.name === 'taskSuccess' ? response.params.result : null;
 };

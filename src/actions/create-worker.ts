@@ -32,6 +32,7 @@ import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 import { Worker } from '../domain/workers/worker';
 import { serializeWorker } from '../domain/workers/serialize-worker';
+import { Task } from '../domain/tasks/task';
 
 export const createWorker = async ({
   // Queue name:
@@ -109,20 +110,22 @@ export const createWorker = async ({
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
 
-  const takeAndProcessTask = async () => {
+  const takeAndProcessTask = async (t?: Task | null) => {
     try {
-      const task = await tryIgnore(
-        () =>
-          takeTaskBlocking({
-            queue,
-            client: takerClient,
-            client2: workerClient,
-            stallTimeout: defaultStallTimeout,
-          }),
-        () => isActive(),
-      );
+      const task =
+        t ||
+        (await tryIgnore(
+          () =>
+            takeTaskBlocking({
+              queue,
+              client: takerClient,
+              client2: workerClient,
+              stallTimeout: defaultStallTimeout,
+            }),
+          () => isActive(),
+        ));
       if (task) {
-        await workerQueue.add(async () =>
+        const nextTask = await workerQueue.add(async () =>
           tryIgnore(
             () =>
               processTask({
@@ -151,8 +154,10 @@ export const createWorker = async ({
             () => isActive(),
           ),
         );
-      }
-      if (isActive()) {
+        if (isActive()) {
+          takerQueue.add(() => takeAndProcessTask(nextTask));
+        }
+      } else if (isActive()) {
         takerQueue.add(takeAndProcessTask);
       }
     } catch (e) {

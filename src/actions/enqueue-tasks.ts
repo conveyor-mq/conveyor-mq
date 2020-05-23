@@ -1,4 +1,4 @@
-import { Redis } from 'ioredis';
+import { Redis, Pipeline } from 'ioredis';
 import { map, forEach } from 'lodash';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import {
@@ -16,19 +16,19 @@ import { EventTypes } from '../domain/events/event-types';
 /**
  * @ignore
  */
-export const enqueueTasks = async ({
+export const enqueueTasksMulti = async ({
   tasks,
   queue,
-  client,
+  multi,
 }: {
   tasks: Partial<Task>[];
   queue: string;
-  client: Redis;
+  multi: Pipeline;
 }): Promise<Task[]> => {
   const tasksToQueue: Task[] = map(tasks, (task) => ({
     ...task,
     id: task.id || createTaskId(),
-    createdAt: new Date(),
+    createdAt: task.createdAt || new Date(),
     queuedAt: new Date(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
@@ -42,7 +42,6 @@ export const enqueueTasks = async ({
       task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
   }));
   const queuedListKey = getQueuedListKey({ queue });
-  const multi = client.multi();
   forEach(tasksToQueue, (task) => {
     const taskKey = getTaskKey({ taskId: task.id, queue });
     const taskString = serializeTask(task);
@@ -57,6 +56,23 @@ export const enqueueTasks = async ({
       }),
     );
   });
+  return tasksToQueue;
+};
+
+/**
+ * @ignore
+ */
+export const enqueueTasks = async ({
+  tasks,
+  queue,
+  client,
+}: {
+  tasks: Partial<Task>[];
+  queue: string;
+  client: Redis;
+}): Promise<Task[]> => {
+  const multi = client.multi();
+  const tasksToQueue = await enqueueTasksMulti({ tasks, queue, multi });
   await exec(multi);
   return tasksToQueue;
 };

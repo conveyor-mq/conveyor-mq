@@ -1,6 +1,6 @@
-import { Redis } from 'ioredis';
+import { Redis, Pipeline } from 'ioredis';
 import moment from 'moment';
-import { callLuaScript } from '../utils/redis';
+import { callLuaScript, exec } from '../utils/redis';
 import {
   getQueuedListKey,
   getProcessingListKey,
@@ -17,17 +17,17 @@ import { ScriptNames } from '../lua';
 /**
  * @ignore
  */
-export const takeTask = async ({
+export const takeTaskMulti = async ({
   queue,
-  client,
+  multi,
   stallTimeout = 1000,
 }: {
   queue: string;
-  client: Redis;
+  multi: Pipeline;
   stallTimeout?: number;
-}): Promise<Task | null> => {
-  const taskString = (await callLuaScript({
-    client,
+}): Promise<void> => {
+  await callLuaScript({
+    client: multi,
     script: ScriptNames.takeTask,
     args: [
       getQueuedListKey({ queue }),
@@ -41,7 +41,25 @@ export const takeTask = async ({
       EventTypes.TaskProcessing,
       TaskStatuses.Processing,
     ],
-  })) as string;
+  });
+};
+
+/**
+ * @ignore
+ */
+export const takeTask = async ({
+  queue,
+  client,
+  stallTimeout = 1000,
+}: {
+  queue: string;
+  client: Redis;
+  stallTimeout?: number;
+}): Promise<Task | null> => {
+  const multi = client.multi();
+  await takeTaskMulti({ queue, multi, stallTimeout });
+  const result = await exec(multi);
+  const taskString = result[result.length - 1] as string | null;
   if (!taskString) return null;
   const task = deSerializeTask(taskString);
   return task;

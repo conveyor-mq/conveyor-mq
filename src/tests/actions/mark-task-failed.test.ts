@@ -35,7 +35,6 @@ describe('markTaskFailed', () => {
       queue,
       client,
       error: 'aww :(',
-      asOf: new Date(),
     });
     expect(failedTask).toHaveProperty('status', TaskStatuses.Failed);
     expect(failedTask).toHaveProperty('error', 'aww :(');

@@ -81,7 +81,6 @@ describe('areTasksStalled', () => {
       queue,
       client,
       error: 'some-error',
-      asOf: new Date(),
     });
 
     const [result3] = await areTasksStalled({
@@ -114,7 +113,7 @@ describe('areTasksStalled', () => {
     expect(result2.isStalled).toBe(true);
 
     await markTaskSuccess({
-      taskId: taskA.id,
+      task: taskA,
       queue,
       client,
       result: 'some-result',

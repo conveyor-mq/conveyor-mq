@@ -1,55 +1,99 @@
-import { Redis } from 'ioredis';
+import { Redis, Pipeline } from 'ioredis';
 import {
   getTaskKey,
   getProcessingListKey,
-  getStallingHashKey,
-  getSuccessListKey,
   getQueueTaskSuccessChannel,
   getQueueTaskCompleteChannel,
+  getStallingHashKey,
+  getSuccessListKey,
 } from '../utils/keys';
-import { callLuaScript } from '../utils/redis';
+import { serializeTask } from '../domain/tasks/serialize-task';
+import { exec } from '../utils/redis';
+import { Task } from '../domain/tasks/task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
-import { ScriptNames } from '../lua';
-import { deSerializeTask } from '../domain/tasks/deserialize-task';
+
+/**
+ * @ignore
+ */
+export const markTaskSuccessMulti = async ({
+  task,
+  queue,
+  multi,
+  result,
+  asOf,
+  remove,
+}: {
+  task: Task;
+  queue: string;
+  multi: Pipeline;
+  result?: any;
+  asOf: Date;
+  remove?: boolean;
+}) => {
+  const taskKey = getTaskKey({ taskId: task.id, queue });
+  const processingListKey = getProcessingListKey({ queue });
+  const successfulTask: Task = {
+    ...task,
+    processingEndedAt: asOf,
+    status: TaskStatuses.Success,
+    result,
+  };
+  if (remove) {
+    multi.del(taskKey);
+  } else {
+    multi.set(taskKey, serializeTask(successfulTask));
+    multi.lpush(getSuccessListKey({ queue }), task.id);
+  }
+  multi.lrem(processingListKey, 1, task.id);
+  multi.hdel(getStallingHashKey({ queue }), task.id);
+  multi.publish(
+    getQueueTaskSuccessChannel({ queue }),
+    serializeEvent({
+      createdAt: new Date(),
+      type: EventTypes.TaskSuccess,
+      task: successfulTask,
+    }),
+  );
+  multi.publish(
+    getQueueTaskCompleteChannel({ queue }),
+    serializeEvent({
+      createdAt: new Date(),
+      type: EventTypes.TaskComplete,
+      task: successfulTask,
+    }),
+  );
+  return successfulTask;
+};
 
 /**
  * @ignore
  */
 export const markTaskSuccess = async ({
-  taskId,
+  task,
   queue,
   client,
   result,
   asOf,
   remove,
 }: {
-  taskId: string;
+  task: Task;
   queue: string;
   client: Redis;
   result?: any;
   asOf: Date;
   remove?: boolean;
 }) => {
-  const taskString = (await callLuaScript({
-    client,
-    script: ScriptNames.markTaskSuccess,
-    args: [
-      taskId,
-      TaskStatuses.Success,
-      JSON.stringify(result),
-      getTaskKey({ taskId, queue }),
-      asOf.toISOString(),
-      String(!!remove),
-      getSuccessListKey({ queue }),
-      getProcessingListKey({ queue }),
-      getStallingHashKey({ queue }),
-      EventTypes.TaskSuccess,
-      EventTypes.TaskComplete,
-      getQueueTaskSuccessChannel({ queue }),
-      getQueueTaskCompleteChannel({ queue }),
-    ],
-  })) as string;
-  const successfulTask = deSerializeTask(taskString);
+  const multi = client.multi();
+  const successfulTask = await markTaskSuccessMulti({
+    task,
+    queue,
+    multi,
+    result,
+    asOf,
+    remove,
+  });
+  await exec(multi);
   return successfulTask;
 };

@@ -1,4 +1,4 @@
-import { Redis } from 'ioredis';
+import { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
 import {
   getTaskKey,
@@ -15,29 +15,23 @@ import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
 
-/**
- * @ignore
- */
-export const markTasksFailed = async ({
+export const markTasksFailedMulti = ({
   tasksAndErrors,
   queue,
-  client,
-  asOf,
+  multi,
   remove,
 }: {
   tasksAndErrors: { task: Task; error: any }[];
   queue: string;
-  client: Redis;
-  asOf: Date;
+  multi: Pipeline;
   remove?: boolean;
-}): Promise<Task[]> => {
+}) => {
   const processingListKey = getProcessingListKey({ queue });
-  const multi = client.multi();
   const failedTasks = map(tasksAndErrors, ({ task, error }) => {
     const taskKey = getTaskKey({ taskId: task.id, queue });
     const failedTask: Task = {
       ...task,
-      processingEndedAt: asOf,
+      processingEndedAt: new Date(),
       status: TaskStatuses.Failed,
       error,
     };
@@ -66,6 +60,30 @@ export const markTasksFailed = async ({
       }),
     );
     return failedTask;
+  });
+  return failedTasks;
+};
+
+/**
+ * @ignore
+ */
+export const markTasksFailed = async ({
+  tasksAndErrors,
+  queue,
+  client,
+  remove,
+}: {
+  tasksAndErrors: { task: Task; error: any }[];
+  queue: string;
+  client: Redis;
+  remove?: boolean;
+}): Promise<Task[]> => {
+  const multi = client.multi();
+  const failedTasks = await markTasksFailedMulti({
+    tasksAndErrors,
+    queue,
+    multi,
+    remove,
   });
   await exec(multi);
   return failedTasks;

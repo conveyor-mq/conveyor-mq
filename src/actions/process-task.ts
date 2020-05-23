@@ -5,14 +5,18 @@ import {
 import { Redis } from 'ioredis';
 import { acknowledgeTask } from './acknowledge-task';
 import {
-  handleTask,
   getRetryDelayType,
   TaskSuccessCb,
   TaskErrorCb,
   TaskFailedCb,
   Handler,
+  handleTaskMulti,
+  handleCallbacks,
 } from './handle-task';
 import { Task } from '../domain/tasks/task';
+import { takeTaskMulti } from './take-task';
+import { exec } from '../utils/redis';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
 /**
  * @ignore
@@ -43,7 +47,7 @@ export const processTask = async ({
   onTaskFailed?: TaskFailedCb;
   removeOnSuccess?: boolean;
   removeOnFailed?: boolean;
-}) => {
+}): Promise<Task | null> => {
   const timer = setIntervalAsync(async () => {
     await acknowledgeTask({
       taskId: task.id,
@@ -52,19 +56,22 @@ export const processTask = async ({
       ttl: stallTimeout,
     });
   }, taskAcknowledgementInterval);
-  const result = await handleTask({
+  const multi = client.multi();
+  const response = await handleTaskMulti({
     task,
     queue,
     handler,
     client,
+    multi,
     asOf: new Date(),
     getRetryDelay,
-    onTaskSuccess,
-    onTaskError,
-    onTaskFailed,
     removeOnSuccess,
     removeOnFailed,
   });
   await clearIntervalAsync(timer);
-  return result;
+  await handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed });
+  await takeTaskMulti({ queue, multi, stallTimeout });
+  const result = await exec(multi);
+  const taskString = result[result.length - 1] as string | null;
+  return taskString ? deSerializeTask(taskString) : null;
 };
