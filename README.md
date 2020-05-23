@@ -682,7 +682,7 @@ await manager.quit();
 
 ### Worker
 
-#### Create worker
+#### createWorker
 
 A is responsible for taking enqueued tasks off of the queue and processing them. Create a worker by calling `createWorker` with at least a `queue`, `redisConfig` and `handler` parameter.
 
