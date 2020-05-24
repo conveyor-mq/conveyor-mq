@@ -9,6 +9,8 @@ import { Task } from '../../domain/tasks/task';
 import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
 import { scheduleTask } from '../../actions/schedule-task';
+import { createListener } from '../../actions/create-listener';
+import { EventTypes } from '../../domain/events/event-types';
 
 describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
@@ -55,6 +57,24 @@ describe('enqueueScheduledTasks', () => {
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
+  });
+  it('enqueueScheduledTasks triggers taskQueued event', async () => {
+    const listener = await createListener({ queue, redisConfig });
+    const promise = new Promise((resolve) => {
+      listener.on(EventTypes.TaskQueued, () =>
+        resolve('task-queue-event-called'),
+      );
+    });
+    const thePast = moment().subtract(1, 'hour').toDate();
+    const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
+    await scheduleTask({ queue, task, client });
+
+    const [delayedTask] = await enqueueScheduledTasks({ queue, client });
+    expect(delayedTask?.id).toBe(task.id);
+    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
+
+    const result = await promise;
+    expect(result).toBe('task-queue-event-called');
   });
   it('enqueueScheduledTasks does not enqueue future task', async () => {
     const theFuture = moment().add(1, 'hour').toDate();

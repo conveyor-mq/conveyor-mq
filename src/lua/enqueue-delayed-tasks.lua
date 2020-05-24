@@ -3,6 +3,9 @@ local queuedListKey = KEYS[2]
 local nowUnix = tonumber(KEYS[3])
 local taskKeyPrefix = KEYS[4]
 local status = KEYS[5]
+local asOf = KEYS[6]
+local eventType = KEYS[7]
+local taskQueuedChannel = KEYS[8]
 
 local function map(func, array)
     local new_array = {}
@@ -25,6 +28,12 @@ if #delayedTaskIds > 0 then
         task['status'] = status
         local updatedTaskString = cjson.encode(task)
         redis.call('set', taskKey, updatedTaskString)
+        local event = {
+            createdAt = asOf,
+            type = eventType,
+            task = cjson.decode(taskString)
+        }
+        redis.call('publish', taskQueuedChannel, cjson.encode(event))
     end
     return redis.call('mget', unpack(map(getTaskKey, delayedTaskIds)))
 end

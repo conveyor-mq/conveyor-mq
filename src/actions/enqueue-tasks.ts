@@ -1,17 +1,17 @@
 import { Redis, Pipeline } from 'ioredis';
-import { map, forEach } from 'lodash';
+import { map } from 'lodash';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import {
   getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
 } from '../utils/keys';
-import { exec } from '../utils/redis';
+import { exec, callLuaScript } from '../utils/redis';
 import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
-import { serializeEvent } from '../domain/events/serialize-event';
 import { EventTypes } from '../domain/events/event-types';
+import { ScriptNames } from '../lua';
 
 /**
  * @ignore
@@ -41,21 +41,25 @@ export const enqueueTasksMulti = async ({
     stallRetryLimit:
       task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
   }));
-  const queuedListKey = getQueuedListKey({ queue });
-  forEach(tasksToQueue, (task) => {
-    const taskKey = getTaskKey({ taskId: task.id, queue });
-    const taskString = serializeTask(task);
-    multi.set(taskKey, taskString);
-    multi.lpush(queuedListKey, task.id);
-    multi.publish(
-      getQueueTaskQueuedChannel({ queue }),
-      serializeEvent({
-        createdAt: new Date(),
-        type: EventTypes.TaskQueued,
-        task,
-      }),
-    );
-  });
+  await Promise.all(
+    map(tasksToQueue, async (task) => {
+      const taskKey = getTaskKey({ taskId: task.id, queue });
+      const taskString = serializeTask(task);
+      return callLuaScript({
+        client: multi,
+        script: ScriptNames.enqueueTask,
+        args: [
+          taskKey,
+          taskString,
+          getQueuedListKey({ queue }),
+          getQueueTaskQueuedChannel({ queue }),
+          EventTypes.TaskQueued,
+          new Date().toISOString(),
+          task.id,
+        ],
+      });
+    }),
+  );
   return tasksToQueue;
 };
 

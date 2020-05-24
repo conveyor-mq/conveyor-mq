@@ -6,10 +6,12 @@ import {
   getScheduledSetKey,
   getQueuedListKey,
   getTaskKeyPrefix,
+  getQueueTaskQueuedChannel,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { TaskStatuses } from '../domain/tasks/task-statuses';
 import { ScriptNames } from '../lua';
+import { EventTypes } from '../domain/events/event-types';
 
 /**
  * @ignore
@@ -31,6 +33,9 @@ export const enqueueScheduledTasks = async ({
       now.unix(),
       getTaskKeyPrefix({ queue }),
       TaskStatuses.Queued,
+      now.toISOString(),
+      EventTypes.TaskQueued,
+      getQueueTaskQueuedChannel({ queue }),
     ],
   })) as string[];
   const tasks = map(taskStrings, (taskString) => deSerializeTask(taskString));
