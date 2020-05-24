@@ -15,6 +15,8 @@ import { destroyQueue as destroyQueueAction } from './destroy-queue';
 import { removeTaskById } from './remove-task-by-id';
 import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
 import { getWorkers } from './get-workers';
+import { pauseQueue } from './pause-queue';
+import { resumeQueue } from './resume-queue';
 
 /**
  * @ignore
@@ -128,6 +130,8 @@ export const createManager = async ({
     removeTaskById: (taskId: string) =>
       removeTaskById({ taskId, queue, client }),
     destroyQueue: () => destroyQueueAction({ queue, client }),
+    pauseQueue: () => pauseQueue({ queue, client }),
+    resumeQueue: () => resumeQueue({ queue, client }),
     quit: () => ensureDisconnected({ client }),
   };
 };

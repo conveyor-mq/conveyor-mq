@@ -5,6 +5,8 @@ import {
   getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
+  getQueuePausedKey,
+  getPausedListKey,
 } from '../utils/keys';
 import { exec, callLuaScript } from '../utils/redis';
 import { createTaskId } from '../utils/general';
@@ -56,6 +58,8 @@ export const enqueueTasksMulti = async ({
           EventTypes.TaskQueued,
           new Date().toISOString(),
           task.id,
+          getQueuePausedKey({ queue }),
+          getPausedListKey({ queue }),
         ],
       });
     }),

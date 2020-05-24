@@ -523,6 +523,8 @@ The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 - [manager.getTaskCounts](#managergetTasksCounts)
 - [manager.getWorkers](#managergetworkers)
 - [manager.removeTaskById](#managerremoveTaskById)
+- [manager.pauseQueue](#managerpauseQueue)
+- [manager.resumeQueue](#managerresumeQueue)
 - [manager.destroyQueue](#managerdestroyQueue)
 - [manager.quit](#managerquit)
 
@@ -673,6 +675,22 @@ Removes a given task from the queue by id. Returns a promise.
 await manager.removeTaskById('some-task-id');
 ```
 
+#### manager.pauseQueue
+
+Pauses a queue.
+
+```js
+await manager.pauseQueue();
+```
+
+#### manager.resumeQueue
+
+Resumes a queue.
+
+```js
+await manager.resumeQueue();
+```
+
 #### manager.destroyQueue
 
 Destroys all queue data and data structures. Returns a promise.
@@ -788,7 +806,6 @@ const worker = await createWorker({
 - [ ] Improve documentation
 - [ ] Task priorities
 - [ ] Recurring tasks
-- [ ] Queue pause/resume
 - [ ] Task rate limiting
 - [ ] Performance optimisations
 - [ ] Child process workers

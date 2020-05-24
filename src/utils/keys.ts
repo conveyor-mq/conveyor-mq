@@ -2,6 +2,10 @@
   Data structure keys:
 */
 
+export const getQueuePausedKey = ({ queue }: { queue: string }) => {
+  return `${queue}:is-paused`;
+};
+
 export const getWorkerKeyPrefix = ({ queue }: { queue: string }) => {
   return `${queue}:worker:`;
 };
@@ -45,6 +49,9 @@ export const getScheduledSetKey = ({ queue }: { queue: string }) =>
 
 export const getQueuedListKey = ({ queue }: { queue: string }) =>
   `${queue}:lists:queued`;
+
+export const getPausedListKey = ({ queue }: { queue: string }) =>
+  `${queue}:lists:paused`;
 
 export const getProcessingListKey = ({ queue }: { queue: string }) =>
   `${queue}:lists:processing`;

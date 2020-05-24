@@ -149,4 +149,32 @@ describe('createManager', () => {
     await manager.quit();
     await worker.shutdown();
   });
+  it('createManager pauses and resumes queue', async () => {
+    const manager = await createManager({ queue, redisConfig });
+    const worker = await createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+    });
+    await manager.pauseQueue();
+    const task = { id: 'task-id', data: 'x' };
+    await manager.enqueueTask(task);
+
+    await sleep(50);
+    expect(await manager.getTaskById(task.id)).toHaveProperty(
+      'status',
+      TaskStatuses.Queued,
+    );
+
+    await manager.resumeQueue();
+
+    await sleep(50);
+    expect(await manager.getTaskById(task.id)).toHaveProperty(
+      'status',
+      TaskStatuses.Success,
+    );
+
+    await manager.quit();
+    await worker.shutdown();
+  });
 });

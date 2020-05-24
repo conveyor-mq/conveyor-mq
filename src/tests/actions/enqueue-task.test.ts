@@ -7,6 +7,9 @@ import { getQueuedListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { pauseQueue } from '../../actions/pause-queue';
+import { takeTask } from '../../actions/take-task';
+import { resumeQueue } from '../../actions/resume-queue';
 
 describe('enqueueTask', () => {
   const queue = createUuid();
@@ -97,5 +100,26 @@ describe('enqueueTask', () => {
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
+  });
+  it('enqueueTask adds task to paused list if queue is paused', async () => {
+    const task: Task = {
+      id: 'a',
+      data: 'b',
+      queuedAt: new Date(),
+      processingStartedAt: new Date(),
+      processingEndedAt: new Date(),
+    };
+    await pauseQueue({ queue, client });
+    const queuedTask = await enqueueTask({ queue, client, task });
+    expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
+    expect(queuedTask.processingStartedAt).toBe(undefined);
+    expect(queuedTask.processingEndedAt).toBe(undefined);
+    const result = await takeTask({ queue, client, stallTimeout: 1000 });
+    expect(result).toBe(null);
+
+    await resumeQueue({ queue, client });
+
+    const result2 = await takeTask({ queue, client, stallTimeout: 1000 });
+    expect(result2?.id).toBe(task.id);
   });
 });

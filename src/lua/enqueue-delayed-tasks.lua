@@ -6,6 +6,8 @@ local status = KEYS[5]
 local asOf = KEYS[6]
 local eventType = KEYS[7]
 local taskQueuedChannel = KEYS[8]
+local isPausedKey = KEYS[9]
+local pausedListKey = KEYS[10]
 
 local function map(func, array)
     local new_array = {}
@@ -18,8 +20,15 @@ local function getTaskKey(taskId) return taskKeyPrefix .. taskId end
 local delayedTaskIds = redis.call('zrangebyscore', delayedSetKey, 0, nowUnix)
 
 if #delayedTaskIds > 0 then
-    redis.call('lpush', KEYS[2], unpack(delayedTaskIds))
     redis.call('zremrangebyscore', delayedSetKey, 0, nowUnix)
+
+    local isPaused = redis.call('get', isPausedKey) == 'true'
+    if (isPaused) then
+        redis.call('lpush', pausedListKey, unpack(delayedTaskIds))
+    else
+        redis.call('lpush', queuedListKey, unpack(delayedTaskIds))
+    end
+
     -- TODO: Use map and MSET
     for i, taskId in ipairs(delayedTaskIds) do
         local taskKey = getTaskKey(taskId)

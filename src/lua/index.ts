@@ -21,7 +21,7 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     {
       name: ScriptNames.enqueueTask,
       filePath: './enqueue-task.lua',
-      numberOfKeys: 7,
+      numberOfKeys: 9,
     },
     {
       name: ScriptNames.markTaskSuccess,
@@ -41,7 +41,7 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     {
       name: ScriptNames.enqueueDelayedTasks,
       filePath: './enqueue-delayed-tasks.lua',
-      numberOfKeys: 8,
+      numberOfKeys: 10,
     },
     {
       name: ScriptNames.acknowledgeOrphanedProcessingTasks,
