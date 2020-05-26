@@ -23,11 +23,9 @@ import { EventType } from '../domain/events/event-type';
 export const createListener = async ({
   queue,
   redisConfig,
-  events,
 }: {
   queue: string;
   redisConfig: RedisConfig;
-  events?: EventType[];
 }) => {
   const client = await createClient(redisConfig);
   const handlers: {
@@ -55,14 +53,7 @@ export const createListener = async ({
     const handlersToCall = handlers[event.type];
     forEach(handlersToCall, (handler) => handler({ event }));
   });
-  const channels = events
-    ? Object.values(
-        filter(
-          channelMap,
-          (channel, event) => !!events.includes(event as EventType),
-        ),
-      )
-    : Object.values(channelMap);
+  const channels = Object.values(channelMap);
   await client.subscribe(channels);
   return {
     on: (eventType: EventType, f: ({ event }: { event: Event }) => any) => {

@@ -6,10 +6,10 @@ import { map } from 'lodash';
 
 const readFile = util.promisify(fs.readFile);
 
-export enum ScriptNames {
+export enum LuaScriptName {
   takeTask = 'takeTask',
   markTaskProcessing = 'markTaskProcessing',
-  enqueueDelayedTasks = 'enqueueDelayedTasks',
+  enqueueScheduledTasks = 'enqueueScheduledTasks',
   acknowledgeOrphanedProcessingTasks = 'acknowledgeOrphanedProcessingTasks',
   updateTask = 'updateTask',
   markTaskSuccess = 'markTaskSuccess',
@@ -19,37 +19,37 @@ export enum ScriptNames {
 export const loadScripts = async ({ client }: { client: Redis }) => {
   const commandDefinitions = [
     {
-      name: ScriptNames.enqueueTask,
+      name: LuaScriptName.enqueueTask,
       filePath: './enqueue-task.lua',
       numberOfKeys: 9,
     },
     {
-      name: ScriptNames.markTaskSuccess,
+      name: LuaScriptName.markTaskSuccess,
       filePath: './mark-task-success.lua',
       numberOfKeys: 13,
     },
     {
-      name: ScriptNames.takeTask,
+      name: LuaScriptName.takeTask,
       filePath: './take-task.lua',
       numberOfKeys: 10,
     },
     {
-      name: ScriptNames.markTaskProcessing,
+      name: LuaScriptName.markTaskProcessing,
       filePath: './mark-task-processing.lua',
       numberOfKeys: 9,
     },
     {
-      name: ScriptNames.enqueueDelayedTasks,
+      name: LuaScriptName.enqueueScheduledTasks,
       filePath: './enqueue-delayed-tasks.lua',
       numberOfKeys: 10,
     },
     {
-      name: ScriptNames.acknowledgeOrphanedProcessingTasks,
+      name: LuaScriptName.acknowledgeOrphanedProcessingTasks,
       filePath: './acknowledge-orphaned-processing-tasks.lua',
       numberOfKeys: 5,
     },
     {
-      name: ScriptNames.updateTask,
+      name: LuaScriptName.updateTask,
       filePath: './update-task.lua',
       numberOfKeys: 5,
     },
@@ -57,10 +57,7 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
   await Promise.all(
     map(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {
       const script = await readFile(path.join(__dirname, filePath), 'utf8');
-      client.defineCommand(name, {
-        numberOfKeys,
-        lua: script,
-      });
+      client.defineCommand(name, { numberOfKeys, lua: script });
     }),
   );
   return client;

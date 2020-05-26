@@ -13,7 +13,7 @@ import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { EventType } from '../domain/events/event-type';
-import { ScriptNames } from '../lua';
+import { LuaScriptName } from '../lua';
 
 /**
  * @ignore
@@ -49,7 +49,7 @@ export const enqueueTasksMulti = async ({
       const taskString = serializeTask(task);
       return callLuaScript({
         client: multi,
-        script: ScriptNames.enqueueTask,
+        script: LuaScriptName.enqueueTask,
         args: [
           taskKey,
           taskString,

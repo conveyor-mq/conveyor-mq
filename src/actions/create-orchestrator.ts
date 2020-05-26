@@ -62,7 +62,5 @@ export const createOrchestrator = async ({
     ]);
   };
 
-  return {
-    quit,
-  };
+  return { quit };
 };

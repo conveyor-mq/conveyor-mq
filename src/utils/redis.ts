@@ -1,6 +1,6 @@
 import RedisClient, { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
-import { loadScripts, ScriptNames } from '../lua';
+import { loadScripts, LuaScriptName } from '../lua';
 
 export const createClient = async ({
   host,
@@ -30,7 +30,7 @@ export const callLuaScript = ({
   args,
 }: {
   client: Redis | Pipeline;
-  script: ScriptNames;
+  script: LuaScriptName;
   args: (string | number)[];
 }) => {
   return (client as any)[script](...args) as Promise<string | string[]>;

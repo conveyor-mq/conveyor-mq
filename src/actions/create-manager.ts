@@ -37,7 +37,7 @@ export const createManager = async ({
 }) => {
   const [client, listener] = await Promise.all([
     createClient(redisConfig),
-    createListener({ queue, redisConfig, events: [EventType.TaskComplete] }),
+    createListener({ queue, redisConfig }),
   ]);
 
   const eventSubscriptions: {
@@ -46,12 +46,10 @@ export const createManager = async ({
 
   listener.on(EventType.TaskComplete, ({ event }) => {
     if (!event || !event.task || !event.task.id) return;
+    const { task } = event;
     const subscriptions = map([promiseKey], (keyFunc) => ({
-      key: keyFunc(event!.task!.id),
-      handler:
-        eventSubscriptions?.[EventType.TaskComplete]?.[
-          keyFunc(event!.task!.id)
-        ],
+      key: keyFunc(task.id),
+      handler: eventSubscriptions?.[EventType.TaskComplete]?.[keyFunc(task.id)],
     }));
     forEach(subscriptions, (subscription) => {
       if (subscription.handler) {

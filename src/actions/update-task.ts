@@ -3,7 +3,7 @@ import { callLuaScript } from '../utils/redis';
 import { getTaskKey, getQueueTaskUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { EventType } from '../domain/events/event-type';
-import { ScriptNames } from '../lua';
+import { LuaScriptName } from '../lua';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
 /**
@@ -23,7 +23,7 @@ export const updateTask = async ({
   const taskKey = getTaskKey({ taskId, queue });
   const taskString = (await callLuaScript({
     client,
-    script: ScriptNames.updateTask,
+    script: LuaScriptName.updateTask,
     args: [
       taskKey,
       JSON.stringify(taskUpdateData),
