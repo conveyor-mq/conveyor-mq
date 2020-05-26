@@ -2,7 +2,6 @@ import { Redis } from 'ioredis';
 import moment from 'moment';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';

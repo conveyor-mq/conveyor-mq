@@ -1,16 +1,8 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
-import { enqueueTask } from '../../actions/enqueue-task';
-import {
-  flushAll,
-  quit,
-  lrange,
-  createClient,
-  zrangebyscore,
-} from '../../utils/redis';
+import { flushAll, quit, createClient, zrangebyscore } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { getTaskById } from '../../actions/get-task-by-id';
-import { getQueuedListKey, getScheduledSetKey } from '../../utils/keys';
+import { getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';

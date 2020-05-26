@@ -21,11 +21,6 @@ import { resumeQueue } from './resume-queue';
 /**
  * @ignore
  */
-const callbackKey = (taskId: string) => `${taskId}-cb`;
-
-/**
- * @ignore
- */
 const promiseKey = (taskId: string) => `${taskId}-promise`;
 
 export interface TaskResponse {
@@ -51,7 +46,7 @@ export const createManager = async ({
 
   listener.on(EventType.TaskComplete, ({ event }) => {
     if (!event || !event.task || !event.task.id) return;
-    const subscriptions = map([callbackKey, promiseKey], (keyFunc) => ({
+    const subscriptions = map([promiseKey], (keyFunc) => ({
       key: keyFunc(event!.task!.id),
       handler:
         eventSubscriptions?.[EventType.TaskComplete]?.[
@@ -80,7 +75,7 @@ export const createManager = async ({
       task.status &&
       [(TaskStatus.Failed, TaskStatus.Success)].includes(task.status)
     ) {
-      delete eventSubscriptions[promiseKey(taskId)];
+      delete eventSubscriptions[EventType.TaskComplete][promiseKey(taskId)];
       return task;
     }
     return promise;
