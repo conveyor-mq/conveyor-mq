@@ -40,7 +40,7 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
     },
     {
       name: LuaScriptName.enqueueScheduledTasks,
-      filePath: './enqueue-delayed-tasks.lua',
+      filePath: './enqueue-scheduled-tasks.lua',
       numberOfKeys: 10,
     },
     {
