@@ -10,7 +10,7 @@ import { getRetryDelayDefault } from '../utils/retry-strategies';
 import { getQueueTaskErrorChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 import { updateTask as updateTaskAction } from './update-task';
 import { updateTaskProgress as updateTaskProgressAction } from './update-task-progress';
 import { exec } from '../utils/redis';
@@ -189,7 +189,7 @@ export const handleTaskMulti = async ({
       getQueueTaskErrorChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.TaskError,
+        type: EventType.TaskError,
         task: { ...task, error },
       }),
     );

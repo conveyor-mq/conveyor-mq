@@ -6,7 +6,7 @@ import { getTaskById } from '../../actions/get-task-by-id';
 import { getQueuedListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { pauseQueue } from '../../actions/pause-queue';
 import { takeTask } from '../../actions/take-task';
 import { resumeQueue } from '../../actions/resume-queue';
@@ -69,7 +69,7 @@ describe('enqueueTask', () => {
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
-    expect(queuedTask.status).toBe(TaskStatuses.Queued);
+    expect(queuedTask.status).toBe(TaskStatus.Queued);
     expect(queuedTask.data).toBe(task.data);
 
     const fetchedTask = (await getTaskById({

@@ -7,10 +7,10 @@ import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { scheduleTask } from '../../actions/schedule-task';
 import { createListener } from '../../actions/create-listener';
-import { EventTypes } from '../../domain/events/event-types';
+import { EventType } from '../../domain/events/event-type';
 
 describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
@@ -38,7 +38,7 @@ describe('enqueueScheduledTasks', () => {
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
-    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
+    expect(delayedTask?.status).toBe(TaskStatus.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
@@ -53,7 +53,7 @@ describe('enqueueScheduledTasks', () => {
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
-    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
+    expect(delayedTask?.status).toBe(TaskStatus.Queued);
 
     const takenTask = await takeTask({ queue, client });
     expect(takenTask?.id).toBe(task.id);
@@ -61,7 +61,7 @@ describe('enqueueScheduledTasks', () => {
   it('enqueueScheduledTasks triggers taskQueued event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskQueued, () =>
+      listener.on(EventType.TaskQueued, () =>
         resolve('task-queue-event-called'),
       );
     });
@@ -71,7 +71,7 @@ describe('enqueueScheduledTasks', () => {
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
-    expect(delayedTask?.status).toBe(TaskStatuses.Queued);
+    expect(delayedTask?.status).toBe(TaskStatus.Queued);
 
     const result = await promise;
     expect(result).toBe('task-queue-event-called');

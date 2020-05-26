@@ -6,7 +6,7 @@ import { flushAll, quit, createClient, lrange } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { getTaskById } from '../../actions/get-task-by-id';
 import { getSuccessListKey } from '../../utils/keys';
 
@@ -37,7 +37,7 @@ describe('markTaskSuccessful', () => {
       result: 'horaay!',
       asOf: new Date(),
     });
-    expect(successfulTask).toHaveProperty('status', TaskStatuses.Success);
+    expect(successfulTask).toHaveProperty('status', TaskStatus.Success);
     expect(successfulTask).toHaveProperty('result', 'horaay!');
 
     const fetchedSuccessfulTask = await getTaskById({
@@ -45,10 +45,7 @@ describe('markTaskSuccessful', () => {
       taskId: task.id,
       client,
     });
-    expect(fetchedSuccessfulTask).toHaveProperty(
-      'status',
-      TaskStatuses.Success,
-    );
+    expect(fetchedSuccessfulTask).toHaveProperty('status', TaskStatus.Success);
     expect(fetchedSuccessfulTask).toHaveProperty('result', 'horaay!');
 
     const successfulTaskIds = await lrange({

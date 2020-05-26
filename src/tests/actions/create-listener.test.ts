@@ -5,8 +5,8 @@ import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
 import { createListener } from '../../actions/create-listener';
-import { EventTypes } from '../../domain/events/event-types';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { EventType } from '../../domain/events/event-type';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { createWorker } from '../../actions/create-worker';
 import { takeTask } from '../../actions/take-task';
 import { processStalledTasks } from '../../actions/process-stalled-tasks';
@@ -32,7 +32,7 @@ describe('createListener', () => {
   it('createListener listens for task queued event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskQueued, ({ event }) => {
+      listener.on(EventType.TaskQueued, ({ event }) => {
         resolve(event);
       });
     });
@@ -42,12 +42,12 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
+    expect(event).toHaveProperty('task.status', TaskStatus.Queued);
   });
   it('createListener listens for task scheduled event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskScheduled, ({ event }) => {
+      listener.on(EventType.TaskScheduled, ({ event }) => {
         resolve(event);
       });
     });
@@ -61,12 +61,12 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Scheduled);
+    expect(event).toHaveProperty('task.status', TaskStatus.Scheduled);
   });
   it('createListener listens for task processing event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskProcessing, ({ event }) => {
+      listener.on(EventType.TaskProcessing, ({ event }) => {
         return resolve(event);
       });
     });
@@ -81,13 +81,13 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
     await worker.shutdown();
   });
   it('createListener listens for task success event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskSuccess, ({ event }) => {
+      listener.on(EventType.TaskSuccess, ({ event }) => {
         return resolve(event);
       });
     });
@@ -102,13 +102,13 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Success);
+    expect(event).toHaveProperty('task.status', TaskStatus.Success);
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskError, ({ event }) => {
+      listener.on(EventType.TaskError, ({ event }) => {
         return resolve(event);
       });
     });
@@ -125,13 +125,13 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
     await worker.shutdown();
   });
   it('createListener listens for task failed event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskFail, ({ event }) => {
+      listener.on(EventType.TaskFail, ({ event }) => {
         return resolve(event);
       });
     });
@@ -148,13 +148,13 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Failed);
+    expect(event).toHaveProperty('task.status', TaskStatus.Failed);
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskError, ({ event }) => {
+      listener.on(EventType.TaskError, ({ event }) => {
         return resolve(event);
       });
     });
@@ -171,13 +171,13 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
     await worker.shutdown();
   });
   it('createListener listens for task stalled event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskStalled, ({ event }) => {
+      listener.on(EventType.TaskStalled, ({ event }) => {
         return resolve(event);
       });
     });
@@ -192,12 +192,12 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
   });
   it('createListener listens for task updated event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskUpdated, ({ event }) => {
+      listener.on(EventType.TaskUpdated, ({ event }) => {
         return resolve(event);
       });
     });
@@ -215,12 +215,12 @@ describe('createListener', () => {
     const event = await promise;
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', 'b');
-    expect(event).toHaveProperty('task.status', TaskStatuses.Queued);
+    expect(event).toHaveProperty('task.status', TaskStatus.Queued);
   });
   it('createListener listens for task progress updated event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
-      listener.on(EventTypes.TaskProgressUpdated, ({ event }) => {
+      listener.on(EventType.TaskProgressUpdated, ({ event }) => {
         return resolve(event);
       });
     });
@@ -240,7 +240,7 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.id', task.id);
     expect(event).toHaveProperty('task.data', task.data);
     expect(event).toHaveProperty('task.progress', 1);
-    expect(event).toHaveProperty('task.status', TaskStatuses.Processing);
+    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
     await manager.quit();
     await worker.shutdown();
   });

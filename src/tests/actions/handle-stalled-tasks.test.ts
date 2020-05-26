@@ -6,7 +6,7 @@ import { getTaskById } from '../../actions/get-task-by-id';
 import { handleStalledTasks } from '../../actions/handle-stalled-tasks';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 
 describe('handleStalledTasks', () => {
   const queue = createUuid();
@@ -55,7 +55,7 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToRequeue.id,
     })) as Task;
-    expect(retriedTask.status).toBe(TaskStatuses.Queued);
+    expect(retriedTask.status).toBe(TaskStatus.Queued);
     expect(retriedTask.retries).toBe(1);
     expect(retriedTask.stallRetries).toBe(1);
     expect(retriedTask.processingStartedAt).toBe(undefined);
@@ -94,7 +94,7 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToFail.id,
     })) as Task;
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.retries).toBe(1);
     expect(failedTask.retryLimit).toBe(1);
     expect(failedTask.errorRetries).toBe(0);
@@ -136,7 +136,7 @@ describe('handleStalledTasks', () => {
       client,
       taskId: taskToFail.id,
     })) as Task;
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.retries).toBe(0);
     expect(failedTask.retryLimit).toBe(2);
     expect(failedTask.errorRetries).toBe(0);

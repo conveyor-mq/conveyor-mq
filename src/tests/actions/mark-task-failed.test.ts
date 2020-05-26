@@ -6,7 +6,7 @@ import { flushAll, quit, createClient, lrange } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { getTaskById } from '../../actions/get-task-by-id';
 import { getFailedListKey } from '../../utils/keys';
 
@@ -36,7 +36,7 @@ describe('markTaskFailed', () => {
       client,
       error: 'aww :(',
     });
-    expect(failedTask).toHaveProperty('status', TaskStatuses.Failed);
+    expect(failedTask).toHaveProperty('status', TaskStatus.Failed);
     expect(failedTask).toHaveProperty('error', 'aww :(');
 
     const fetchedFailedTask = await getTaskById({
@@ -44,7 +44,7 @@ describe('markTaskFailed', () => {
       queue,
       client,
     });
-    expect(fetchedFailedTask).toHaveProperty('status', TaskStatuses.Failed);
+    expect(fetchedFailedTask).toHaveProperty('status', TaskStatus.Failed);
     expect(fetchedFailedTask).toHaveProperty('error', 'aww :(');
 
     const failedTaskIds = await lrange({

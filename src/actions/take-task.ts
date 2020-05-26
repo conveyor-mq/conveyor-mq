@@ -10,8 +10,8 @@ import {
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { Task } from '../domain/tasks/task';
-import { EventTypes } from '../domain/events/event-types';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { EventType } from '../domain/events/event-type';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { ScriptNames } from '../lua';
 
 /**
@@ -38,8 +38,8 @@ export const takeTaskMulti = async ({
       moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),
       getStallingHashKey({ queue }),
-      EventTypes.TaskProcessing,
-      TaskStatuses.Processing,
+      EventType.TaskProcessing,
+      TaskStatus.Processing,
     ],
   });
 };

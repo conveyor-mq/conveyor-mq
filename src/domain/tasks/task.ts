@@ -1,8 +1,8 @@
-import { TaskStatuses } from './task-statuses';
+import { TaskStatus } from './task-status';
 
 export interface Task {
   id: string;
-  status?: TaskStatuses;
+  status?: TaskStatus;
   data?: any;
   createdAt?: Date;
   queuedAt?: Date;

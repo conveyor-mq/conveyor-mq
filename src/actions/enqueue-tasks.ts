@@ -11,8 +11,8 @@ import {
 import { exec, callLuaScript } from '../utils/redis';
 import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
-import { EventTypes } from '../domain/events/event-types';
+import { TaskStatus } from '../domain/tasks/task-status';
+import { EventType } from '../domain/events/event-type';
 import { ScriptNames } from '../lua';
 
 /**
@@ -34,7 +34,7 @@ export const enqueueTasksMulti = async ({
     queuedAt: new Date(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
-    status: TaskStatuses.Queued,
+    status: TaskStatus.Queued,
     retries: task.retries || 0,
     errorRetries: task.errorRetries || 0,
     errorRetryLimit:
@@ -55,7 +55,7 @@ export const enqueueTasksMulti = async ({
           taskString,
           getQueuedListKey({ queue }),
           getQueueTaskQueuedChannel({ queue }),
-          EventTypes.TaskQueued,
+          EventType.TaskQueued,
           new Date().toISOString(),
           task.id,
           getQueuePausedKey({ queue }),

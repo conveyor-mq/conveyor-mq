@@ -1,4 +1,4 @@
-export enum TaskStatuses {
+export enum TaskStatus {
   Scheduled = 'scheduled',
   Queued = 'queued',
   Processing = 'processing',

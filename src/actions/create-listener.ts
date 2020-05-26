@@ -1,4 +1,4 @@
-import { forEach } from 'lodash';
+import { forEach, filter } from 'lodash';
 import { RedisConfig } from '../utils/general';
 import { createClient } from '../utils/redis';
 import {
@@ -18,42 +18,54 @@ import {
 } from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 export const createListener = async ({
   queue,
   redisConfig,
+  events,
 }: {
   queue: string;
   redisConfig: RedisConfig;
+  events?: EventType[];
 }) => {
   const client = await createClient(redisConfig);
   const handlers: {
     [key: string]: (({ event }: { event: Event }) => any)[];
   } = {};
-  const channels = [
-    getQueueTaskScheduledChannel({ queue }),
-    getQueueTaskQueuedChannel({ queue }),
-    getQueueTaskProcessingChannel({ queue }),
-    getQueueTaskSuccessChannel({ queue }),
-    getQueueTaskErrorChannel({ queue }),
-    getQueueTaskStalledChannel({ queue }),
-    getQueueTaskFailedChannel({ queue }),
-    getQueueTaskCompleteChannel({ queue }),
-    getQueueTaskUpdatedChannel({ queue }),
-    getQueueTaskProgressUpdatedChannel({ queue }),
-    getWorkerStartedChannel({ queue }),
-    getWorkerPausedChannel({ queue }),
-    getWorkerShutdownChannel({ queue }),
-  ];
+  const channelMap: { [key in EventType]: string } = {
+    [EventType.TaskScheduled]: getQueueTaskScheduledChannel({ queue }),
+    [EventType.TaskQueued]: getQueueTaskQueuedChannel({ queue }),
+    [EventType.TaskProcessing]: getQueueTaskProcessingChannel({ queue }),
+    [EventType.TaskSuccess]: getQueueTaskSuccessChannel({ queue }),
+    [EventType.TaskError]: getQueueTaskErrorChannel({ queue }),
+    [EventType.TaskStalled]: getQueueTaskStalledChannel({ queue }),
+    [EventType.TaskFail]: getQueueTaskFailedChannel({ queue }),
+    [EventType.TaskComplete]: getQueueTaskCompleteChannel({ queue }),
+    [EventType.TaskUpdated]: getQueueTaskUpdatedChannel({ queue }),
+    [EventType.TaskProgressUpdated]: getQueueTaskProgressUpdatedChannel({
+      queue,
+    }),
+    [EventType.WorkerStarted]: getWorkerStartedChannel({ queue }),
+    [EventType.WorkerPaused]: getWorkerPausedChannel({ queue }),
+    [EventType.WorkerShutdown]: getWorkerShutdownChannel({ queue }),
+  };
   client.on('message', (channel, eventString) => {
     const event = deSerializeEvent(eventString);
     const handlersToCall = handlers[event.type];
     forEach(handlersToCall, (handler) => handler({ event }));
   });
+  const channels = events
+    ? Object.values(
+        filter(
+          channelMap,
+          (channel, event) => !!events.includes(event as EventType),
+        ),
+      )
+    : Object.values(channelMap);
   await client.subscribe(channels);
   return {
-    on: (eventType: EventTypes, f: ({ event }: { event: Event }) => any) => {
+    on: (eventType: EventType, f: ({ event }: { event: Event }) => any) => {
       handlers[eventType] = [...(handlers[eventType] || []), f];
     },
   };

@@ -1,10 +1,10 @@
 import { Task } from '../tasks/task';
-import { EventTypes } from './event-types';
+import { EventType } from './event-type';
 import { Worker } from '../workers/worker';
 
 export interface Event {
   createdAt: Date;
-  type: EventTypes;
+  type: EventType;
   task?: Task;
   worker?: Worker;
 }

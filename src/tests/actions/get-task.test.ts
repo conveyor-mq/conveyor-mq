@@ -6,7 +6,7 @@ import { getTaskById } from '../../actions/get-task-by-id';
 import { redisConfig } from '../config';
 import { takeTask } from '../../actions/take-task';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 
 describe('getTask', () => {
   const queue = createUuid();
@@ -33,7 +33,7 @@ describe('getTask', () => {
       taskId: task.id,
     })) as Task;
     expect(retrievedTask.id).toBe(task.id);
-    expect(retrievedTask.status).toBe(TaskStatuses.Queued);
+    expect(retrievedTask.status).toBe(TaskStatus.Queued);
 
     await takeTask({ queue, client, stallTimeout: 100 });
     const retrievedTask2 = (await getTaskById({
@@ -42,7 +42,7 @@ describe('getTask', () => {
       taskId: task.id,
     })) as Task;
     expect(retrievedTask2.id).toBe(task.id);
-    expect(retrievedTask2.status).toBe(TaskStatuses.Processing);
+    expect(retrievedTask2.status).toBe(TaskStatus.Processing);
   });
   it('getTask returns null for missing task', async () => {
     const retrievedTask = (await getTaskById({

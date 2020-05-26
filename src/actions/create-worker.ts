@@ -29,7 +29,7 @@ import {
   getWorkerKey,
 } from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 import { Worker } from '../domain/workers/worker';
 import { serializeWorker } from '../domain/workers/serialize-worker';
 import { Task } from '../domain/tasks/task';
@@ -199,7 +199,7 @@ export const createWorker = async ({
       channel: getWorkerPausedChannel({ queue }),
       message: serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.WorkerPaused,
+        type: EventType.WorkerPaused,
         worker,
       }),
       client: workerClient,
@@ -241,7 +241,7 @@ export const createWorker = async ({
         channel: getWorkerStartedChannel({ queue }),
         message: serializeEvent({
           createdAt: new Date(),
-          type: EventTypes.WorkerStarted,
+          type: EventType.WorkerStarted,
           worker,
         }),
         client: workerClient,
@@ -269,7 +269,7 @@ export const createWorker = async ({
       channel: getWorkerStartedChannel({ queue }),
       message: serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.WorkerShutdown,
+        type: EventType.WorkerShutdown,
         worker,
       }),
       client: workerClient,

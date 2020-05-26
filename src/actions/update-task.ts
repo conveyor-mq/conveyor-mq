@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { callLuaScript } from '../utils/redis';
 import { getTaskKey, getQueueTaskUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 import { ScriptNames } from '../lua';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
@@ -29,7 +29,7 @@ export const updateTask = async ({
       JSON.stringify(taskUpdateData),
       new Date().toISOString(),
       getQueueTaskUpdatedChannel({ queue }),
-      EventTypes.TaskUpdated,
+      EventType.TaskUpdated,
     ],
   })) as string | undefined;
   if (!taskString) {

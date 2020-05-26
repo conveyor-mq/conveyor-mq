@@ -10,9 +10,9 @@ import {
 import { exec } from '../utils/redis';
 import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
@@ -36,7 +36,7 @@ export const scheduleTasks = async ({
       createdAt: new Date(),
       processingStartedAt: undefined,
       processingEndedAt: undefined,
-      status: TaskStatuses.Scheduled,
+      status: TaskStatus.Scheduled,
       retries: task.retries || 0,
       errorRetries: task.errorRetries || 0,
       errorRetryLimit:
@@ -60,7 +60,7 @@ export const scheduleTasks = async ({
       getQueueTaskScheduledChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.TaskScheduled,
+        type: EventType.TaskScheduled,
         task,
       }),
     );

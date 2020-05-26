@@ -6,7 +6,7 @@ import { isTaskStalled } from '../../actions/is-task-stalled';
 import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 
 describe('takeTaskBlocking', () => {
   const queue = createUuid();
@@ -33,7 +33,7 @@ describe('takeTaskBlocking', () => {
       client2: client,
     });
     expect(processingTask).toHaveProperty('id', task.id);
-    expect(processingTask).toHaveProperty('status', TaskStatuses.Processing);
+    expect(processingTask).toHaveProperty('status', TaskStatus.Processing);
     expect(await takeTask({ queue, client })).toBe(null);
   });
   it('takeTaskBlocking acknowledges task', async () => {

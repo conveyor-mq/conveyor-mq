@@ -10,9 +10,9 @@ import {
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
@@ -37,7 +37,7 @@ export const markTaskSuccessMulti = async ({
   const successfulTask: Task = {
     ...task,
     processingEndedAt: asOf,
-    status: TaskStatuses.Success,
+    status: TaskStatus.Success,
     result,
   };
   if (remove) {
@@ -52,7 +52,7 @@ export const markTaskSuccessMulti = async ({
     getQueueTaskSuccessChannel({ queue }),
     serializeEvent({
       createdAt: new Date(),
-      type: EventTypes.TaskSuccess,
+      type: EventType.TaskSuccess,
       task: successfulTask,
     }),
   );
@@ -60,7 +60,7 @@ export const markTaskSuccessMulti = async ({
     getQueueTaskCompleteChannel({ queue }),
     serializeEvent({
       createdAt: new Date(),
-      type: EventTypes.TaskComplete,
+      type: EventType.TaskComplete,
       task: successfulTask,
     }),
   );

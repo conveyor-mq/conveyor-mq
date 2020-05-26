@@ -8,8 +8,8 @@ import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
 import { createListener } from './create-listener';
-import { EventTypes } from '../domain/events/event-types';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { EventType } from '../domain/events/event-type';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { getTaskCounts } from './get-task-counts';
 import { destroyQueue as destroyQueueAction } from './destroy-queue';
 import { removeTaskById } from './remove-task-by-id';
@@ -42,26 +42,26 @@ export const createManager = async ({
 }) => {
   const [client, listener] = await Promise.all([
     createClient(redisConfig),
-    createListener({ queue, redisConfig }),
+    createListener({ queue, redisConfig, events: [EventType.TaskComplete] }),
   ]);
 
   const eventSubscriptions: {
     [key: string]: { [key: string]: ({ event }: { event: Event }) => any };
   } = {};
 
-  listener.on(EventTypes.TaskComplete, ({ event }) => {
+  listener.on(EventType.TaskComplete, ({ event }) => {
     if (!event || !event.task || !event.task.id) return;
     const subscriptions = map([callbackKey, promiseKey], (keyFunc) => ({
       key: keyFunc(event!.task!.id),
       handler:
-        eventSubscriptions?.[EventTypes.TaskComplete]?.[
+        eventSubscriptions?.[EventType.TaskComplete]?.[
           keyFunc(event!.task!.id)
         ],
     }));
     forEach(subscriptions, (subscription) => {
       if (subscription.handler) {
         subscription.handler({ event });
-        delete eventSubscriptions[EventTypes.TaskComplete][subscription.key];
+        delete eventSubscriptions[EventType.TaskComplete][subscription.key];
       }
     });
   });
@@ -70,7 +70,7 @@ export const createManager = async ({
     const promise = new Promise((resolve) => {
       set(
         eventSubscriptions,
-        `${EventTypes.TaskComplete}.${promiseKey(taskId)}`,
+        `${EventType.TaskComplete}.${promiseKey(taskId)}`,
         ({ event }: { event: Event }) => resolve(event.task),
       );
     }) as Promise<Task>;
@@ -78,7 +78,7 @@ export const createManager = async ({
     if (
       task &&
       task.status &&
-      [(TaskStatuses.Failed, TaskStatuses.Success)].includes(task.status)
+      [(TaskStatus.Failed, TaskStatus.Success)].includes(task.status)
     ) {
       delete eventSubscriptions[promiseKey(taskId)];
       return task;

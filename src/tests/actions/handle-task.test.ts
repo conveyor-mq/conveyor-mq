@@ -9,7 +9,7 @@ import { flushAll, quit, createClient } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 
 describe('handleTask', () => {
   const queue = createUuid();
@@ -48,7 +48,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(failedTask.id).toBe(expiredTask.id);
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Task has expired');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
@@ -75,7 +75,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(failedTask.id).toBe(task.id);
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
@@ -102,7 +102,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(failedTask.id).toBe(task.id);
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Error retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
   });
@@ -134,7 +134,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(result).toBe('some-result');
-    expect(handledTask.status).toBe(TaskStatuses.Success);
+    expect(handledTask.status).toBe(TaskStatus.Success);
     expect(handledTask.result).toBe('some-result');
     expect(handledTask.error).toBe(undefined);
     expect(onSuccess).toHaveBeenCalledTimes(1);
@@ -170,7 +170,7 @@ describe('handleTask', () => {
     })) as Task;
     expect(typeof handledTask.processingStartedAt).toBe('object');
     expect(typeof handledTask.processingEndedAt).toBe('object');
-    expect(handledTask.status).toBe(TaskStatuses.Failed);
+    expect(handledTask.status).toBe(TaskStatus.Failed);
     expect(handledTask.error).toBe('some-error');
     expect(handledTask.result).toBe(undefined);
     expect(onSuccess).toHaveBeenCalledTimes(0);
@@ -209,7 +209,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(handledTask.retries).toBe(1);
-    expect(handledTask.status).toBe(TaskStatuses.Queued);
+    expect(handledTask.status).toBe(TaskStatus.Queued);
     expect(handledTask.error).toBe(undefined);
     expect(handledTask.result).toBe(undefined);
 
@@ -234,7 +234,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(handledTask2.retries).toBe(1);
-    expect(handledTask2.status).toBe(TaskStatuses.Failed);
+    expect(handledTask2.status).toBe(TaskStatus.Failed);
     expect(handledTask2.error).toBe('some-error');
     expect(handledTask2.result).toBe(undefined);
     expect(await takeTask({ queue, client })).toBe(null);
@@ -265,7 +265,7 @@ describe('handleTask', () => {
       client,
     })) as Task;
     expect(failedTask.id).toBe(task.id);
-    expect(failedTask.status).toBe(TaskStatuses.Failed);
+    expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe(
       'Task execution duration exceeded executionTimeout',
     );
@@ -299,7 +299,7 @@ describe('handleTask', () => {
     })) as Task;
     expect(completedTask.id).toBe(task.id);
     expect(completedTask.progress).toBe(3);
-    expect(completedTask.status).toBe(TaskStatuses.Success);
+    expect(completedTask.status).toBe(TaskStatus.Success);
   });
   it('handleTask updateTask updates task', async () => {
     const task: Task = {
@@ -328,6 +328,6 @@ describe('handleTask', () => {
     })) as Task;
     expect(completedTask.id).toBe(task.id);
     expect(completedTask.data).toBe('new data');
-    expect(completedTask.status).toBe(TaskStatuses.Success);
+    expect(completedTask.status).toBe(TaskStatus.Success);
   });
 });

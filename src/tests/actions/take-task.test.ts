@@ -6,7 +6,7 @@ import { flushAll, quit, lrange, createClient } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getQueuedListKey, getProcessingListKey } from '../../utils/keys';
 import { redisConfig } from '../config';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 
 describe('takeTask', () => {
   const queue = createUuid();
@@ -29,7 +29,7 @@ describe('takeTask', () => {
     await enqueueTask({ queue, client, task });
     const processingTask = await takeTask({ queue, client });
     expect(processingTask).toHaveProperty('id', task.id);
-    expect(processingTask).toHaveProperty('status', TaskStatuses.Processing);
+    expect(processingTask).toHaveProperty('status', TaskStatus.Processing);
 
     const queuedTaskIds = await lrange({
       key: getQueuedListKey({ queue }),

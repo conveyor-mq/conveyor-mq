@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { forEach } from 'lodash';
 import { getQueueTaskStalledChannel } from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 import { exec } from '../utils/redis';
 import { getStalledTasks } from './get-stalled-tasks';
 import { handleStalledTasks } from './handle-stalled-tasks';
@@ -24,7 +24,7 @@ export const processStalledTasks = async ({
       getQueueTaskStalledChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.TaskStalled,
+        type: EventType.TaskStalled,
         task,
       }),
     );

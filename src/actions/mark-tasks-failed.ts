@@ -11,9 +11,9 @@ import {
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 export const markTasksFailedMulti = ({
   tasksAndErrors,
@@ -32,7 +32,7 @@ export const markTasksFailedMulti = ({
     const failedTask: Task = {
       ...task,
       processingEndedAt: new Date(),
-      status: TaskStatuses.Failed,
+      status: TaskStatus.Failed,
       error,
     };
     if (remove) {
@@ -47,7 +47,7 @@ export const markTasksFailedMulti = ({
       getQueueTaskFailedChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.TaskFail,
+        type: EventType.TaskFail,
         task: failedTask,
       }),
     );
@@ -55,7 +55,7 @@ export const markTasksFailedMulti = ({
       getQueueTaskCompleteChannel({ queue }),
       serializeEvent({
         createdAt: new Date(),
-        type: EventTypes.TaskComplete,
+        type: EventType.TaskComplete,
         task: failedTask,
       }),
     );

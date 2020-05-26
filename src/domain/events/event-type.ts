@@ -1,4 +1,4 @@
-export enum EventTypes {
+export enum EventType {
   TaskScheduled = 'task_scheduled',
   TaskQueued = 'task_queued',
   TaskUpdated = 'task_updated',

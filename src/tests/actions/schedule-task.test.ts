@@ -13,7 +13,7 @@ import { getTaskById } from '../../actions/get-task-by-id';
 import { getQueuedListKey, getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { takeTask } from '../../actions/take-task';
 import { scheduleTask } from '../../actions/schedule-task';
 
@@ -82,7 +82,7 @@ describe('scheduleTask', () => {
       enqueueAfter,
     };
     const scheduledTask = await scheduleTask({ queue, client, task });
-    expect(scheduledTask.status).toBe(TaskStatuses.Scheduled);
+    expect(scheduledTask.status).toBe(TaskStatus.Scheduled);
 
     const taskResult = await takeTask({ queue, client });
     expect(taskResult).toBe(null);

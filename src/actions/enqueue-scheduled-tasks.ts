@@ -11,9 +11,9 @@ import {
   getPausedListKey,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { ScriptNames } from '../lua';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
@@ -34,9 +34,9 @@ export const enqueueScheduledTasks = async ({
       getQueuedListKey({ queue }),
       now.unix(),
       getTaskKeyPrefix({ queue }),
-      TaskStatuses.Queued,
+      TaskStatus.Queued,
       now.toISOString(),
-      EventTypes.TaskQueued,
+      EventType.TaskQueued,
       getQueueTaskQueuedChannel({ queue }),
       getQueuePausedKey({ queue }),
       getPausedListKey({ queue }),

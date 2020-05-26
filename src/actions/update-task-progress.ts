@@ -4,7 +4,7 @@ import { exec } from '../utils/redis';
 import { getTaskKey, getQueueTaskProgressUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
@@ -28,7 +28,7 @@ export const updateTaskProgress = async ({
     getQueueTaskProgressUpdatedChannel({ queue }),
     serializeEvent({
       createdAt: new Date(),
-      type: EventTypes.TaskProgressUpdated,
+      type: EventType.TaskProgressUpdated,
       task: updatedTask,
     }),
   );

@@ -5,10 +5,10 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { createWorker } from '../../actions/create-worker';
 import { redisConfig } from '../config';
 import { getTaskById } from '../../actions/get-task-by-id';
-import { TaskStatuses } from '../../domain/tasks/task-statuses';
+import { TaskStatus } from '../../domain/tasks/task-status';
 import { Task } from '../../domain/tasks/task';
 import { createListener } from '../../actions/create-listener';
-import { EventTypes } from '../../domain/events/event-types';
+import { EventType } from '../../domain/events/event-type';
 import { Event } from '../../domain/events/event';
 
 describe('createWorker', () => {
@@ -35,7 +35,7 @@ describe('createWorker', () => {
       redisConfig,
       handler: ({ task }) => {
         expect(task.id).toBe(theTask.id);
-        expect(task.status).toBe(TaskStatuses.Processing);
+        expect(task.status).toBe(TaskStatus.Processing);
         return 'some data';
       },
     });
@@ -49,7 +49,7 @@ describe('createWorker', () => {
       redisConfig,
       handler: ({ task }) => {
         expect(task.id).toBe(theTask.id);
-        expect(task.status).toBe(TaskStatuses.Processing);
+        expect(task.status).toBe(TaskStatus.Processing);
         return 'some data';
       },
     });
@@ -60,7 +60,7 @@ describe('createWorker', () => {
       client,
     })) as Task;
     expect(processedTask.id).toBe(theTask.id);
-    expect(processedTask.status).toBe(TaskStatuses.Success);
+    expect(processedTask.status).toBe(TaskStatus.Success);
     await worker.shutdown();
   });
   it('createWorker onReady fires', async () => {
@@ -72,7 +72,7 @@ describe('createWorker', () => {
         redisConfig,
         handler: ({ task }) => {
           expect(task.id).toBe(theTask.id);
-          expect(task.status).toBe(TaskStatuses.Processing);
+          expect(task.status).toBe(TaskStatus.Processing);
           return 'some data';
         },
       });
@@ -94,7 +94,7 @@ describe('createWorker', () => {
         redisConfig,
         handler: ({ task }) => {
           expect(task.id).toBe(theTask.id);
-          expect(task.status).toBe(TaskStatuses.Processing);
+          expect(task.status).toBe(TaskStatus.Processing);
           return 'some data';
         },
       });
@@ -135,7 +135,7 @@ describe('createWorker', () => {
       client,
     })) as Task;
     expect(fetchedTaskA.id).toBe(taskA.id);
-    expect(fetchedTaskA.status).toBe(TaskStatuses.Success);
+    expect(fetchedTaskA.status).toBe(TaskStatus.Success);
 
     await worker.pause();
 
@@ -151,7 +151,7 @@ describe('createWorker', () => {
       client,
     })) as Task;
     expect(fetchedTaskB.id).toBe(taskB.id);
-    expect(fetchedTaskB.status).toBe(TaskStatuses.Queued);
+    expect(fetchedTaskB.status).toBe(TaskStatus.Queued);
 
     await worker.start();
     await sleep(50);
@@ -162,7 +162,7 @@ describe('createWorker', () => {
       client,
     })) as Task;
     expect(fetchedTaskB2.id).toBe(taskB.id);
-    expect(fetchedTaskB2.status).toBe(TaskStatuses.Success);
+    expect(fetchedTaskB2.status).toBe(TaskStatus.Success);
     await worker.shutdown();
   });
   it('createWorker handles autoStart false', async () => {
@@ -173,7 +173,7 @@ describe('createWorker', () => {
       autoStart: false,
       handler: ({ task }) => {
         expect(task.id).toBe(theTask.id);
-        expect(task.status).toBe(TaskStatuses.Processing);
+        expect(task.status).toBe(TaskStatus.Processing);
         return 'some data';
       },
     });
@@ -185,18 +185,18 @@ describe('createWorker', () => {
     await sleep(50);
     await expect(
       getTaskById({ queue, taskId: theTask.id, client }),
-    ).resolves.toHaveProperty('status', TaskStatuses.Queued);
+    ).resolves.toHaveProperty('status', TaskStatus.Queued);
     await worker.start();
     await sleep(50);
     await expect(
       getTaskById({ queue, taskId: theTask.id, client }),
-    ).resolves.toHaveProperty('status', TaskStatuses.Success);
+    ).resolves.toHaveProperty('status', TaskStatus.Success);
     await worker.shutdown();
   });
   it('createWorker triggers worker started event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const startedPromise = new Promise((resolve) => {
-      listener.on(EventTypes.WorkerStarted, ({ event }) => resolve(event));
+      listener.on(EventType.WorkerStarted, ({ event }) => resolve(event));
     }) as Promise<Event>;
     const worker = await createWorker({
       queue,
@@ -208,13 +208,13 @@ describe('createWorker', () => {
     const startedEvent = await startedPromise;
     await expect(typeof startedEvent?.worker?.id).toBe('string');
     await expect(typeof startedEvent?.worker?.createdAt).toBe('object');
-    await expect(startedEvent?.type).toBe(EventTypes.WorkerStarted);
+    await expect(startedEvent?.type).toBe(EventType.WorkerStarted);
     await worker.shutdown();
   });
   it('createWorker triggers worker paused event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const pausedPromise = new Promise((resolve) => {
-      listener.on(EventTypes.WorkerPaused, ({ event }) => resolve(event));
+      listener.on(EventType.WorkerPaused, ({ event }) => resolve(event));
     }) as Promise<Event>;
     const worker = await createWorker({
       queue,
@@ -227,13 +227,13 @@ describe('createWorker', () => {
     const pausedEvent = await pausedPromise;
     expect(typeof pausedEvent?.worker?.id).toBe('string');
     expect(typeof pausedEvent?.worker?.createdAt).toBe('object');
-    expect(pausedEvent?.type).toBe(EventTypes.WorkerPaused);
+    expect(pausedEvent?.type).toBe(EventType.WorkerPaused);
     await worker.shutdown();
   });
   it('createWorker triggers worker shutdown event', async () => {
     const listener = await createListener({ queue, redisConfig });
     const shutdownPromise = new Promise((resolve) => {
-      listener.on(EventTypes.WorkerShutdown, ({ event }) => resolve(event));
+      listener.on(EventType.WorkerShutdown, ({ event }) => resolve(event));
     }) as Promise<Event>;
     const worker = await createWorker({
       queue,
@@ -246,6 +246,6 @@ describe('createWorker', () => {
     const shutdownEvent = await shutdownPromise;
     expect(typeof shutdownEvent?.worker?.id).toBe('string');
     expect(typeof shutdownEvent?.worker?.createdAt).toBe('object');
-    expect(shutdownEvent?.type).toBe(EventTypes.WorkerShutdown);
+    expect(shutdownEvent?.type).toBe(EventType.WorkerShutdown);
   });
 });

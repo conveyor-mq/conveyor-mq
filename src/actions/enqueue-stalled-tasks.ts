@@ -12,9 +12,9 @@ import {
 } from '../utils/keys';
 import { exec, callLuaScript } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
-import { TaskStatuses } from '../domain/tasks/task-statuses';
+import { TaskStatus } from '../domain/tasks/task-status';
 import { ScriptNames } from '../lua';
-import { EventTypes } from '../domain/events/event-types';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
@@ -33,7 +33,7 @@ export const enqueueStalledTasks = async ({
     queuedOn: new Date(),
     processingStartedOn: undefined,
     processingEndedOn: undefined,
-    status: TaskStatuses.Queued,
+    status: TaskStatus.Queued,
     retries: (task.retries || 0) + 1,
     stallRetries: (task.stallRetries || 0) + 1,
   }));
@@ -52,7 +52,7 @@ export const enqueueStalledTasks = async ({
         taskString,
         getQueuedListKey({ queue }),
         getQueueTaskQueuedChannel({ queue }),
-        EventTypes.TaskQueued,
+        EventType.TaskQueued,
         new Date().toISOString(),
         task.id,
         getQueuePausedKey({ queue }),
