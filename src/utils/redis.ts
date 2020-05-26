@@ -24,14 +24,26 @@ export const createClient = async ({
   return updatedClient;
 };
 
-export const callLuaScript = ({
-  client,
+export const callLuaScriptMulti = ({
   script,
   args,
+  multi,
 }: {
-  client: Redis | Pipeline;
   script: LuaScriptName;
   args: (string | number)[];
+  multi: Pipeline;
+}) => {
+  (multi as any)[script](...args);
+};
+
+export const callLuaScript = ({
+  script,
+  args,
+  client,
+}: {
+  script: LuaScriptName;
+  args: (string | number)[];
+  client: Redis;
 }) => {
   return (client as any)[script](...args) as Promise<string | string[]>;
 };

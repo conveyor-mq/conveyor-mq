@@ -8,7 +8,7 @@ import {
   getQueuePausedKey,
   getPausedListKey,
 } from '../utils/keys';
-import { exec, callLuaScript } from '../utils/redis';
+import { exec, callLuaScriptMulti } from '../utils/redis';
 import { createTaskId } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
@@ -47,8 +47,8 @@ export const enqueueTasksMulti = async ({
     map(tasksToQueue, async (task) => {
       const taskKey = getTaskKey({ taskId: task.id, queue });
       const taskString = serializeTask(task);
-      return callLuaScript({
-        client: multi,
+      return callLuaScriptMulti({
+        multi,
         script: LuaScriptName.enqueueTask,
         args: [
           taskKey,
