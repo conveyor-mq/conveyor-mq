@@ -31,7 +31,7 @@ const benchmarks = {
         handlerTimeout = 0,
       }) => {
         const queue = 'conveyor-mq';
-        const manager = await createManager({
+        const manager = createManager({
           queue,
           redisConfig,
         });
@@ -42,7 +42,7 @@ const benchmarks = {
         );
         const { next, done } = countdown(numberOfTasks);
         const startTime = Date.now();
-        const worker = await createWorker({
+        const worker = createWorker({
           queue,
           redisConfig,
           concurrency,
