@@ -787,11 +787,11 @@ const worker = createWorker({
 
 ## Examples
 
-[Simple example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/simple-example)
+[Simple example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/simple-example)
 
-[Express example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/express-example)
+[Express example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/express-example)
 
-[Scheduled task example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/schedulted-task-example)
+[Scheduled task example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/scheduled-task-example)
 
 ## Roadmap
 
