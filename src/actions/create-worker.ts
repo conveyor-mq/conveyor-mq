@@ -5,6 +5,7 @@ import {
   clearIntervalAsync,
   SetIntervalAsyncTimer,
 } from 'set-interval-async/dynamic';
+import debugF from 'debug';
 import { RedisConfig, sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -33,6 +34,8 @@ import { EventType } from '../domain/events/event-type';
 import { Worker } from '../domain/workers/worker';
 import { serializeWorker } from '../domain/workers/serialize-worker';
 import { Task } from '../domain/tasks/task';
+
+const debug = debugF('conveyor-mq:worker');
 
 export const createWorker = ({
   // Queue name:
@@ -85,6 +88,7 @@ export const createWorker = ({
   removeOnSuccess?: boolean;
   removeOnFailed?: boolean;
 }) => {
+  debug('Starting');
   let isPausing = false;
   let isPaused = true;
   let isShuttingDown = false;
@@ -96,11 +100,13 @@ export const createWorker = ({
     createdAt: new Date(),
   };
 
+  debug('Starting promise queues');
   const takerQueue = new PQueue({ concurrency, autoStart });
   const workerQueue = new PQueue({ concurrency });
 
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
+  debug('Creating clients');
   const takerClientPromise = createClient({
     ...redisConfig,
     lazy: true,
@@ -114,6 +120,11 @@ export const createWorker = ({
   const takeAndProcessTask = async (t?: Task | null) => {
     const takerClient = await takerClientPromise;
     const workerClient = await workerClientPromise;
+    debug(
+      t
+        ? `Processing pre-fetched task ${t.id}`
+        : `Starting to check for tasks to process`,
+    );
     try {
       const task =
         t ||
@@ -128,10 +139,12 @@ export const createWorker = ({
           () => isActive(),
         ));
       if (task) {
+        debug(`Adding task to worker queue ${task.id}`);
         const nextTask = await workerQueue.add(async () =>
           tryIgnore(
-            () =>
-              processTask({
+            async () => {
+              debug(`Processing task ${task.id}`);
+              const theNextTask = await processTask({
                 task,
                 queue,
                 client: workerClient,
@@ -141,6 +154,12 @@ export const createWorker = ({
                   task.taskAcknowledgementInterval ||
                   defaultTaskAcknowledgementInterval ||
                   defaultStallTimeout / 2,
+                onAcknowledgeTask: ({ task: ackTask }) => {
+                  debug(`Acknowledging task ${ackTask}`);
+                },
+                onAcknowledgedTask: ({ task: ackTask }) => {
+                  debug(`Acknowledged task ${ackTask}`);
+                },
                 getRetryDelay,
                 onTaskSuccess,
                 onTaskError,
@@ -153,17 +172,23 @@ export const createWorker = ({
                   task.removeOnFailed !== undefined
                     ? task.removeOnFailed
                     : removeOnFailed,
-              }),
+              });
+              debug(`Processed task ${task.id}`);
+              return theNextTask;
+            },
             () => isActive(),
           ),
         );
         if (isActive()) {
+          debug('calling takeAndProcessTask with a next task');
           takerQueue.add(() => takeAndProcessTask(nextTask));
         }
       } else if (isActive()) {
+        debug('calling takeAndProcessTask without a next task');
         takerQueue.add(takeAndProcessTask);
       }
     } catch (e) {
+      debug('takeAndProcessTask error');
       if (onHandlerError) onHandlerError(e);
       console.error(e.toString());
       await sleep(1000);
@@ -175,6 +200,7 @@ export const createWorker = ({
 
   const upsertWorker = async () => {
     const client = await workerClientPromise;
+    debug('Upserting');
     await set({
       key: getWorkerKey({
         workerId: worker.id,
@@ -191,6 +217,7 @@ export const createWorker = ({
   }: {
     killProcessingTasks?: boolean;
   }) => {
+    debug('Pausing');
     if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
@@ -223,9 +250,11 @@ export const createWorker = ({
     ]);
     isPaused = true;
     isPausing = false;
+    debug('Paused');
   };
 
   const start = async () => {
+    debug('Starting');
     if (isShuttingDown || isShutdown) {
       throw new Error('Cannot start a shutdown worker.');
     }
@@ -256,6 +285,7 @@ export const createWorker = ({
         }),
         client: workerClient,
       });
+      debug('Started');
     }
   };
 
@@ -264,6 +294,7 @@ export const createWorker = ({
   }: {
     killProcessingTasks?: boolean;
   }) => {
+    debug('Shutting down');
     if (isShuttingDown || isShutdown) {
       throw new Error('Cannot shutdown an already shutdown worker.');
     }
@@ -299,12 +330,14 @@ export const createWorker = ({
     ]);
     isShutdown = true;
     isShuttingDown = false;
+    debug('Shutdown');
   };
 
   const ready = async () => {
     await Promise.all([takerClientPromise, workerClientPromise]);
     if (autoStart) await start();
     if (onReady) onReady();
+    debug('Ready');
   };
   const readyPromise = ready();
 
@@ -319,9 +352,11 @@ export const createWorker = ({
       return shutdown({ killProcessingTasks });
     },
     onReady: async () => {
+      debug('onReady');
       await readyPromise;
     },
     onIdle: async () => {
+      debug('onIdle');
       await Promise.all(map([takerQueue, workerQueue], (q) => q.onIdle()));
     },
   };

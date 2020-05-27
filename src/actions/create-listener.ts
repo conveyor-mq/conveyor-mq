@@ -1,4 +1,5 @@
 import { forEach } from 'lodash';
+import debugF from 'debug';
 import { RedisConfig } from '../utils/general';
 import { createClient } from '../utils/redis';
 import {
@@ -20,6 +21,8 @@ import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
 import { EventType } from '../domain/events/event-type';
 
+const debug = debugF('conveyor-mq:listener');
+
 export const createListener = ({
   queue,
   redisConfig,
@@ -27,6 +30,8 @@ export const createListener = ({
   queue: string;
   redisConfig: RedisConfig;
 }) => {
+  debug('Starting');
+  debug('Creating client');
   const clientPromise = createClient(redisConfig);
 
   const handlers: {
@@ -55,16 +60,25 @@ export const createListener = ({
     client.on('message', (channel, eventString) => {
       const event = deSerializeEvent(eventString);
       const handlersToCall = handlers[event.type];
+      debug(`Received message ${eventString} on channel ${channel}`);
       forEach(handlersToCall, (handler) => handler({ event }));
     });
+    debug('Registered message handler');
     const channels = Object.values(channelMap);
     await client.subscribe(channels);
+    debug('Client subscribed to channels');
   };
   const setupPromise = setupListener();
 
+  const ready = async () => {
+    await Promise.all([setupPromise, clientPromise]);
+    debug('Ready');
+  };
+  const readyPromise = ready();
+
   return {
     onReady: async () => {
-      await Promise.all([setupPromise, clientPromise]);
+      await readyPromise;
     },
     on: (eventType: EventType, f: ({ event }: { event: Event }) => any) => {
       handlers[eventType] = [...(handlers[eventType] || []), f];

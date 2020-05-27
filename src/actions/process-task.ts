@@ -28,6 +28,8 @@ export const processTask = async ({
   handler,
   stallTimeout,
   taskAcknowledgementInterval,
+  onAcknowledgeTask,
+  onAcknowledgedTask,
   getRetryDelay,
   onTaskSuccess,
   onTaskError,
@@ -41,6 +43,8 @@ export const processTask = async ({
   handler: Handler;
   stallTimeout: number;
   taskAcknowledgementInterval: number;
+  onAcknowledgeTask?: ({ task }: { task: Task }) => any;
+  onAcknowledgedTask?: ({ task }: { task: Task }) => any;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: TaskSuccessCb;
   onTaskError?: TaskErrorCb;
@@ -49,12 +53,14 @@ export const processTask = async ({
   removeOnFailed?: boolean;
 }): Promise<Task | null> => {
   const timer = setIntervalAsync(async () => {
+    if (onAcknowledgeTask) onAcknowledgeTask({ task });
     await acknowledgeTask({
       taskId: task.id,
       queue,
       client,
       ttl: stallTimeout,
     });
+    if (onAcknowledgedTask) onAcknowledgedTask({ task });
   }, taskAcknowledgementInterval);
   const multi = client.multi();
   const response = await handleTaskMulti({

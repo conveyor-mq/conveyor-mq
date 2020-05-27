@@ -1,6 +1,6 @@
 {
   "name": "conveyor-mq",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "A fast, robust and extensible distributed task/job queue for Node.js",
   "scripts": {
     "clean": "rm -rf ./dist",
@@ -36,10 +36,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@types/debug": "^4.1.5",
     "@types/ioredis": "^4.16.2",
     "@types/lodash": "^4.14.152",
     "@types/set-interval-async": "^1.0.0",
     "@types/uuid": "^7.0.4",
+    "debug": "^4.1.1",
     "ioredis": "^4.17.1",
     "lodash": "^4.17.15",
     "moment": "^2.26.0",
