@@ -27,11 +27,13 @@ describe('getWorkers', () => {
       redisConfig,
       handler: () => 'some-result',
     });
+    await worker.onReady();
     const worker2 = await createWorker({
       queue,
       redisConfig,
       handler: () => 'some-result',
     });
+    await worker2.onReady();
 
     const workers = await getWorkers({ queue, client });
     expect(workers.length).toBe(2);

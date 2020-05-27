@@ -9,24 +9,20 @@ A fast, robust and extensible distributed task/job queue for Node.js, powered by
 ```js
 import { createManager, createWorker } from 'conveyor-mq';
 
-const main = async () => {
-  const queueName = 'my-queue';
-  const redisConfig = { host: '127.0.0.1', port: 6379 };
+const queueName = 'my-queue';
+const redisConfig = { host: '127.0.0.1', port: 6379 };
 
-  const manager = await createManager({ queue: queueName, redisConfig });
-  await manager.enqueueTask({ data: { x: 1, y: 2 } });
+const manager = createManager({ queue: queueName, redisConfig });
+manager.enqueueTask({ data: { x: 1, y: 2 } });
 
-  const worker = await createWorker({
-    queue: queueName,
-    redisConfig,
-    handler: ({ task }) => {
-      console.log(`Processing task: ${task.id}`);
-      return task.x + task.y;
-    },
-  });
-};
-
-main();
+const worker = createWorker({
+  queue: queueName,
+  redisConfig,
+  handler: ({ task }) => {
+    console.log(`Processing task: ${task.id}`);
+    return task.x + task.y;
+  },
+});
 ```
 
 ## Introduction
@@ -109,41 +105,37 @@ import {
 const redisConfig = { host: '127.0.0.1', port: 6379 };
 const queue = 'myQueue';
 
-const main = async () => {
-  // Create a manager which is used to add tasks to the queue, and query various properties of a queue:
-  const manager = await createManager({ queue, redisConfig });
+// Create a manager which is used to add tasks to the queue, and query various properties of a queue:
+const manager = createManager({ queue, redisConfig });
 
-  // Add a task to the queue by calling manager.enqueueTask:
-  const task = { data: { x: 1, y: 2 } };
-  await manager.enqueueTask(task);
+// Add a task to the queue by calling manager.enqueueTask:
+const task = { data: { x: 1, y: 2 } };
+manager.enqueueTask(task);
 
-  // Schedule a task to be added to the queue later by calling manager.scheduleTask:
-  const scheduledTask = {
-    data: { x: 1, y: 2 },
-    enqueueAfter: new Date('2020-05-03'),
-  };
-  await manager.enqueueTask(scheduledTask);
-
-  // Create a listener and subscribe to the task_complete event:
-  const listener = await createListener({ queue, redisConfig });
-  listener.on('task_complete', ({ event }) =>
-    console.log('Task complete:', event.task.id),
-  );
-
-  // Create a worker which will process tasks on the queue:
-  const worker = await createWorker({
-    queue,
-    redisConfig,
-    handler: ({ task }) => {
-      return task.data.x + task.data.y;
-    },
-  });
-
-  // Create an orchestrator to monitor the queue for stalled tasks, and enqueue scheduled tasks:
-  const orchestrator = await createOrchestrator({ queue, redisConfig });
+// Schedule a task to be added to the queue later by calling manager.scheduleTask:
+const scheduledTask = {
+  data: { x: 1, y: 2 },
+  enqueueAfter: new Date('2020-05-03'),
 };
+manager.enqueueTask(scheduledTask);
 
-main();
+// Create a listener and subscribe to the task_complete event:
+const listener = createListener({ queue, redisConfig });
+listener.on('task_complete', ({ event }) =>
+  console.log('Task complete:', event.task.id),
+);
+
+// Create a worker which will process tasks on the queue:
+const worker = createWorker({
+  queue,
+  redisConfig,
+  handler: ({ task }) => {
+    return task.data.x + task.data.y;
+  },
+});
+
+// Create an orchestrator to monitor the queue for stalled tasks, and enqueue scheduled tasks:
+const orchestrator = createOrchestrator({ queue, redisConfig });
 ```
 
 ## Overview
@@ -198,7 +190,7 @@ For more information, see [createManager](https://jasrusable.github.io/conveyor-
 import { createManager } from 'conveyor-mq';
 
 // Create a manager instance:
-const manager = await createManager({
+const manager = createManager({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
 });
@@ -263,7 +255,7 @@ const myTask = {
   taskAcknowledgementInterval: 1000,
 };
 
-const manager = await createManager({
+const manager = createManager({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
 });
@@ -355,7 +347,7 @@ For more information, see [createWorker](https://jasrusable.github.io/conveyor-m
 import { createWorker } from 'conveyor-mq';
 
 // Create a worker which will start monitoring the queue for tasks and process them:
-const worker = await createWorker({
+const worker = createWorker({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
   // Pass a handler which receives tasks, processes them, and then returns the result of a task:
@@ -374,7 +366,7 @@ A worker can paused and resumed by calling `worker.pause` and `worker.start` res
 ```js
 import { createWorker } from 'conveyor-mq';
 
-const worker = await createWorker({
+const worker = createWorker({
   // Queue name:
   queue: 'my-queue',
 
@@ -443,7 +435,7 @@ For more information, see [createOrchestrator](https://jasrusable.github.io/conv
 import { createOrchestrator } from 'conveyor-mq';
 
 // Create an orchestrator:
-const orchestrator = await createOrchestrator({
+const orchestrator = createOrchestrator({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
 });
@@ -495,7 +487,7 @@ For more information, see [createListener](https://jasrusable.github.io/conveyor
 import { createListener } from 'conveyor-mq';
 
 // Create a listener:
-const listener = await createListener({
+const listener = createListener({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
 });
@@ -507,8 +499,6 @@ listener.on('task_complete', ({ event }) => {
 ```
 
 ## API Reference
-
-The API Reference can be found [here](https://jasrusable.github.io/conveyor-mq/)
 
 ### Manager
 
@@ -540,7 +530,7 @@ Returns a promise which resolves with a manager instance.
 ```js
 import { createManager } from 'conveyor-mq';
 
-const manager = await createManager({
+const manager = createManager({
   queue: 'my-queue', // Queue name.
   redisConfig: { host: 'localhost', port: 6379 }, // Redis configuration.
 });
@@ -720,7 +710,7 @@ The handler should return a promise which should resolve if the task was success
 import { createWorker } from 'conveyor-mq';
 
 // Create a worker which will start monitoring the queue for tasks and process them:
-const worker = await createWorker({
+const worker = createWorker({
   queue: 'my-queue',
   redisConfig: { host: 'localhost', port: 6379 },
   // Pass a handler which receives tasks, processes them, and then returns the result of a task:
@@ -735,7 +725,7 @@ All worker params:
 ```js
 import { createWorker } from 'conveyor-mq';
 
-const worker = await createWorker({
+const worker = createWorker({
   // Queue name:
   queue: 'my-queue',
 
@@ -797,9 +787,11 @@ const worker = await createWorker({
 
 ## Examples
 
-### [Simple example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/simple-example.ts)
+[Simple example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/simple-example)
 
-### [Scheduled task example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/schedulted-task-example.ts)
+[Express example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/express-example)
+
+[Scheduled task example](https://github.com/jasrusable/conveyor-mq/blob/master/examples/schedulted-task-example)
 
 ## Roadmap
 

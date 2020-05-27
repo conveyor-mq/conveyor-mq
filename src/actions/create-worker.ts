@@ -34,7 +34,7 @@ import { Worker } from '../domain/workers/worker';
 import { serializeWorker } from '../domain/workers/serialize-worker';
 import { Task } from '../domain/tasks/task';
 
-export const createWorker = async ({
+export const createWorker = ({
   // Queue name:
   queue,
   // Redis configuration:
@@ -101,16 +101,19 @@ export const createWorker = async ({
 
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
-  const [takerClient, workerClient] = await Promise.all([
-    // Disable enableReadyCheck as a workaround for handling client disconnect/reconnect
-    createClient({ ...redisConfig, lazy: true, enableReadyCheck: false }),
-    createClient({ ...redisConfig, lazy: true }),
-  ]);
+  const takerClientPromise = createClient({
+    ...redisConfig,
+    lazy: true,
+    enableReadyCheck: false,
+  });
+  const workerClientPromise = createClient({ ...redisConfig, lazy: true });
 
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
 
   const takeAndProcessTask = async (t?: Task | null) => {
+    const takerClient = await takerClientPromise;
+    const workerClient = await workerClientPromise;
     try {
       const task =
         t ||
@@ -171,25 +174,32 @@ export const createWorker = async ({
   };
 
   const upsertWorker = async () => {
+    const client = await workerClientPromise;
     await set({
       key: getWorkerKey({
         workerId: worker.id,
         queue,
       }),
-      client: workerClient,
+      client,
       value: serializeWorker(worker),
       ttl: 30000,
     });
   };
 
-  const pause = async (params?: { killProcessingTasks?: boolean }) => {
+  const pause = async ({
+    killProcessingTasks,
+  }: {
+    killProcessingTasks?: boolean;
+  }) => {
     if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
+    const takerClient = await takerClientPromise;
+    const workerClient = await workerClientPromise;
     isPausing = true;
     await clearIntervalAsync(upsertInterval);
     forEach(
-      params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+      killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
       (q) => {
         q.pause();
         q.clear();
@@ -206,9 +216,7 @@ export const createWorker = async ({
     });
     await Promise.all([
       ...map(
-        params?.killProcessingTasks
-          ? [takerClient, workerClient]
-          : [takerClient],
+        killProcessingTasks ? [takerClient, workerClient] : [takerClient],
         (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),
@@ -224,6 +232,8 @@ export const createWorker = async ({
     if (isPausing) {
       throw new Error('Cannot start a pausing worker.');
     }
+    const takerClient = await takerClientPromise;
+    const workerClient = await workerClientPromise;
     if (isPaused) {
       forEach([workerQueue, takerQueue], (q) => q.start());
       await Promise.all(
@@ -232,7 +242,7 @@ export const createWorker = async ({
         ),
       );
       await upsertWorker();
-      upsertInterval = setIntervalAsync(async () => upsertWorker(), 15000);
+      upsertInterval = setIntervalAsync(upsertWorker, 15000);
       takerQueue.addAll(
         map(Array.from({ length: concurrency }), () => takeAndProcessTask),
       );
@@ -249,17 +259,23 @@ export const createWorker = async ({
     }
   };
 
-  const shutdown = async (params?: { killProcessingTasks?: boolean }) => {
+  const shutdown = async ({
+    killProcessingTasks,
+  }: {
+    killProcessingTasks?: boolean;
+  }) => {
     if (isShuttingDown || isShutdown) {
       throw new Error('Cannot shutdown an already shutdown worker.');
     }
     if (isPausing) {
       throw new Error('Cannot shutdown a pausing worker.');
     }
+    const takerClient = await takerClientPromise;
+    const workerClient = await workerClientPromise;
     isShuttingDown = true;
     await clearIntervalAsync(upsertInterval);
     forEach(
-      params?.killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+      killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
       (q) => {
         q.pause();
         q.clear();
@@ -276,9 +292,7 @@ export const createWorker = async ({
     });
     await Promise.all([
       ...map(
-        params?.killProcessingTasks
-          ? [takerClient, workerClient]
-          : [takerClient],
+        killProcessingTasks ? [takerClient, workerClient] : [takerClient],
         (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),
@@ -287,14 +301,28 @@ export const createWorker = async ({
     isShuttingDown = false;
   };
 
-  if (onReady) onReady();
-  if (autoStart) await start();
+  const ready = async () => {
+    await Promise.all([takerClientPromise, workerClientPromise]);
+    if (autoStart) await start();
+    if (onReady) onReady();
+  };
+  const readyPromise = ready();
 
   return {
-    pause,
-    start,
-    shutdown,
-    onIdle: () =>
-      Promise.all(map([takerQueue, workerQueue], (q) => q.onIdle())),
+    pause: async (killProcessingTasks?: boolean) => {
+      await readyPromise;
+      return pause({ killProcessingTasks });
+    },
+    start: () => start(),
+    shutdown: async (killProcessingTasks?: boolean) => {
+      await readyPromise;
+      return shutdown({ killProcessingTasks });
+    },
+    onReady: async () => {
+      await readyPromise;
+    },
+    onIdle: async () => {
+      await Promise.all(map([takerQueue, workerQueue], (q) => q.onIdle()));
+    },
   };
 };

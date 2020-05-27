@@ -30,7 +30,7 @@ describe('createWorker', () => {
   it('createWorker shutdown shuts down worker', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: ({ task }) => {
@@ -39,12 +39,13 @@ describe('createWorker', () => {
         return 'some data';
       },
     });
+    await worker.onReady();
     await worker.shutdown();
   });
   it('createWorker processes task', async () => {
     const theTask = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task: theTask, client });
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: ({ task }) => {
@@ -53,6 +54,7 @@ describe('createWorker', () => {
         return 'some data';
       },
     });
+    await worker.onReady();
     await sleep(50);
     const processedTask = (await getTaskById({
       queue,
@@ -115,13 +117,15 @@ describe('createWorker', () => {
   it('createWorker pause pauses worker', async () => {
     const taskA = { id: 'a', data: 'c' };
     const taskB = { id: 'b', data: 'c' };
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
         return 'some data';
       },
     });
+    await worker.onReady();
+
     await enqueueTask({
       queue,
       task: taskA,
@@ -167,7 +171,7 @@ describe('createWorker', () => {
   });
   it('createWorker handles autoStart false', async () => {
     const theTask = { id: 'b', data: 'c' };
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       autoStart: false,
@@ -177,6 +181,7 @@ describe('createWorker', () => {
         return 'some data';
       },
     });
+    await worker.onReady();
     await enqueueTask({
       queue,
       task: theTask,
@@ -198,13 +203,14 @@ describe('createWorker', () => {
     const startedPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerStarted, ({ event }) => resolve(event));
     }) as Promise<Event>;
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
         return 'some data';
       },
     });
+    await worker.onReady();
     const startedEvent = await startedPromise;
     await expect(typeof startedEvent?.worker?.id).toBe('string');
     await expect(typeof startedEvent?.worker?.createdAt).toBe('object');
@@ -216,7 +222,7 @@ describe('createWorker', () => {
     const pausedPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerPaused, ({ event }) => resolve(event));
     }) as Promise<Event>;
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
@@ -235,7 +241,7 @@ describe('createWorker', () => {
     const shutdownPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerShutdown, ({ event }) => resolve(event));
     }) as Promise<Event>;
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {

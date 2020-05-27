@@ -9,7 +9,7 @@ import { createClient, quit as redisQuit } from '../utils/redis';
 import { RedisConfig } from '../utils/general';
 import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
 
-export const createOrchestrator = async ({
+export const createOrchestrator = ({
   queue,
   redisConfig,
   stalledCheckInterval = 1000,
@@ -22,9 +22,10 @@ export const createOrchestrator = async ({
   delayedTasksCheckInterval?: number;
   defaultStallTimeout?: number;
 }) => {
-  const client = await createClient(redisConfig);
+  const clientPromise = createClient(redisConfig);
 
   const processStalledTasks = async () => {
+    const client = await clientPromise;
     try {
       await acknowledgeOrphanedProcessingTasks({
         queue,
@@ -36,24 +37,26 @@ export const createOrchestrator = async ({
       console.error(e.toString());
     }
   };
-  const stalledTimer = await setIntervalAsync(
-    () => processStalledTasks(),
+  const stalledTimer = setIntervalAsync(
+    processStalledTasks,
     stalledCheckInterval,
   );
 
   const enqueueScheduledTasks = async () => {
+    const client = await clientPromise;
     try {
       await enqueueScheduledTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
   };
-  const enqueueDelayedTasksTimer = await setIntervalAsync(
-    () => enqueueScheduledTasks(),
+  const enqueueDelayedTasksTimer = setIntervalAsync(
+    enqueueScheduledTasks,
     delayedTasksCheckInterval,
   );
 
   const quit = async () => {
+    const client = await clientPromise;
     await Promise.all([
       redisQuit({ client }),
       map([stalledTimer, enqueueDelayedTasksTimer], (timer) =>
@@ -62,5 +65,10 @@ export const createOrchestrator = async ({
     ]);
   };
 
-  return { quit };
+  return {
+    onReady: async () => {
+      await clientPromise;
+    },
+    quit,
+  };
 };

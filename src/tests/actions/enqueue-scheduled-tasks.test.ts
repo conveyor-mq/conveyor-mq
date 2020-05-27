@@ -58,7 +58,8 @@ describe('enqueueScheduledTasks', () => {
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks triggers taskQueued event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
+    await listener.onReady();
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskQueued, () =>
         resolve('task-queue-event-called'),

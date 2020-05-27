@@ -1,6 +1,6 @@
 import { Redis, Pipeline } from 'ioredis';
 import moment from 'moment';
-import { callLuaScript, exec } from '../utils/redis';
+import { exec, callLuaScriptMulti } from '../utils/redis';
 import {
   getQueuedListKey,
   getProcessingListKey,
@@ -26,8 +26,8 @@ export const takeTaskMulti = async ({
   multi: Pipeline;
   stallTimeout?: number;
 }): Promise<void> => {
-  await callLuaScript({
-    client: multi,
+  await callLuaScriptMulti({
+    multi,
     script: LuaScriptName.takeTask,
     args: [
       getQueuedListKey({ queue }),
