@@ -1,4 +1,4 @@
-import { forEach } from 'lodash';
+import { forEach, pickBy } from 'lodash';
 import debugF from 'debug';
 import { RedisConfig } from '../utils/general';
 import { createClient } from '../utils/redis';
@@ -26,9 +26,11 @@ const debug = debugF('conveyor-mq:listener');
 export const createListener = ({
   queue,
   redisConfig,
+  events,
 }: {
   queue: string;
   redisConfig: RedisConfig;
+  events?: EventType[];
 }) => {
   debug('Starting');
   debug('Creating client');
@@ -64,7 +66,13 @@ export const createListener = ({
       forEach(handlersToCall, (handler) => handler({ event }));
     });
     debug('Registered message handler');
-    const channels = Object.values(channelMap);
+    const channels = Object.values(
+      events
+        ? pickBy(channelMap, (channel, eventType) =>
+            events.includes(eventType as EventType),
+          )
+        : channelMap,
+    );
     await client.subscribe(channels);
     debug('Client subscribed to channels');
   };
