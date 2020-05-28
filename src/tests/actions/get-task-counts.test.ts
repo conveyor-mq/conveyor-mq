@@ -1,5 +1,9 @@
 import { Redis } from 'ioredis';
-import { flushAll, quit, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { takeTask } from '../../actions/take-task';
@@ -14,8 +18,8 @@ describe('getTaskCounts', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

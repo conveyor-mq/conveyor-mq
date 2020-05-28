@@ -1,16 +1,16 @@
 import RedisClient, { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
-import { loadScripts, LuaScriptName } from '../lua';
+import { loadLuaScripts, LuaScriptName } from '../lua';
 
-export const createClient = async ({
+export const createClientAndLoadLuaScripts = ({
   host,
   port,
-  lazy: lazyConnect,
+  lazyConnect,
   enableReadyCheck,
 }: {
   host: string;
   port: number;
-  lazy?: boolean;
+  lazyConnect?: boolean;
   enableReadyCheck?: boolean;
 }) => {
   const client = new RedisClient({
@@ -20,7 +20,7 @@ export const createClient = async ({
     maxRetriesPerRequest: null,
     enableReadyCheck,
   });
-  const updatedClient = await loadScripts({ client });
+  const updatedClient = loadLuaScripts({ client });
   return updatedClient;
 };
 

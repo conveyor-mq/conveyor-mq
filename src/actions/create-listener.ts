@@ -1,7 +1,6 @@
 import { forEach, pickBy } from 'lodash';
 import debugF from 'debug';
 import { RedisConfig } from '../utils/general';
-import { createClient } from '../utils/redis';
 import {
   getQueueTaskQueuedChannel,
   getQueueTaskProcessingChannel,
@@ -20,6 +19,7 @@ import {
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
 import { EventType } from '../domain/events/event-type';
+import { createClientAndLoadLuaScripts } from '../utils/redis';
 
 const debug = debugF('conveyor-mq:listener');
 
@@ -34,7 +34,7 @@ export const createListener = ({
 }) => {
   debug('Starting');
   debug('Creating client');
-  const clientPromise = createClient(redisConfig);
+  const client = createClientAndLoadLuaScripts(redisConfig);
 
   const handlers: {
     [key: string]: (({ event }: { event: Event }) => any)[];
@@ -58,7 +58,6 @@ export const createListener = ({
       [EventType.WorkerPaused]: getWorkerPausedChannel({ queue }),
       [EventType.WorkerShutdown]: getWorkerShutdownChannel({ queue }),
     };
-    const client = await clientPromise;
     client.on('message', (channel, eventString) => {
       const event = deSerializeEvent(eventString);
       const handlersToCall = handlers[event.type];
@@ -79,7 +78,7 @@ export const createListener = ({
   const setupPromise = setupListener();
 
   const ready = async () => {
-    await Promise.all([setupPromise, clientPromise]);
+    await Promise.all([setupPromise]);
     debug('Ready');
   };
   const readyPromise = ready();

@@ -1,6 +1,11 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
-import { flushAll, quit, createClient, zrangebyscore } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+  zrangebyscore,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
@@ -13,8 +18,8 @@ describe('scheduleTask', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

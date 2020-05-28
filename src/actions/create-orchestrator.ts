@@ -6,7 +6,10 @@ import debugF from 'debug';
 import { map } from 'lodash';
 import { processStalledTasks as processStalledTasksAction } from './process-stalled-tasks';
 import { enqueueScheduledTasks as enqueueScheduledTasksAction } from './enqueue-scheduled-tasks';
-import { createClient, quit as redisQuit } from '../utils/redis';
+import {
+  quit as redisQuit,
+  createClientAndLoadLuaScripts,
+} from '../utils/redis';
 import { RedisConfig } from '../utils/general';
 import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
 
@@ -27,10 +30,9 @@ export const createOrchestrator = ({
 }) => {
   debug('Starting');
   debug('Creating client');
-  const clientPromise = createClient(redisConfig);
+  const client = createClientAndLoadLuaScripts(redisConfig);
 
   const processStalledTasks = async () => {
-    const client = await clientPromise;
     try {
       await acknowledgeOrphanedProcessingTasks({
         queue,
@@ -50,7 +52,6 @@ export const createOrchestrator = ({
   );
 
   const enqueueScheduledTasks = async () => {
-    const client = await clientPromise;
     try {
       await enqueueScheduledTasksAction({ queue, client });
       debug('enqueueScheduledTasks');
@@ -64,7 +65,6 @@ export const createOrchestrator = ({
   );
 
   const quit = async () => {
-    const client = await clientPromise;
     debug('quit');
     await Promise.all([
       redisQuit({ client }),
@@ -75,7 +75,6 @@ export const createOrchestrator = ({
   };
 
   const ready = async () => {
-    await clientPromise;
     debug('Ready');
   };
   const readyPromise = ready();

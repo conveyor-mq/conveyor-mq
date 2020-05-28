@@ -1,6 +1,10 @@
 import { Redis } from 'ioredis';
 import { map, forEach } from 'lodash';
-import { flushAll, quit, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
@@ -13,8 +17,8 @@ describe('createManager', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

@@ -2,7 +2,12 @@ import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { markTaskSuccess } from '../../actions/mark-task-success';
-import { flushAll, quit, createClient, lrange } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+  lrange,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
@@ -14,8 +19,8 @@ describe('markTaskSuccessful', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

@@ -15,12 +15,12 @@ import {
   Handler,
 } from './handle-task';
 import {
-  createClient,
   ensureConnected,
   tryIgnore,
   ensureDisconnected,
   publish,
   set,
+  createClientAndLoadLuaScripts,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import { processTask } from './process-task';
@@ -107,19 +107,16 @@ export const createWorker = ({
   if (onIdle) workerQueue.on('idle', debounce(onIdle, idleTimeout));
 
   debug('Creating clients');
-  const takerClientPromise = createClient({
+  const takerClient = createClientAndLoadLuaScripts({
     ...redisConfig,
-    lazy: true,
     enableReadyCheck: false,
   });
-  const workerClientPromise = createClient({ ...redisConfig, lazy: true });
+  const workerClient = createClientAndLoadLuaScripts(redisConfig);
 
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
 
   const takeAndProcessTask = async (t?: Task | null) => {
-    const takerClient = await takerClientPromise;
-    const workerClient = await workerClientPromise;
     debug(
       t
         ? `Processing pre-fetched task ${t.id}`
@@ -199,14 +196,13 @@ export const createWorker = ({
   };
 
   const upsertWorker = async () => {
-    const client = await workerClientPromise;
     debug('Upserting');
     await set({
       key: getWorkerKey({
         workerId: worker.id,
         queue,
       }),
-      client,
+      client: workerClient,
       value: serializeWorker(worker),
       ttl: 30000,
     });
@@ -221,8 +217,6 @@ export const createWorker = ({
     if (isShutdown || isShuttingDown) {
       throw new Error('Cannot pause a shutdown worker.');
     }
-    const takerClient = await takerClientPromise;
-    const workerClient = await workerClientPromise;
     isPausing = true;
     await clearIntervalAsync(upsertInterval);
     forEach(
@@ -261,8 +255,6 @@ export const createWorker = ({
     if (isPausing) {
       throw new Error('Cannot start a pausing worker.');
     }
-    const takerClient = await takerClientPromise;
-    const workerClient = await workerClientPromise;
     if (isPaused) {
       forEach([workerQueue, takerQueue], (q) => q.start());
       await Promise.all(
@@ -301,8 +293,6 @@ export const createWorker = ({
     if (isPausing) {
       throw new Error('Cannot shutdown a pausing worker.');
     }
-    const takerClient = await takerClientPromise;
-    const workerClient = await workerClientPromise;
     isShuttingDown = true;
     await clearIntervalAsync(upsertInterval);
     forEach(
@@ -334,7 +324,6 @@ export const createWorker = ({
   };
 
   const ready = async () => {
-    await Promise.all([takerClientPromise, workerClientPromise]);
     if (autoStart) await start();
     if (onReady) onReady();
     debug('Ready');

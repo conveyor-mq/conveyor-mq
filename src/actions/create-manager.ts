@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { forEach, map, set } from 'lodash';
 import debugF from 'debug';
-import { Redis } from 'ioredis';
 import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
-import { createClient, ensureDisconnected } from '../utils/redis';
+import {
+  ensureDisconnected,
+  createClientAndLoadLuaScripts,
+} from '../utils/redis';
 import { getTaskById } from './get-task-by-id';
 import { getTasksById } from './get-tasks-by-id';
 import { RedisConfig } from '../utils/general';
@@ -41,7 +43,7 @@ export const createManager = ({
 }) => {
   debug('Starting');
   debug('Creating client');
-  const clientPromise = createClient(redisConfig);
+  const client = createClientAndLoadLuaScripts(redisConfig);
 
   const eventSubscriptions: {
     [key: string]: { [key: string]: ({ event }: { event: Event }) => any };
@@ -73,13 +75,7 @@ export const createManager = ({
   };
   const listenerSetupPromise = setupListener();
 
-  const onTaskComplete = async ({
-    taskId,
-    client,
-  }: {
-    taskId: string;
-    client: Redis;
-  }) => {
+  const onTaskComplete = async ({ taskId }: { taskId: string }) => {
     const promise = new Promise((resolve) => {
       set(
         eventSubscriptions,
@@ -101,56 +97,48 @@ export const createManager = ({
 
   const enqueueTasks = async ({
     tasks,
-    client,
   }: {
     tasks: Partial<Task>[];
-    client: Redis;
   }): Promise<TaskResponse[]> => {
     const enqueuedTasks = await enqueueTasksAction({ queue, tasks, client });
     return map(enqueuedTasks, (task) => ({
       task,
-      onTaskComplete: () => onTaskComplete({ taskId: task.id, client }),
+      onTaskComplete: () => onTaskComplete({ taskId: task.id }),
     }));
   };
 
   const enqueueTask = async ({
     task,
-    client,
   }: {
     task: Partial<Task>;
-    client: Redis;
   }): Promise<TaskResponse> => {
-    const [result] = await enqueueTasks({ tasks: [task], client });
+    const [result] = await enqueueTasks({ tasks: [task] });
     return result;
   };
 
   const scheduleTasks = async ({
     tasks,
-    client,
   }: {
     tasks: Partial<Task>[];
-    client: Redis;
   }): Promise<TaskResponse[]> => {
     const scheduledTasks = await scheduleTasksAction({ tasks, queue, client });
     return map(scheduledTasks, (task) => ({
       task,
-      onTaskComplete: () => onTaskComplete({ taskId: task.id, client }),
+      onTaskComplete: () => onTaskComplete({ taskId: task.id }),
     }));
   };
 
   const scheduleTask = async ({
     task,
-    client,
   }: {
     task: Partial<Task>;
-    client: Redis;
   }): Promise<TaskResponse> => {
-    const [result] = await scheduleTasks({ tasks: [task], client });
+    const [result] = await scheduleTasks({ tasks: [task] });
     return result;
   };
 
   const ready = async () => {
-    await Promise.all([clientPromise, listenerSetupPromise]);
+    await Promise.all([listenerSetupPromise]);
     debug('Ready');
   };
   const readyPromise = ready();
@@ -158,89 +146,75 @@ export const createManager = ({
   return {
     enqueueTask: async (task: Partial<Task>) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`enqueueTask ${task}`);
-      return enqueueTask({ task, client });
+      return enqueueTask({ task });
     },
     enqueueTasks: async (tasks: Partial<Task>[]) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`enqueueTasks ${tasks}`);
-      return enqueueTasks({ tasks, client });
+      return enqueueTasks({ tasks });
     },
     scheduleTask: async (task: Partial<Task>) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`scheduleTask ${task}`);
-      return scheduleTask({ task, client });
+      return scheduleTask({ task });
     },
     scheduleTasks: async (tasks: Partial<Task>[]) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`scheduleTasks ${tasks}`);
-      return scheduleTasks({ tasks, client });
+      return scheduleTasks({ tasks });
     },
     onTaskComplete: async (taskId: string) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`onTaskComplete ${taskId}`);
-      return onTaskComplete({ taskId, client });
+      return onTaskComplete({ taskId });
     },
     getTaskById: async (taskId: string) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`getTaskById ${taskId}`);
       return getTaskById({ queue, taskId, client });
     },
     getTasksById: async (taskIds: string[]) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`getTasksById ${taskIds}`);
       return getTasksById({ queue, taskIds, client });
     },
     getTaskCounts: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`getTaskCounts`);
       return getTaskCounts({ queue, client });
     },
     getWorkers: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`getWorkers`);
       return getWorkers({ queue, client });
     },
     removeTaskById: async (taskId: string) => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`removeTaskById ${taskId}`);
       return removeTaskById({ taskId, queue, client });
     },
     destroyQueue: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`destroyQueue`);
       return destroyQueue({ queue, client });
     },
     pauseQueue: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`pauseQueue`);
       return pauseQueue({ queue, client });
     },
     resumeQueue: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`resumeQueue`);
       return resumeQueue({ queue, client });
     },
     onReady: async () => {
+      await readyPromise;
       debug(`onReady`);
-      await Promise.all([clientPromise, listenerSetupPromise]);
     },
     quit: async () => {
       await readyPromise;
-      const client = await clientPromise;
       debug(`quit`);
       return ensureDisconnected({ client });
     },

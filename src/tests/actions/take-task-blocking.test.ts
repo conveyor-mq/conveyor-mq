@@ -3,7 +3,11 @@ import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
 import { takeTaskBlocking } from '../../actions/take-task-blocking';
 import { isTaskStalled } from '../../actions/is-task-stalled';
-import { flushAll, quit, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { TaskStatus } from '../../domain/tasks/task-status';
@@ -12,8 +16,8 @@ describe('takeTaskBlocking', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

@@ -1,6 +1,11 @@
 import { Redis } from 'ioredis';
 import { isTaskStalled } from '../../actions/is-task-stalled';
-import { flushAll, quit, createClient, rpoplpush } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+  rpoplpush,
+} from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { redisConfig } from '../config';
@@ -11,8 +16,8 @@ describe('acknowledgeOrphanedProcessingTasks', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

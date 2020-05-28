@@ -1,6 +1,10 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
-import { flushAll, quit, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { takeTask } from '../../actions/take-task';
 import { redisConfig } from '../config';
@@ -15,8 +19,8 @@ describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

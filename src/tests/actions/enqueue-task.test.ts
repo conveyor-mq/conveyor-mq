@@ -1,6 +1,11 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { flushAll, quit, lrange, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  lrange,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { getTaskById } from '../../actions/get-task-by-id';
 import { getQueuedListKey } from '../../utils/keys';
@@ -15,8 +20,8 @@ describe('enqueueTask', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {

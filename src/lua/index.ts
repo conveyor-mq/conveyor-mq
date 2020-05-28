@@ -1,10 +1,7 @@
 import fs from 'fs';
-import util from 'util';
 import path from 'path';
 import { Redis } from 'ioredis';
-import { map } from 'lodash';
-
-const readFile = util.promisify(fs.readFile);
+import { forEach } from 'lodash';
 
 export enum LuaScriptName {
   takeTask = 'takeTask',
@@ -16,7 +13,7 @@ export enum LuaScriptName {
   enqueueTask = 'enqueueTask',
 }
 
-export const loadScripts = async ({ client }: { client: Redis }) => {
+export const loadLuaScripts = ({ client }: { client: Redis }) => {
   const commandDefinitions = [
     {
       name: LuaScriptName.enqueueTask,
@@ -54,11 +51,9 @@ export const loadScripts = async ({ client }: { client: Redis }) => {
       numberOfKeys: 5,
     },
   ];
-  await Promise.all(
-    map(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {
-      const script = await readFile(path.join(__dirname, filePath), 'utf8');
-      client.defineCommand(name, { numberOfKeys, lua: script });
-    }),
-  );
+  forEach(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {
+    const script = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
+    client.defineCommand(name, { numberOfKeys, lua: script });
+  });
   return client;
 };

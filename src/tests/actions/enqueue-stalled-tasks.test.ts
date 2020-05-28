@@ -1,6 +1,10 @@
 import { Redis } from 'ioredis';
 import { isTaskStalled } from '../../actions/is-task-stalled';
-import { flushAll, quit, createClient } from '../../utils/redis';
+import {
+  flushAll,
+  quit,
+  createClientAndLoadLuaScripts,
+} from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { takeTask } from '../../actions/take-task';
@@ -14,8 +18,8 @@ describe('enqueueStalledTasks', () => {
   const queue = createUuid();
   let client: Redis;
 
-  beforeAll(async () => {
-    client = await createClient(redisConfig);
+  beforeAll(() => {
+    client = createClientAndLoadLuaScripts(redisConfig);
   });
 
   beforeEach(async () => {
