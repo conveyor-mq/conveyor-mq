@@ -6,6 +6,12 @@ A fast, robust and extensible distributed task/job queue for Node.js, powered by
 ![npm](https://img.shields.io/npm/v/conveyor-mq)
 [![Coverage Status](https://coveralls.io/repos/github/jasrusable/conveyor-mq/badge.svg?branch=master)](https://coveralls.io/github/jasrusable/conveyor-mq?branch=master)
 
+## Introduction
+
+Conveyor MQ is a general purpose, distributed task/job queue for Node.js, powered by Redis.
+
+Conveyor MQ implements a [reliable queue](https://redis.io/commands/rpoplpush#pattern-reliable-queue) which provides strong guarantees around the reliability of tasks in the event of network or server errors, for example. Conveyor MQ offers [at-least-once](https://www.cloudcomputingpatterns.org/at_least_once_delivery/) and [exactly-once](https://www.cloudcomputingpatterns.org/exactly_once_delivery/) task delivery through the use of error or stall task retries. Conveyor MQ is implemented using a highly efficient and performant, polling-free design making use of [`brpoplpush`](https://redis.io/commands/brpoplpush) from Redis.
+
 ```js
 import { createManager, createWorker } from 'conveyor-mq';
 
@@ -24,10 +30,6 @@ const worker = createWorker({
   },
 });
 ```
-
-## Introduction
-
-Conveyor MQ is a general purpose, asynchronous, distributed task/job queue for Node.js, powered by Redis, designed for both short lived, and long running tasks.
 
 ## Features
 
