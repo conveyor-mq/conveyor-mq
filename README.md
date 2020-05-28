@@ -20,7 +20,7 @@ const worker = createWorker({
   redisConfig,
   handler: ({ task }) => {
     console.log(`Processing task: ${task.id}`);
-    return task.x + task.y;
+    return task.data.x + task.data.y;
   },
 });
 ```
