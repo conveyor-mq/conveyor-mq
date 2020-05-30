@@ -6,6 +6,9 @@ import {
   getPausedListKey,
 } from '../utils/keys';
 
+/**
+ * @ignore
+ */
 export const resumeQueue = async ({
   queue,
   client,

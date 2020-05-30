@@ -15,6 +15,9 @@ import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
 
+/**
+ * @ignore
+ */
 export const markTasksFailedMulti = ({
   tasksAndErrors,
   queue,

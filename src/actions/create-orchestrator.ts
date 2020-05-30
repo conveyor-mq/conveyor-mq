@@ -15,17 +15,31 @@ import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-proce
 
 const debug = debugF('conveyor-mq:orchestrator');
 
+/**
+ * Creates an orchestrator which is responsible for monitoring the queue
+ * for stalled tasks and re-enqueuing them if needed, as well as enqueuing
+ * scheduled tasks.
+ *
+ * @param queue - The name of the queue.
+ * @param redisConfig - Redis configuration.
+ * @param stalledCheckInterval - The frequency at which stalled tasks should be checked at.
+ * @param scheduledTasksCheckInterval - The frequency at which scheduled tasks should be checked at.
+ * @param defaultStallTimeout - The default stall timeout to use for orphaned processing tasks.
+ * @returns orchestrator
+ * - .onReady(): Promise<void> - Returns a promise that resolves when the orchestrator is ready.
+ * - .quit(): Promise<void> - Quits the orchestrator, terminating all intervals and the redis client.
+ */
 export const createOrchestrator = ({
   queue,
   redisConfig,
   stalledCheckInterval = 1000,
-  delayedTasksCheckInterval = 1000,
+  scheduledTasksCheckInterval = 1000,
   defaultStallTimeout = 1000,
 }: {
   queue: string;
   redisConfig: RedisConfig;
   stalledCheckInterval?: number;
-  delayedTasksCheckInterval?: number;
+  scheduledTasksCheckInterval?: number;
   defaultStallTimeout?: number;
 }) => {
   debug('Starting');
@@ -34,14 +48,14 @@ export const createOrchestrator = ({
 
   const processStalledTasks = async () => {
     try {
+      debug('acknowledgeOrphanedProcessingTasks');
       await acknowledgeOrphanedProcessingTasks({
         queue,
         defaultStallTimeout,
         client,
       });
-      debug('acknowledgeOrphanedProcessingTasks');
-      await processStalledTasksAction({ queue, client });
       debug('processStalledTasks');
+      await processStalledTasksAction({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
@@ -52,16 +66,16 @@ export const createOrchestrator = ({
   );
 
   const enqueueScheduledTasks = async () => {
+    debug('enqueueScheduledTasks');
     try {
       await enqueueScheduledTasksAction({ queue, client });
-      debug('enqueueScheduledTasks');
     } catch (e) {
       console.error(e.toString());
     }
   };
   const enqueueDelayedTasksTimer = setIntervalAsync(
     enqueueScheduledTasks,
-    delayedTasksCheckInterval,
+    scheduledTasksCheckInterval,
   );
 
   const quit = async () => {

@@ -34,6 +34,29 @@ export interface TaskResponse {
   onTaskComplete: () => Promise<Task>;
 }
 
+/**
+ * Creates a manager which is responsible for enqueuing tasks, as well as querying various
+ * queue, task and worker properties.
+ *
+ * @param queue - The name of the queue.
+ * @param redisConfig - Redis configuration.
+ * @returns manager
+ * - .enqueueTask(task): Promise<Task> - Enqueues a task on the queue.
+ * - .enqueueTasks(tasks): Promise<Task[]> - Enqueues multiple tasks on the queue in a single transaction.
+ * - .scheduleTask(task): Promise<Task> - Schedules a task to be enqueued at a future date.
+ * - .scheduleTasks(tasks): Promise<Task[]> - Schedules multiple tasks in a single transaction.
+ * - .onTaskCompete(taskId): Promise<Task> - Returns a promise which resolves once the task is complete.
+ * - .getTaskById(taskId): Promise<Task> - Gets a task.
+ * - .getTasksById(taskIds): Promise<Task[]>  - Gets a list of tasks in a single transaction.
+ * - .getTaskCounts(): Promise<object> - Gets task counts by status.
+ * - .getWorkers(): Promise<Worker[]> - Gets workers on the queue.
+ * - .removeTaskById(taskId): Promise<void> - Removes a task from the queue.
+ * - .destroyQueue(): Promise<void> - Destroys the queue by removing all data & data structures.
+ * - .pauseQueue(): Promise<void> - Pauses the queue.
+ * - .resumeQueue(): Promise<void> - Resumes the queue.
+ * - .onReady(): Promise<void> - Returns a promise which resolves once the manager is ready.
+ * - .quit(): Promise<void> - Quits the manager, disconnects the redis clients.
+ */
 export const createManager = ({
   queue,
   redisConfig,

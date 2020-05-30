@@ -19,10 +19,24 @@ import {
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
 import { EventType } from '../domain/events/event-type';
-import { createClientAndLoadLuaScripts } from '../utils/redis';
+import {
+  createClientAndLoadLuaScripts,
+  ensureDisconnected,
+} from '../utils/redis';
 
 const debug = debugF('conveyor-mq:listener');
 
+/**
+ * Creates a listener which listens for various task, queue and worker related events.
+ *
+ * @param queue - The name of the queue.
+ * @param redisConfig - Redis configuration.
+ * @param events - An optional list of events which should be listened for. Defaults to all events.
+ * @returns listener
+ * - .onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.
+ * - .on(eventName, handler): void - A function which registers a handler function for a particular event.
+ * - .quit(): Promise<void> - Quits the listener, disconnects the redis client and removes all handlers.
+ */
 export const createListener = ({
   queue,
   redisConfig,
@@ -89,6 +103,10 @@ export const createListener = ({
     },
     on: (eventType: EventType, f: ({ event }: { event: Event }) => any) => {
       handlers[eventType] = [...(handlers[eventType] || []), f];
+    },
+    quit: async () => {
+      await readyPromise;
+      await ensureDisconnected({ client });
     },
   };
 };

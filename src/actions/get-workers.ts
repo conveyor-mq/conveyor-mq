@@ -4,6 +4,9 @@ import { keys, mget } from '../utils/redis';
 import { getWorkerKeyPrefix } from '../utils/keys';
 import { deSerializeWorker } from '../domain/workers/deserialize-worker';
 
+/**
+ * @ignore
+ */
 export const getWorkers = async ({
   queue,
   client,

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Worker | conveyor-mq</title>
+	<title>EventType | conveyor-mq</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,7 +55,7 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="worker.html">Worker</a>
+					<a href="eventtype.html">EventType</a>
 				</li>
 			</ul>
 		</div>
@@ -73,47 +73,160 @@
 			</nav>
 		</div>
 		<div class="col-7 offset-3 col-content">
-			<h1>Interface Worker</h1>
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">Worker</span>
-					</li>
-				</ul>
-			</section>
+			<h1>Enumeration EventType</h1>
 			<section class="tsd-panel-group tsd-index-group">
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#createdat" class="tsd-kind-icon">createdAt</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskcomplete" class="tsd-kind-icon">TaskComplete</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskerror" class="tsd-kind-icon">TaskError</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskfail" class="tsd-kind-icon">TaskFail</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskprocessing" class="tsd-kind-icon">TaskProcessing</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskprogressupdated" class="tsd-kind-icon">TaskProgressUpdated</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskqueued" class="tsd-kind-icon">TaskQueued</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskscheduled" class="tsd-kind-icon">TaskScheduled</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskstalled" class="tsd-kind-icon">TaskStalled</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#tasksuccess" class="tsd-kind-icon">TaskSuccess</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#taskupdated" class="tsd-kind-icon">TaskUpdated</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#workerpaused" class="tsd-kind-icon">WorkerPaused</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#workershutdown" class="tsd-kind-icon">WorkerShutdown</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="eventtype.html#workerstarted" class="tsd-kind-icon">WorkerStarted</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="createdat" class="tsd-anchor"></a>
-					<h3>created<wbr>At</h3>
-					<div class="tsd-signature tsd-kind-icon">created<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskcomplete" class="tsd-anchor"></a>
+					<h3>Task<wbr>Complete</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Complete<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_complete&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in domain/workers/worker.ts:3</li>
+							<li>Defined in domain/events/event-type.ts:9</li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="id" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskerror" class="tsd-anchor"></a>
+					<h3>Task<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_error&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in domain/workers/worker.ts:2</li>
+							<li>Defined in domain/events/event-type.ts:10</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskfail" class="tsd-anchor"></a>
+					<h3>Task<wbr>Fail</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Fail<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_fail&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:11</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskprocessing" class="tsd-anchor"></a>
+					<h3>Task<wbr>Processing</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Processing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_processing&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:7</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskprogressupdated" class="tsd-anchor"></a>
+					<h3>Task<wbr>Progress<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Progress<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_progress_updated&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:5</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskqueued" class="tsd-anchor"></a>
+					<h3>Task<wbr>Queued</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Queued<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_queued&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:3</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskscheduled" class="tsd-anchor"></a>
+					<h3>Task<wbr>Scheduled</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Scheduled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_scheduled&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:2</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskstalled" class="tsd-anchor"></a>
+					<h3>Task<wbr>Stalled</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Stalled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_stalled&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:6</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="tasksuccess" class="tsd-anchor"></a>
+					<h3>Task<wbr>Success</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Success<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_success&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:8</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="taskupdated" class="tsd-anchor"></a>
+					<h3>Task<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">Task<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;task_updated&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:4</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="workerpaused" class="tsd-anchor"></a>
+					<h3>Worker<wbr>Paused</h3>
+					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Paused<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_paused&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:13</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="workershutdown" class="tsd-anchor"></a>
+					<h3>Worker<wbr>Shutdown</h3>
+					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Shutdown<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_shutdown&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:14</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="workerstarted" class="tsd-anchor"></a>
+					<h3>Worker<wbr>Started</h3>
+					<div class="tsd-signature tsd-kind-icon">Worker<wbr>Started<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> = &quot;worker_started&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/events/event-type.ts:12</li>
 						</ul>
 					</aside>
 				</section>
@@ -123,36 +236,69 @@
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-enum root">
-						<a href="../enums/eventtype.html" class="tsd-kind-icon">Event<wbr>Type</a>
-					</li>
-					<li class=" tsd-kind-enum root">
-						<a href="../enums/taskstatus.html" class="tsd-kind-icon">Task<wbr>Status</a>
-					</li>
-					<li class=" tsd-kind-interface root">
-						<a href="event.html" class="tsd-kind-icon">Event</a>
-					</li>
-					<li class=" tsd-kind-interface root">
-						<a href="task.html" class="tsd-kind-icon">Task</a>
-					</li>
-					<li class=" tsd-kind-interface root">
-						<a href="taskresponse.html" class="tsd-kind-icon">Task<wbr>Response</a>
-					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface root">
-						<a href="worker.html" class="tsd-kind-icon">Worker</a>
+					<li class="current tsd-kind-enum root">
+						<a href="eventtype.html" class="tsd-kind-icon">Event<wbr>Type</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="worker.html#createdat" class="tsd-kind-icon">created<wbr>At</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskcomplete" class="tsd-kind-icon">Task<wbr>Complete</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="worker.html#id" class="tsd-kind-icon">id</a>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskerror" class="tsd-kind-icon">Task<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskfail" class="tsd-kind-icon">Task<wbr>Fail</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskprocessing" class="tsd-kind-icon">Task<wbr>Processing</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskprogressupdated" class="tsd-kind-icon">Task<wbr>Progress<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskqueued" class="tsd-kind-icon">Task<wbr>Queued</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskscheduled" class="tsd-kind-icon">Task<wbr>Scheduled</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskstalled" class="tsd-kind-icon">Task<wbr>Stalled</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#tasksuccess" class="tsd-kind-icon">Task<wbr>Success</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#taskupdated" class="tsd-kind-icon">Task<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#workerpaused" class="tsd-kind-icon">Worker<wbr>Paused</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#workershutdown" class="tsd-kind-icon">Worker<wbr>Shutdown</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="eventtype.html#workerstarted" class="tsd-kind-icon">Worker<wbr>Started</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-enum root">
+						<a href="taskstatus.html" class="tsd-kind-icon">Task<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="../interfaces/event.html" class="tsd-kind-icon">Event</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="../interfaces/task.html" class="tsd-kind-icon">Task</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="../interfaces/taskresponse.html" class="tsd-kind-icon">Task<wbr>Response</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="../interfaces/worker.html" class="tsd-kind-icon">Worker</a>
+					</li>
 					<li class=" tsd-kind-variable root">
 						<a href="../index.html#debug" class="tsd-kind-icon">debug</a>
 					</li>

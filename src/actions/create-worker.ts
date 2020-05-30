@@ -37,45 +37,66 @@ import { Task } from '../domain/tasks/task';
 
 const debug = debugF('conveyor-mq:worker');
 
+/**
+ * Creates a worker which processes tasks on the queue.
+ *
+ * @param queue - The name of the queue.
+ * @param redisConfig - Redis configuration.
+ * @param handler - A handler function used to process tasks. This should return a promise which
+ * resolves to indicate task success, or rejects to indicate task failure.
+ * @param concurrency - The max number of tasks a worker can process in parallel. Defaults to 10.
+ * @param defaultStallTimeout - The default stall timeout to use when taking a task of the queue
+ * if task.stallTimeout is not specified.
+ * @param defaultTaskAcknowledgementInterval - The default frequency at which to acknowledge a task
+ * whilst it is being processed if task.taskAcknowledgementInterval is not specified.
+ * @param getRetryDelay - A function called on task error which should return a delay in ms after
+ * which the task will be retried.
+ * @param onTaskSuccess - Callback called on task success.
+ * @param onTaskError - Callback called on task error.
+ * @param onTaskFailed - Callback called on task failure.
+ * @param onHandlerError - Callback called on handler error.
+ * @param onIdle - Callback called on worker idle (Once all tasks have completed and the queue is empty)
+ * @param idleTimeout - A timeout in ms after which the worker should be considered idle.
+ * Defaults to 250.
+ * @param onReady - Callback called once the worker is ready to start processing tasks.
+ * @param autoStart - Controls whether the worker should auto start or now. Defaults to true. Else .start()
+ * can be used to start the worker manually.
+ * @param removeOnSuccess - Control whether tasks should be removed from the queue on success.
+ * Defaults to false.
+ * @param removeOnFailed - Control whether tasks should be removed from the queue on fail.
+ * Defaults to false.
+ * @returns worker
+ * - .onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.
+ * - .pause(): Promise<void> - Pauses the worker from processing tasks.
+ * - .start(): Promise<void> - Starts the worker processing tasks.
+ * - .shutdown(): Promise<void> - Shuts down the worker and disconnects redis clients.
+ * - .onIdle(): Promise<void> - Returns a promise which resolves once the worker is idle.
+ */
 export const createWorker = ({
-  // Queue name:
   queue,
-  // Redis configuration:
   redisConfig,
+  handler,
+  concurrency = 10,
   defaultStallTimeout = 1000,
   defaultTaskAcknowledgementInterval,
-  // A handler function to process tasks:
-  handler,
-  // The number of concurrent tasks the worker can processes:
-  concurrency = 1,
-  // The retry delay when retrying a task after it has errored:
   getRetryDelay,
-  // Task success callback:
   onTaskSuccess,
-  // Task error callback:
   onTaskError,
-  // Task fail callback:
   onTaskFailed,
   onHandlerError,
-  // Worker idle callback, called when the worker becomes idle:
   onIdle,
-  // Amount of time since processing a task after which the worker is considered idle and the onIdle callback is called.
   idleTimeout = 250,
-  // Worker ready callback, called once a worker is ready to start processing tasks:
   onReady,
-  // Control whether the worker should start automatically, else worker.start() must be called manually:
   autoStart = true,
-  // Remove tasks once they are processed successfully
   removeOnSuccess = false,
-  // Remove tasks once they are fail to be processed successfully
   removeOnFailed = false,
 }: {
   queue: string;
   redisConfig: RedisConfig;
-  defaultStallTimeout?: number;
-  defaultTaskAcknowledgementInterval?: number;
   handler: Handler;
   concurrency?: number;
+  defaultStallTimeout?: number;
+  defaultTaskAcknowledgementInterval?: number;
   getRetryDelay?: getRetryDelayType;
   onTaskSuccess?: TaskSuccessCb;
   onTaskError?: TaskErrorCb;
@@ -187,7 +208,6 @@ export const createWorker = ({
     } catch (e) {
       debug('takeAndProcessTask error');
       if (onHandlerError) onHandlerError(e);
-      console.error(e.toString());
       await sleep(1000);
       if (isActive()) {
         takerQueue.add(takeAndProcessTask);
@@ -331,6 +351,10 @@ export const createWorker = ({
   const readyPromise = ready();
 
   return {
+    onReady: async () => {
+      debug('onReady');
+      await readyPromise;
+    },
     pause: async (killProcessingTasks?: boolean) => {
       await readyPromise;
       return pause({ killProcessingTasks });
@@ -339,10 +363,6 @@ export const createWorker = ({
     shutdown: async (killProcessingTasks?: boolean) => {
       await readyPromise;
       return shutdown({ killProcessingTasks });
-    },
-    onReady: async () => {
-      debug('onReady');
-      await readyPromise;
     },
     onIdle: async () => {
       debug('onIdle');
