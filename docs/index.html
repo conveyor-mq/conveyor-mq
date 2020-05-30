@@ -103,12 +103,6 @@
 								<li class="tsd-kind-function"><a href="index.html#createmanager" class="tsd-kind-icon">createManager</a></li>
 								<li class="tsd-kind-function"><a href="index.html#createorchestrator" class="tsd-kind-icon">createOrchestrator</a></li>
 								<li class="tsd-kind-function"><a href="index.html#createworker" class="tsd-kind-icon">createWorker</a></li>
-								<li class="tsd-kind-function"><a href="index.html#deserializeworker" class="tsd-kind-icon">deSerializeWorker</a></li>
-								<li class="tsd-kind-function"><a href="index.html#getworkers" class="tsd-kind-icon">getWorkers</a></li>
-								<li class="tsd-kind-function"><a href="index.html#marktasksfailedmulti" class="tsd-kind-icon">markTasksFailedMulti</a></li>
-								<li class="tsd-kind-function"><a href="index.html#pausequeue" class="tsd-kind-icon">pauseQueue</a></li>
-								<li class="tsd-kind-function"><a href="index.html#resumequeue" class="tsd-kind-icon">resumeQueue</a></li>
-								<li class="tsd-kind-function"><a href="index.html#serializeworker" class="tsd-kind-icon">serializeWorker</a></li>
 							</ul>
 						</section>
 					</div>
@@ -122,7 +116,7 @@
 					<div class="tsd-signature tsd-kind-icon">debug<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Debugger</span><span class="tsd-signature-symbol"> = debugF(&#x27;conveyor-mq:orchestrator&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in actions/create-listener.ts:24</li>
+							<li>Defined in actions/create-listener.ts:27</li>
 							<li>Defined in actions/create-manager.ts:25</li>
 							<li>Defined in actions/create-worker.ts:38</li>
 							<li>Defined in actions/create-orchestrator.ts:16</li>
@@ -142,7 +136,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-listener.ts:36</li>
+									<li>Defined in actions/create-listener.ts:40</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -177,8 +171,9 @@
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 							<p>listener</p>
 							<ul>
-								<li>listener.onReady() - A function which returns a promise that resolves when the listener is ready.</li>
-								<li>listener.on(eventName, handler) - A function which registers a handler function for a particular event.</li>
+								<li>.onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.</li>
+								<li>.on(eventName, handler): void - A function which registers a handler function for a particular event.</li>
+								<li>.quit(): Promise<void> - Quits the listener, disconnects the redis client and removes all handlers.</li>
 							</ul>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
@@ -190,7 +185,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-listener.ts:100</li>
+													<li>Defined in actions/create-listener.ts:104</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -237,7 +232,22 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-listener.ts:97</li>
+													<li>Defined in actions/create-listener.ts:101</li>
+												</ul>
+											</aside>
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+										</li>
+								</ul>        </li>
+								<li class="tsd-parameter">
+									<h5>quit<span class="tsd-signature-symbol">: </span>function</h5>
+									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+										<li class="tsd-signature tsd-kind-icon">quit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+									</ul>
+									<ul class="tsd-descriptions">
+										<li class="tsd-description">
+											<aside class="tsd-sources">
+												<ul>
+													<li>Defined in actions/create-listener.ts:107</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -257,9 +267,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-manager.ts:37</li>
+									<li>Defined in actions/create-manager.ts:60</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
+								<div class="lead">
+									<p>Creates a manager which is responsible for enqueuing tasks, as well as querying various
+									queue, task and worker properties.</p>
+							</div></div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -283,6 +298,24 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<p>manager</p>
+							<ul>
+								<li>.enqueueTask(task): Promise<Task> - Enqueues a task on the queue.</li>
+								<li>.enqueueTasks(tasks): Promise&lt;Task[]&gt; - Enqueues multiple tasks on the queue in a single transaction.</li>
+								<li>.scheduleTask(task): Promise<Task> - Schedules a task to be enqueued at a future date.</li>
+								<li>.scheduleTasks(tasks): Promise&lt;Task[]&gt; - Schedules multiple tasks in a single transaction.</li>
+								<li>.onTaskCompete(taskId): Promise<Task> - Returns a promise which resolves once the task is complete.</li>
+								<li>.getTaskById(taskId): Promise<Task> - Gets a task.</li>
+								<li>.getTasksById(taskIds): Promise&lt;Task[]&gt;  - Gets a list of tasks in a single transaction.</li>
+								<li>.getTaskCounts(): Promise<object> - Gets task counts by status.</li>
+								<li>.getWorkers(): Promise&lt;Worker[]&gt; - Gets workers on the queue.</li>
+								<li>.removeTaskById(taskId): Promise<void> - Removes a task from the queue.</li>
+								<li>.destroyQueue(): Promise<void> - Destroys the queue by removing all data &amp; data structures.</li>
+								<li>.pauseQueue(): Promise<void> - Pauses the queue.</li>
+								<li>.resumeQueue(): Promise<void> - Resumes the queue.</li>
+								<li>.onReady(): Promise<void> - Returns a promise which resolves once the manager is ready.</li>
+								<li>.quit(): Promise<void> - Quits the manager, disconnects the redis clients.</li>
+							</ul>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
 									<h5>destroy<wbr>Queue<span class="tsd-signature-symbol">: </span>function</h5>
@@ -293,7 +326,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:197</li>
+													<li>Defined in actions/create-manager.ts:220</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -308,7 +341,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:147</li>
+													<li>Defined in actions/create-manager.ts:170</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -329,7 +362,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:152</li>
+													<li>Defined in actions/create-manager.ts:175</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -350,7 +383,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:172</li>
+													<li>Defined in actions/create-manager.ts:195</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -371,7 +404,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:182</li>
+													<li>Defined in actions/create-manager.ts:205</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -386,7 +419,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:177</li>
+													<li>Defined in actions/create-manager.ts:200</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -407,7 +440,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:187</li>
+													<li>Defined in actions/create-manager.ts:210</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -422,7 +455,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:212</li>
+													<li>Defined in actions/create-manager.ts:235</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -437,7 +470,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:167</li>
+													<li>Defined in actions/create-manager.ts:190</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -458,7 +491,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:202</li>
+													<li>Defined in actions/create-manager.ts:225</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -473,7 +506,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:216</li>
+													<li>Defined in actions/create-manager.ts:239</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -488,7 +521,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:192</li>
+													<li>Defined in actions/create-manager.ts:215</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -509,7 +542,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:207</li>
+													<li>Defined in actions/create-manager.ts:230</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -524,7 +557,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:157</li>
+													<li>Defined in actions/create-manager.ts:180</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -545,7 +578,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-manager.ts:162</li>
+													<li>Defined in actions/create-manager.ts:185</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -614,8 +647,8 @@
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 							<p>orchestrator</p>
 							<ul>
-								<li>orchestrator.onReady() - A function which returns a promise that resolves when the orchestrator is ready.</li>
-								<li>orchestrator.quit() - A function which quits the orchestrator.</li>
+								<li>.onReady(): Promise<void> - Returns a promise that resolves when the orchestrator is ready.</li>
+								<li>.quit(): Promise<void> - Quits the orchestrator, terminating all intervals and the redis client.</li>
 							</ul>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
@@ -650,9 +683,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-worker.ts:40</li>
+									<li>Defined in actions/create-worker.ts:75</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
+								<div class="lead">
+									<p>Creates a worker which processes tasks on the queue.</p>
+							</div></div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
@@ -786,6 +823,14 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<p>worker</p>
+							<ul>
+								<li>.onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.</li>
+								<li>.pause(): Promise<void> - Pauses the worker from processing tasks.</li>
+								<li>.start(): Promise<void> - Starts the worker processing tasks.</li>
+								<li>.shutdown(): Promise<void> - Shuts down the worker and disconnects redis clients.</li>
+								<li>.onIdle(): Promise<void> - Returns a promise which resolves once the worker is idle.</li>
+							</ul>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
 									<h5>on<wbr>Idle<span class="tsd-signature-symbol">: </span>function</h5>
@@ -796,7 +841,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-worker.ts:347</li>
+													<li>Defined in actions/create-worker.ts:367</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -811,7 +856,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-worker.ts:343</li>
+													<li>Defined in actions/create-worker.ts:354</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -826,7 +871,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-worker.ts:334</li>
+													<li>Defined in actions/create-worker.ts:358</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -847,7 +892,7 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-worker.ts:339</li>
+													<li>Defined in actions/create-worker.ts:363</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-parameters-title">Parameters</h4>
@@ -868,189 +913,13 @@
 										<li class="tsd-description">
 											<aside class="tsd-sources">
 												<ul>
-													<li>Defined in actions/create-worker.ts:338</li>
+													<li>Defined in actions/create-worker.ts:362</li>
 												</ul>
 											</aside>
 											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 										</li>
 								</ul>        </li>
 							</ul>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="deserializeworker" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> de<wbr>Serialize<wbr>Worker</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">de<wbr>Serialize<wbr>Worker<span class="tsd-signature-symbol">(</span>workerString<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in domain/workers/deserialize-worker.ts:3</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>workerString: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="interfaces/worker.html" class="tsd-signature-type">Worker</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="getworkers" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> get<wbr>Workers</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Workers<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in actions/get-workers.ts:7</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>client<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Redis</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="marktasksfailedmulti" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> mark<wbr>Tasks<wbr>Failed<wbr>Multi</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">mark<wbr>Tasks<wbr>Failed<wbr>Multi<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">[]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in actions/mark-tasks-failed.ts:18</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>multi<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Pipeline</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>remove<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>tasks<wbr>And<wbr>Errors<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">[]</span></h5>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">[]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="pausequeue" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> pause<wbr>Queue</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">pause<wbr>Queue<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in actions/pause-queue.ts:9</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>client<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Redis</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="resumequeue" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> resume<wbr>Queue</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">resume<wbr>Queue<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in actions/resume-queue.ts:9</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-									<ul class="tsd-parameters">
-										<li class="tsd-parameter">
-											<h5>client<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Redis</span></h5>
-										</li>
-										<li class="tsd-parameter">
-											<h5>queue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-										</li>
-									</ul>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="serializeworker" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> serialize<wbr>Worker</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">serialize<wbr>Worker<span class="tsd-signature-symbol">(</span>worker<span class="tsd-signature-symbol">: </span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in domain/workers/serialize-worker.ts:4</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>worker: <a href="interfaces/worker.html" class="tsd-signature-type">Worker</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1092,24 +961,6 @@
 					</li>
 					<li class=" tsd-kind-function root">
 						<a href="index.html#createworker" class="tsd-kind-icon">create<wbr>Worker</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#deserializeworker" class="tsd-kind-icon">de<wbr>Serialize<wbr>Worker</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#getworkers" class="tsd-kind-icon">get<wbr>Workers</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#marktasksfailedmulti" class="tsd-kind-icon">mark<wbr>Tasks<wbr>Failed<wbr>Multi</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#pausequeue" class="tsd-kind-icon">pause<wbr>Queue</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#resumequeue" class="tsd-kind-icon">resume<wbr>Queue</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="index.html#serializeworker" class="tsd-kind-icon">serialize<wbr>Worker</a>
 					</li>
 				</ul>
 			</nav>
