@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import map from 'lodash/map';
+import { map } from 'lodash';
 import { getProcessingListKey, getStallingHashKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';

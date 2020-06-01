@@ -1,5 +1,4 @@
-import map from 'lodash/map';
-import filter from 'lodash/filter';
+import { filter, map } from 'lodash';
 import { Redis } from 'ioredis';
 import { lrange } from '../utils/redis';
 import { getProcessingListKey } from '../utils/keys';

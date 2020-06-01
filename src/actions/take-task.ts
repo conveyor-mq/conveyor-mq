@@ -1,4 +1,5 @@
 import { Redis, Pipeline } from 'ioredis';
+import moment from 'moment';
 import { exec, callLuaScriptMulti } from '../utils/redis';
 import {
   getQueuedListKey,
@@ -34,7 +35,7 @@ export const takeTaskMulti = async ({
       getTaskKeyPrefix({ queue }),
       stallTimeout,
       queue,
-      new Date().toISOString(),
+      moment().toISOString(),
       getQueueTaskProcessingChannel({ queue }),
       getStallingHashKey({ queue }),
       EventType.TaskProcessing,

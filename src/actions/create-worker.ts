@@ -1,6 +1,4 @@
-import map from 'lodash/map';
-import debounce from 'lodash/debounce';
-import forEach from 'lodash/forEach';
+import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
 import {
   setIntervalAsync,

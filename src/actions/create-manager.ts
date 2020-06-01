@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import forEach from 'lodash/forEach';
-import map from 'lodash/map';
-import set from 'lodash/set';
+import { forEach, map, set } from 'lodash';
 import debugF from 'debug';
 import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import {

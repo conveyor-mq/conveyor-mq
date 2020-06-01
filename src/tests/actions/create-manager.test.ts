@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
-import map from 'lodash/map';
-import forEach from 'lodash/forEach';
+import { map, forEach } from 'lodash';
 import {
   flushAll,
   quit,

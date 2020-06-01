@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
-import map from 'lodash/map';
-import filter from 'lodash/filter';
+import { map, filter } from 'lodash';
 import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';

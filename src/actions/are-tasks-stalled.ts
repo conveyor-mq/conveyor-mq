@@ -1,8 +1,5 @@
 import { Redis } from 'ioredis';
-import map from 'lodash/map';
-import forEach from 'lodash/forEach';
-import zipWith from 'lodash/zipWith';
-import reduce from 'lodash/reduce';
+import { map, forEach, zipWith, reduce } from 'lodash';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { getStallingTaskIds } from './get-stalling-task-ids';

@@ -1,7 +1,7 @@
 import { Redis, Pipeline } from 'ioredis';
 import moment from 'moment';
 import pTimeout from 'p-timeout';
-import find from 'lodash/find';
+import { find } from 'lodash';
 import { hasTaskExpired } from './has-task-expired';
 import { markTaskSuccessMulti } from './mark-task-success';
 import { enqueueTaskMulti } from './enqueue-task';

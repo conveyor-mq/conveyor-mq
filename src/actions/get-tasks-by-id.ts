@@ -1,7 +1,5 @@
 import { Redis } from 'ioredis';
-import forEach from 'lodash/forEach';
-import map from 'lodash/map';
-import filter from 'lodash/filter';
+import { forEach, map, filter } from 'lodash';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { getTaskKey } from '../utils/keys';
 import { exec } from '../utils/redis';

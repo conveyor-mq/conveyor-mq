@@ -3,7 +3,7 @@ import {
   clearIntervalAsync,
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
-import map from 'lodash/map';
+import { map } from 'lodash';
 import { processStalledTasks as processStalledTasksAction } from './process-stalled-tasks';
 import { enqueueScheduledTasks as enqueueScheduledTasksAction } from './enqueue-scheduled-tasks';
 import {

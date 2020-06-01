@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
-import map from 'lodash/map';
+import { map } from 'lodash';
 import { callLuaScript } from '../utils/redis';
 import {
   getScheduledSetKey,
