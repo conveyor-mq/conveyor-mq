@@ -74,6 +74,8 @@ const worker = createWorker({
 7. [Examples](#examples)
    - [Simple example](#simple-example)
    - [Scheduled task example](#scheduled-task-example)
+   - [Express example](#express-example)
+   - [Child/sub tasks example](#child/sub-tasks-example)
 8. [Roadmap](#roadmap)
 9. [Contributing](#contributing)
 10. [License](#license)
@@ -789,11 +791,13 @@ const worker = createWorker({
 
 ## Examples
 
-[Simple example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/simple-example)
+### [Simple example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/simple-example)
 
-[Express example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/express-example)
+### [Express example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/express-example)
 
-[Scheduled task example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/scheduled-task-example)
+### [Scheduled task example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/scheduled-task-example)
+
+### [Child/sub tasks example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/sub-tasks-example)
 
 ## Roadmap
 
