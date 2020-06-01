@@ -75,7 +75,7 @@ const worker = createWorker({
    - [Simple example](#simple-example)
    - [Scheduled task example](#scheduled-task-example)
    - [Express example](#express-example)
-   - [Child/sub tasks example](#child/sub-tasks-example)
+   - [Child/sub tasks example](#childsub-tasks-example)
 8. [Roadmap](#roadmap)
 9. [Contributing](#contributing)
 10. [License](#license)
