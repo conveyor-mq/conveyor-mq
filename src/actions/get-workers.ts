@@ -1,5 +1,6 @@
 import { Redis } from 'ioredis';
-import { filter, map } from 'lodash';
+import filter from 'lodash/filter';
+import map from 'lodash/map';
 import { keys, mget } from '../utils/redis';
 import { getWorkerKeyPrefix } from '../utils/keys';
 import { deSerializeWorker } from '../domain/workers/deserialize-worker';

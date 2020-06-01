@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { forEach } from 'lodash';
+import forEach from 'lodash/forEach';
 import {
   getQueuedListKey,
   getProcessingListKey,

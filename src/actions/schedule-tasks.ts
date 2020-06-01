@@ -1,6 +1,7 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
-import { map, forEach } from 'lodash';
+import map from 'lodash/map';
+import forEach from 'lodash/forEach';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import {
   getTaskKey,
