@@ -91,16 +91,12 @@ export const handleTaskMulti = async ({
   removeOnFailed?: boolean;
 }): Promise<Response> => {
   const retryLimitReached =
-    task.retryLimit !== undefined &&
-    task.retryLimit !== null &&
-    (task.retries || 0) > task.retryLimit;
+    task.retryLimit !== undefined && (task.retries || 0) > task.retryLimit;
   const errorRetryLimitReached =
     task.errorRetryLimit !== undefined &&
-    task.errorRetryLimit !== null &&
     (task.errorRetries || 0) > task.errorRetryLimit;
   const stallRetryLimitReached =
     task.stallRetryLimit !== undefined &&
-    task.stallRetryLimit !== null &&
     (task.stallRetries || 0) > task.stallRetryLimit;
   const hasExpired = hasTaskExpired({ task, asOf });
   if (
@@ -195,16 +191,12 @@ export const handleTaskMulti = async ({
       }),
     );
     const willRetryLimitBeReached =
-      task.retryLimit !== undefined &&
-      task.retryLimit !== null &&
-      (task.retries || 0) >= task.retryLimit;
+      task.retryLimit !== undefined && (task.retries || 0) >= task.retryLimit;
     const willErrorRetryLimitBeReached =
       task.errorRetryLimit !== undefined &&
-      task.errorRetryLimit !== null &&
       (task.errorRetries || 0) >= task.errorRetryLimit;
     const willStallRetryLimitBeReached =
       task.stallRetryLimit !== undefined &&
-      task.stallRetryLimit !== null &&
       (task.stallRetries || 0) >= task.stallRetryLimit;
     if (
       !willRetryLimitBeReached &&

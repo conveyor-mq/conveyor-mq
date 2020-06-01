@@ -7,6 +7,7 @@ import {
   getQueueTaskProcessingChannel,
   getStallingHashKey,
   getTaskKeyPrefix,
+  getTaskKey,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { Task } from '../domain/tasks/task';
@@ -17,7 +18,7 @@ import { LuaScriptName } from '../lua';
 /**
  * @ignore
  */
-export const takeTaskMulti = async ({
+export const takeTaskMulti = ({
   queue,
   multi,
   stallTimeout = 1000,
@@ -25,8 +26,8 @@ export const takeTaskMulti = async ({
   queue: string;
   multi: Pipeline;
   stallTimeout?: number;
-}): Promise<void> => {
-  await callLuaScriptMulti({
+}) => {
+  callLuaScriptMulti({
     multi,
     script: LuaScriptName.takeTask,
     args: [

@@ -13,19 +13,26 @@ local taskId = redis.call('rpoplpush', fromQueue, toQueue)
 
 if taskId then
     local taskKey = taskKeyPrefix .. taskId
-    local taskJson = redis.call('get', taskKey)
-    local task = cjson.decode(taskJson)
-    task['status'] = status
-    task['processingStartedAt'] = datetime
+    redis.call('hset', taskKey, 'status', status, 'processingStartedAt',
+               datetime)
 
     local lockKey = queue .. ':acknowledged-tasks:' .. taskId
-    redis.call('set', lockKey, '', 'px', task['stallTimeout'] or defaultStallTimeout)
+    local stallTimeout = redis.call('hget', taskKey, 'stallTimeout')
+    redis.call('set', lockKey, '', 'px', stallTimeout or defaultStallTimeout)
     redis.call('hset', stallingHashKey, taskId, '')
 
-    local processingTaskJson = cjson.encode(task)
-    redis.call('set', taskKey, processingTaskJson)
+    local keysAndValues = redis.call('hgetall', taskKey)
+
+    local task = {}
+
+    local counter = 1
+    for index = 1, table.getn(keysAndValues), 2 do
+        task[keysAndValues[counter]] = keysAndValues[index + 1]
+        counter = counter + 1
+    end
+
     local event = {createdAt = datetime, type = eventType, task = task}
     redis.call('publish', publishChannel, cjson.encode(event))
 
-    return processingTaskJson
+    return cjson.encode(task)
 end

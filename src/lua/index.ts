@@ -18,7 +18,7 @@ export const loadLuaScripts = ({ client }: { client: Redis }) => {
     {
       name: LuaScriptName.enqueueTask,
       filePath: './enqueue-task.lua',
-      numberOfKeys: 9,
+      numberOfKeys: 4,
     },
     {
       name: LuaScriptName.markTaskSuccess,
