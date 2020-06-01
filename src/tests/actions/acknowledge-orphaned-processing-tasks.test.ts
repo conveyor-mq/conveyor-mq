@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import {
   flushAll,

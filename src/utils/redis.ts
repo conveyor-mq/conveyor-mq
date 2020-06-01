@@ -1,5 +1,5 @@
 import RedisClient, { Redis, Pipeline } from 'ioredis';
-import { map } from 'lodash';
+import map from 'lodash/map';
 import { loadLuaScripts, LuaScriptName } from '../lua';
 
 export const createClientAndLoadLuaScripts = ({

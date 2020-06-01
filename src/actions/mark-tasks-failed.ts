@@ -1,5 +1,5 @@
 import { Redis, Pipeline } from 'ioredis';
-import { map } from 'lodash';
+import map from 'lodash/map';
 import {
   getTaskKey,
   getProcessingListKey,

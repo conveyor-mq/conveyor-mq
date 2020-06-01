@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Redis } from 'ioredis';
-import { forEach } from 'lodash';
+import forEach from 'lodash/forEach';
 
 export enum LuaScriptName {
   takeTask = 'takeTask',
