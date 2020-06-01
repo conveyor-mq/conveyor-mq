@@ -9,11 +9,13 @@ import {
   flushAll,
   quit,
   createClientAndLoadLuaScripts,
+  lrange,
 } from '../../utils/redis';
 import { createUuid, sleep } from '../../utils/general';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
+import { getProcessingListKey } from '../../utils/keys';
 
 describe('handleTask', () => {
   const queue = createUuid();
@@ -36,11 +38,13 @@ describe('handleTask', () => {
     const theFuture = moment('2020-01-02').toDate();
     const expiredTask: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
+    await enqueueTask({ task: expiredTask, queue, client });
+    const takenTask = (await takeTask({ queue, client })) as Task;
     const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
-      task: expiredTask,
+      task: takenTask,
       asOf: theFuture,
       onTaskFailed,
       handler: () => 'some-result',
@@ -48,13 +52,20 @@ describe('handleTask', () => {
     expect(result).toBe(null);
     const failedTask = (await getTaskById({
       queue,
-      taskId: expiredTask.id,
+      taskId: takenTask.id,
       client,
     })) as Task;
-    expect(failedTask.id).toBe(expiredTask.id);
+    expect(failedTask.id).toBe(takenTask.id);
     expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Task has expired');
     expect(onTaskFailed).toBeCalledTimes(1);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask fails task if retry limit exceeded', async () => {
     const task: Task = {
@@ -82,6 +93,13 @@ describe('handleTask', () => {
     expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask fails task if error retry exceeded', async () => {
     const task: Task = {
@@ -109,6 +127,13 @@ describe('handleTask', () => {
     expect(failedTask.status).toBe(TaskStatus.Failed);
     expect(failedTask.error).toBe('Error retry limit reached');
     expect(onTaskFailed).toBeCalledTimes(1);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask handles task success case', async () => {
     const now = moment('2020-01-02').toDate();
@@ -144,6 +169,13 @@ describe('handleTask', () => {
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledTimes(0);
     expect(onFailure).toHaveBeenCalledTimes(0);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask handles task failure case', async () => {
     const now = moment('2020-01-02').toDate();
@@ -180,8 +212,15 @@ describe('handleTask', () => {
     expect(onSuccess).toHaveBeenCalledTimes(0);
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onFailure).toHaveBeenCalledTimes(1);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
-  it('handleTask retires errored task', async () => {
+  it('handleTask retries errored task', async () => {
     const now = moment('2020-01-02').toDate();
     const task: Task = { id: 'i', data: 'j', errorRetryLimit: 1 };
     await enqueueTask({ queue, task, client });
@@ -206,6 +245,13 @@ describe('handleTask', () => {
     expect(onSuccess).toHaveBeenCalledTimes(0);
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onFailure).toHaveBeenCalledTimes(0);
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
 
     const handledTask = (await getTaskById({
       queue,
@@ -273,6 +319,13 @@ describe('handleTask', () => {
     expect(failedTask.error).toBe(
       'Task execution duration exceeded executionTimeout',
     );
+    const numberOfProcessingTasks = await lrange({
+      start: 0,
+      stop: -1,
+      key: getProcessingListKey({ queue }),
+      client,
+    });
+    expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask updates task progress', async () => {
     const task: Task = {

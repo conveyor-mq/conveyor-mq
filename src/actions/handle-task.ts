@@ -7,7 +7,7 @@ import { markTaskSuccessMulti } from './mark-task-success';
 import { enqueueTaskMulti } from './enqueue-task';
 import { markTaskFailedMulti } from './mark-task-failed';
 import { getRetryDelayDefault } from '../utils/retry-strategies';
-import { getQueueTaskErrorChannel } from '../utils/keys';
+import { getQueueTaskErrorChannel, getProcessingListKey } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
@@ -185,6 +185,7 @@ export const handleTaskMulti = async ({
       e instanceof pTimeout.TimeoutError
         ? 'Task execution duration exceeded executionTimeout'
         : e.message;
+    multi.lrem(getProcessingListKey({ queue }), 1, task.id);
     multi.publish(
       getQueueTaskErrorChannel({ queue }),
       serializeEvent({
