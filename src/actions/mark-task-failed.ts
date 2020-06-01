@@ -1,11 +1,23 @@
 import { Redis, Pipeline } from 'ioredis';
-import { markTasksFailed, markTasksFailedMulti } from './mark-tasks-failed';
 import { Task } from '../domain/tasks/task';
+import {
+  getTaskKey,
+  getFailedListKey,
+  getStallingHashKey,
+  getQueueTaskFailedChannel,
+  getQueueTaskCompleteChannel,
+  getProcessingListKey,
+} from '../utils/keys';
+import { TaskStatus } from '../domain/tasks/task-status';
+import { serializeTask } from '../domain/tasks/serialize-task';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { EventType } from '../domain/events/event-type';
+import { exec } from '../utils/redis';
 
 /**
  * @ignore
  */
-export const markTaskFailedMulti = async ({
+export const markTaskFailedMulti = ({
   task,
   queue,
   multi,
@@ -17,13 +29,38 @@ export const markTaskFailedMulti = async ({
   multi: Pipeline;
   error?: any;
   remove?: boolean;
-}) => {
-  const [failedTask] = await markTasksFailedMulti({
-    tasksAndErrors: [{ task, error }],
-    queue,
-    multi,
-    remove,
-  });
+}): Task => {
+  const taskKey = getTaskKey({ taskId: task.id, queue });
+  const failedTask: Task = {
+    ...task,
+    processingEndedAt: new Date(),
+    status: TaskStatus.Failed,
+    error,
+  };
+  if (remove) {
+    multi.del(taskKey);
+  } else {
+    multi.set(taskKey, serializeTask(failedTask));
+    multi.lpush(getFailedListKey({ queue }), task.id);
+  }
+  multi.lrem(getProcessingListKey({ queue }), 1, task.id);
+  multi.hdel(getStallingHashKey({ queue }), task.id);
+  multi.publish(
+    getQueueTaskFailedChannel({ queue }),
+    serializeEvent({
+      createdAt: new Date(),
+      type: EventType.TaskFail,
+      task: failedTask,
+    }),
+  );
+  multi.publish(
+    getQueueTaskCompleteChannel({ queue }),
+    serializeEvent({
+      createdAt: new Date(),
+      type: EventType.TaskComplete,
+      task: failedTask,
+    }),
+  );
   return failedTask;
 };
 
@@ -42,12 +79,9 @@ export const markTaskFailed = async ({
   client: Redis;
   error?: any;
   remove?: boolean;
-}) => {
-  const [failedTask] = await markTasksFailed({
-    tasksAndErrors: [{ task, error }],
-    queue,
-    client,
-    remove,
-  });
+}): Promise<Task> => {
+  const multi = client.multi();
+  const failedTask = markTaskFailedMulti({ task, queue, multi, error, remove });
+  await exec(multi);
   return failedTask;
 };

@@ -1,12 +1,23 @@
 import { Redis, Pipeline } from 'ioredis';
-import { enqueueTasksMulti } from './enqueue-tasks';
 import { Task } from '../domain/tasks/task';
-import { exec } from '../utils/redis';
+import { exec, callLuaScriptMulti } from '../utils/redis';
+import { createTaskId } from '../utils/general';
+import { TaskStatus } from '../domain/tasks/task-status';
+import { LuaScriptName } from '../lua';
+import {
+  getTaskKey,
+  getQueuedListKey,
+  getQueueTaskQueuedChannel,
+  getQueuePausedKey,
+  getPausedListKey,
+} from '../utils/keys';
+import { serializeTask } from '../domain/tasks/serialize-task';
+import { EventType } from '../domain/events/event-type';
 
 /**
  * @ignore
  */
-export const enqueueTaskMulti = async ({
+export const enqueueTaskMulti = ({
   task,
   queue,
   multi,
@@ -14,9 +25,41 @@ export const enqueueTaskMulti = async ({
   task: Partial<Task>;
   queue: string;
   multi: Pipeline;
-}): Promise<Task> => {
-  const [queuedTask] = await enqueueTasksMulti({ queue, tasks: [task], multi });
-  return queuedTask;
+}): Task => {
+  const taskToQueue: Task = {
+    ...task,
+    id: task.id || createTaskId(),
+    createdAt: task.createdAt || new Date(),
+    queuedAt: new Date(),
+    processingStartedAt: undefined,
+    processingEndedAt: undefined,
+    status: TaskStatus.Queued,
+    retries: task.retries || 0,
+    errorRetries: task.errorRetries || 0,
+    errorRetryLimit:
+      task.errorRetryLimit === undefined ? 0 : task.errorRetryLimit,
+    stallRetries: task.stallRetries || 0,
+    stallRetryLimit:
+      task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
+  };
+  const taskKey = getTaskKey({ taskId: taskToQueue.id, queue });
+  const taskString = serializeTask(taskToQueue);
+  callLuaScriptMulti({
+    multi,
+    script: LuaScriptName.enqueueTask,
+    args: [
+      taskKey,
+      taskString,
+      getQueuedListKey({ queue }),
+      getQueueTaskQueuedChannel({ queue }),
+      EventType.TaskQueued,
+      new Date().toISOString(),
+      taskToQueue.id,
+      getQueuePausedKey({ queue }),
+      getPausedListKey({ queue }),
+    ],
+  });
+  return taskToQueue;
 };
 
 /**
@@ -32,7 +75,7 @@ export const enqueueTask = async ({
   client: Redis;
 }): Promise<Task> => {
   const multi = client.multi();
-  const queuedTask = await enqueueTaskMulti({ task, queue, multi });
+  const queuedTask = enqueueTaskMulti({ task, queue, multi });
   await exec(multi);
   return queuedTask;
 };

@@ -1,19 +1,8 @@
 import { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
-import { serializeTask } from '../domain/tasks/serialize-task';
-import {
-  getTaskKey,
-  getQueuedListKey,
-  getQueueTaskQueuedChannel,
-  getQueuePausedKey,
-  getPausedListKey,
-} from '../utils/keys';
-import { exec, callLuaScriptMulti } from '../utils/redis';
-import { createTaskId } from '../utils/general';
+import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
-import { TaskStatus } from '../domain/tasks/task-status';
-import { EventType } from '../domain/events/event-type';
-import { LuaScriptName } from '../lua';
+import { enqueueTaskMulti } from './enqueue-task';
 
 /**
  * @ignore
@@ -27,42 +16,8 @@ export const enqueueTasksMulti = async ({
   queue: string;
   multi: Pipeline;
 }): Promise<Task[]> => {
-  const tasksToQueue: Task[] = map(tasks, (task) => ({
-    ...task,
-    id: task.id || createTaskId(),
-    createdAt: task.createdAt || new Date(),
-    queuedAt: new Date(),
-    processingStartedAt: undefined,
-    processingEndedAt: undefined,
-    status: TaskStatus.Queued,
-    retries: task.retries || 0,
-    errorRetries: task.errorRetries || 0,
-    errorRetryLimit:
-      task.errorRetryLimit === undefined ? 0 : task.errorRetryLimit,
-    stallRetries: task.stallRetries || 0,
-    stallRetryLimit:
-      task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
-  }));
-  await Promise.all(
-    map(tasksToQueue, async (task) => {
-      const taskKey = getTaskKey({ taskId: task.id, queue });
-      const taskString = serializeTask(task);
-      return callLuaScriptMulti({
-        multi,
-        script: LuaScriptName.enqueueTask,
-        args: [
-          taskKey,
-          taskString,
-          getQueuedListKey({ queue }),
-          getQueueTaskQueuedChannel({ queue }),
-          EventType.TaskQueued,
-          new Date().toISOString(),
-          task.id,
-          getQueuePausedKey({ queue }),
-          getPausedListKey({ queue }),
-        ],
-      });
-    }),
+  const tasksToQueue = map(tasks, (task) =>
+    enqueueTaskMulti({ task, queue, multi }),
   );
   return tasksToQueue;
 };

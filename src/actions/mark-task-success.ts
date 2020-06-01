@@ -17,7 +17,7 @@ import { EventType } from '../domain/events/event-type';
 /**
  * @ignore
  */
-export const markTaskSuccessMulti = async ({
+export const markTaskSuccessMulti = ({
   task,
   queue,
   multi,
@@ -31,7 +31,7 @@ export const markTaskSuccessMulti = async ({
   result?: any;
   asOf: Date;
   remove?: boolean;
-}) => {
+}): Task => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const processingListKey = getProcessingListKey({ queue });
   const successfulTask: Task = {
@@ -84,7 +84,7 @@ export const markTaskSuccess = async ({
   result?: any;
   asOf: Date;
   remove?: boolean;
-}) => {
+}): Promise<Task> => {
   const multi = client.multi();
   const successfulTask = await markTaskSuccessMulti({
     task,
