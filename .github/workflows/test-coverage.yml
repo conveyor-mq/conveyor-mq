@@ -7,27 +7,22 @@ on:
     branches: [master]
 
 jobs:
-  coveralls:
+  test-coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Setup Node.js
         uses: actions/setup-node@v1.4.2
         with:
           node-version: 13
-
       - name: Setup Redis
         uses: zhulik/redis-action@1.1.0
         with:
           redis version: 5
-
       - name: Install dependencies
         run: npm i
-
       - name: Run Coveralls
         run: npx jest --forceExit --coverage
-
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v1.1.0
         with:
