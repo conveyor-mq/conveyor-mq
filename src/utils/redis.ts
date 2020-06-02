@@ -102,7 +102,7 @@ export const exec = (multi_: Pipeline) => {
     multi_.exec((err, results) =>
       err ? reject(err) : resolve(map(results, (result) => result[1])),
     );
-  }) as Promise<(string | number | any)[]>;
+  }) as Promise<any[]>;
 };
 
 export const rpoplpush = ({
