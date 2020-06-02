@@ -44,6 +44,9 @@ export const getTaskAcknowledgedKey = ({
   return `${queue}:acknowledged-tasks:${taskId}`;
 };
 
+export const getTasksHashKey = ({ queue }: { queue: string }) =>
+  `${queue}:tasks`;
+
 export const getScheduledSetKey = ({ queue }: { queue: string }) =>
   `${queue}:sets:scheduled`;
 

@@ -5,14 +5,14 @@ import { createTaskId } from '../utils/general';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { LuaScriptName } from '../lua';
 import {
-  getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
   getQueuePausedKey,
   getPausedListKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { EventType } from '../domain/events/event-type';
+import { persistTaskMulti } from './persist-task';
+import { serializeEvent } from '../domain/events/serialize-event';
 
 /**
  * @ignore
@@ -26,15 +26,17 @@ export const enqueueTaskMulti = ({
   queue: string;
   multi: Pipeline;
 }): Task => {
+  const taskId = task.id || createTaskId();
   const taskToQueue: Task = {
     ...task,
-    id: task.id || createTaskId(),
+    id: taskId,
     createdAt: task.createdAt || new Date(),
     queuedAt: new Date(),
     processingStartedAt: undefined,
     processingEndedAt: undefined,
     status: TaskStatus.Queued,
     retries: task.retries || 0,
+    retryLimit: task.retryLimit,
     errorRetries: task.errorRetries || 0,
     errorRetryLimit:
       task.errorRetryLimit === undefined ? 0 : task.errorRetryLimit,
@@ -42,23 +44,25 @@ export const enqueueTaskMulti = ({
     stallRetryLimit:
       task.stallRetryLimit === undefined ? 1 : task.stallRetryLimit,
   };
-  const taskKey = getTaskKey({ taskId: taskToQueue.id, queue });
-  const taskString = serializeTask(taskToQueue);
+  persistTaskMulti({ taskId, taskData: taskToQueue, queue, multi });
   callLuaScriptMulti({
     multi,
     script: LuaScriptName.enqueueTask,
     args: [
-      taskKey,
-      taskString,
-      getQueuedListKey({ queue }),
-      getQueueTaskQueuedChannel({ queue }),
-      EventType.TaskQueued,
-      new Date().toISOString(),
-      taskToQueue.id,
       getQueuePausedKey({ queue }),
+      getQueuedListKey({ queue }),
       getPausedListKey({ queue }),
+      taskToQueue.id,
     ],
   });
+  multi.publish(
+    getQueueTaskQueuedChannel({ queue }),
+    serializeEvent({
+      type: EventType.TaskQueued,
+      createdAt: new Date(),
+      task: taskToQueue,
+    }),
+  );
   return taskToQueue;
 };
 

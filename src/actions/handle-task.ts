@@ -128,7 +128,7 @@ export const handleTaskMulti = async ({
       },
     ];
     const error = find(errorMessages, ({ condition }) => !!condition)?.message;
-    const failedTask = await markTaskFailedMulti({
+    const failedTask = markTaskFailedMulti({
       task,
       queue,
       multi,
@@ -221,7 +221,7 @@ export const handleTaskMulti = async ({
         errorRetries: (task.errorRetries || 0) + 1,
         processingEndedAt: new Date(),
       };
-      await enqueueTaskMulti({ task: taskToEnqueue, queue, multi });
+      enqueueTaskMulti({ task: taskToEnqueue, queue, multi });
       return {
         name: 'taskError',
         params: {

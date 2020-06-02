@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { getTaskKey, getQueueTaskProgressUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';
@@ -23,7 +22,11 @@ export const updateTaskProgress = async ({
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const updatedTask = { ...task, progress };
   const multi = client.multi();
-  multi.set(taskKey, serializeTask(updatedTask));
+  multi.hmset(
+    taskKey,
+    'progress',
+    typeof progress === 'object' ? JSON.stringify(progress) : progress,
+  );
   multi.publish(
     getQueueTaskProgressUpdatedChannel({ queue }),
     serializeEvent({

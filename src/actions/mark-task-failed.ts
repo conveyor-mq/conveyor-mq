@@ -9,7 +9,6 @@ import {
   getProcessingListKey,
 } from '../utils/keys';
 import { TaskStatus } from '../domain/tasks/task-status';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
 import { exec } from '../utils/redis';
@@ -31,16 +30,25 @@ export const markTaskFailedMulti = ({
   remove?: boolean;
 }): Task => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
+  const now = new Date();
   const failedTask: Task = {
     ...task,
-    processingEndedAt: new Date(),
+    processingEndedAt: now,
     status: TaskStatus.Failed,
     error,
   };
   if (remove) {
     multi.del(taskKey);
   } else {
-    multi.set(taskKey, serializeTask(failedTask));
+    multi.hmset(
+      taskKey,
+      'processingEndedAt',
+      now.toISOString(),
+      'status',
+      TaskStatus.Failed,
+      'error',
+      typeof error === 'object' ? JSON.stringify(error) : error,
+    );
     multi.lpush(getFailedListKey({ queue }), task.id);
   }
   multi.lrem(getProcessingListKey({ queue }), 1, task.id);

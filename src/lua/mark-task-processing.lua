@@ -9,18 +9,21 @@ local eventType = KEYS[8]
 local status = KEYS[9]
 
 local taskKey = taskKeyPrefix .. taskId
-local taskJson = redis.call('get', taskKey)
-local task = cjson.decode(taskJson)
-task['status'] = status
-task['processingStartedAt'] = datetime
+
+redis.call('hset', taskKey, 'status', status, 'processingStartedAt', datetime)
 
 local lockKey = queue .. ':acknowledged-tasks:' .. taskId
-redis.call('set', lockKey, '', 'px', task['stallTimeout'] or defaultStallTimeout)
+local stallTimeout = redis.call('hget', taskKey, 'stallTimeout')
+redis.call('set', lockKey, '', 'px', stallTimeout or defaultStallTimeout)
 redis.call('hset', stallingHashKey, taskId, '')
 
-local processingTaskJson = cjson.encode(task)
-redis.call('set', taskKey, processingTaskJson)
+local keysAndValues = redis.call('hgetall', taskKey)
+local task = {}
+for index = 1, table.getn(keysAndValues), 2 do
+    task[keysAndValues[index]] = keysAndValues[index + 1]
+end
+
 local event = {createdAt = datetime, type = eventType, task = task}
 redis.call('publish', publishChannel, cjson.encode(event))
 
-return processingTaskJson
+return cjson.encode(task)

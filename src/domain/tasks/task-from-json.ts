@@ -1,5 +1,14 @@
 import { Task } from './task';
 
+const numberOrUndefined = (x: string) =>
+  x !== undefined ? JSON.parse(x) : undefined;
+
+const bleh = (x: string) => {
+  const result = parseInt(x, 10);
+  // eslint-disable-next-line no-restricted-globals
+  return isNaN(result) ? x : result;
+};
+
 /**
  * @ignore
  */
@@ -14,23 +23,23 @@ export const taskFromJson = (taskJson: any): Task => {
       ? new Date(taskJson.enqueueAfter)
       : undefined,
     expiresAt: taskJson.expiresAt ? new Date(taskJson.expiresAt) : undefined,
-    executionTimeout: taskJson.executionTimeout,
+    executionTimeout: numberOrUndefined(taskJson.executionTimeout),
     processingStartedAt: taskJson.processingStartedAt
       ? new Date(taskJson.processingStartedAt)
       : undefined,
     processingEndedAt: taskJson.processingEndedAt
       ? new Date(taskJson.processingEndedAt)
       : undefined,
-    retries: taskJson.retries,
-    retryLimit: taskJson.retryLimit,
-    errorRetries: taskJson.errorRetries,
-    errorRetryLimit: taskJson.errorRetryLimit,
-    stallRetries: taskJson.stallRetries,
-    stallRetryLimit: taskJson.stallRetryLimit,
+    retries: numberOrUndefined(taskJson.retries),
+    retryLimit: numberOrUndefined(taskJson.retryLimit),
+    errorRetries: numberOrUndefined(taskJson.errorRetries),
+    errorRetryLimit: numberOrUndefined(taskJson.errorRetryLimit),
+    stallRetries: numberOrUndefined(taskJson.stallRetries),
+    stallRetryLimit: numberOrUndefined(taskJson.stallRetryLimit),
     retryBackoff: taskJson.retryBackoff,
     result: taskJson.result,
     error: taskJson.error,
-    progress: taskJson.progress,
+    progress: bleh(taskJson.progress),
     removeOnSuccess: taskJson.removeOnSuccess,
     removeOnFailed: taskJson.removeOnFailed,
   };

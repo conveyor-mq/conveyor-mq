@@ -17,7 +17,7 @@ import { LuaScriptName } from '../lua';
 /**
  * @ignore
  */
-export const takeTaskMulti = async ({
+export const takeTaskMulti = ({
   queue,
   multi,
   stallTimeout = 1000,
@@ -25,8 +25,8 @@ export const takeTaskMulti = async ({
   queue: string;
   multi: Pipeline;
   stallTimeout?: number;
-}): Promise<void> => {
-  await callLuaScriptMulti({
+}) => {
+  callLuaScriptMulti({
     multi,
     script: LuaScriptName.takeTask,
     args: [

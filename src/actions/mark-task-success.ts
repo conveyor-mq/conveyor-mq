@@ -7,7 +7,6 @@ import {
   getStallingHashKey,
   getSuccessListKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
@@ -43,7 +42,15 @@ export const markTaskSuccessMulti = ({
   if (remove) {
     multi.del(taskKey);
   } else {
-    multi.set(taskKey, serializeTask(successfulTask));
+    multi.hmset(
+      taskKey,
+      'processingEndedAt',
+      asOf.toISOString(),
+      'status',
+      TaskStatus.Success,
+      'result',
+      typeof result === 'object' ? JSON.stringify(result) : result,
+    );
     multi.lpush(getSuccessListKey({ queue }), task.id);
   }
   multi.lrem(processingListKey, 1, task.id);

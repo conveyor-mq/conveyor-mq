@@ -1,9 +1,8 @@
 import { Redis } from 'ioredis';
-import { forEach, map, filter } from 'lodash';
-import { deSerializeTask } from '../domain/tasks/deserialize-task';
+import { forEach, map, filter, isEmpty } from 'lodash';
 import { getTaskKey } from '../utils/keys';
 import { exec } from '../utils/redis';
-import { Task } from '../domain/tasks/task';
+import { taskFromJson } from '../domain/tasks/task-from-json';
 
 /**
  * @ignore
@@ -16,15 +15,16 @@ export const getTasksById = async ({
   queue: string;
   taskIds: string[];
   client: Redis;
-}): Promise<Task[]> => {
+}) => {
   const multi = client.multi();
   forEach(taskIds, (taskId) => {
-    multi.get(getTaskKey({ taskId, queue }));
+    multi.hgetall(getTaskKey({ taskId, queue }));
   });
   const results = await exec(multi);
-  const nonNullResults = filter(results, (result) => !!result) as string[];
-  const tasks = map(nonNullResults, (taskString) =>
-    deSerializeTask(taskString),
-  );
+  const nonNullResults = filter(
+    results,
+    (result) => !!result && !isEmpty(result),
+  ) as string[];
+  const tasks = map(nonNullResults, (taskString) => taskFromJson(taskString));
   return tasks;
 };
