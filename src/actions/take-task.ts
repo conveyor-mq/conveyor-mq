@@ -7,7 +7,6 @@ import {
   getQueueTaskProcessingChannel,
   getStallingHashKey,
   getTaskKeyPrefix,
-  getTaskKey,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { Task } from '../domain/tasks/task';

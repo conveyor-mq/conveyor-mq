@@ -5,13 +5,11 @@ import { createTaskId } from '../utils/general';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { LuaScriptName } from '../lua';
 import {
-  getTaskKey,
   getQueuedListKey,
   getQueueTaskQueuedChannel,
   getQueuePausedKey,
   getPausedListKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { EventType } from '../domain/events/event-type';
 import { persistTaskMulti } from './persist-task';
 import { serializeEvent } from '../domain/events/serialize-event';

@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { getTaskKey, getQueueTaskProgressUpdatedChannel } from '../utils/keys';
 import { Task } from '../domain/tasks/task';

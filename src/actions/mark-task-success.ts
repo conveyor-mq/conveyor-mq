@@ -7,7 +7,6 @@ import {
   getStallingHashKey,
   getSuccessListKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';

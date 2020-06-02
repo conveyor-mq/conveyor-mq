@@ -1,9 +1,7 @@
 import { Redis } from 'ioredis';
 import { forEach, map, filter, isEmpty } from 'lodash';
-import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { getTaskKey } from '../utils/keys';
 import { exec } from '../utils/redis';
-import { Task } from '../domain/tasks/task';
 import { taskFromJson } from '../domain/tasks/task-from-json';
 
 /**

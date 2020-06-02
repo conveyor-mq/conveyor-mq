@@ -9,7 +9,6 @@ import {
   getProcessingListKey,
 } from '../utils/keys';
 import { TaskStatus } from '../domain/tasks/task-status';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
 import { exec } from '../utils/redis';
