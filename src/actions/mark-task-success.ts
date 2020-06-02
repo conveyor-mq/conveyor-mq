@@ -43,7 +43,15 @@ export const markTaskSuccessMulti = ({
   if (remove) {
     multi.del(taskKey);
   } else {
-    multi.set(taskKey, serializeTask(successfulTask));
+    multi.hmset(
+      taskKey,
+      'processingEndedAt',
+      asOf.toISOString(),
+      'status',
+      TaskStatus.Success,
+      'result',
+      typeof result === 'object' ? JSON.stringify(result) : result,
+    );
     multi.lpush(getSuccessListKey({ queue }), task.id);
   }
   multi.lrem(processingListKey, 1, task.id);

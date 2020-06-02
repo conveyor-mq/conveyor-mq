@@ -24,11 +24,8 @@ if taskId then
     local keysAndValues = redis.call('hgetall', taskKey)
 
     local task = {}
-
-    local counter = 1
     for index = 1, table.getn(keysAndValues), 2 do
-        task[keysAndValues[counter]] = keysAndValues[index + 1]
-        counter = counter + 1
+        task[keysAndValues[index]] = keysAndValues[index + 1]
     end
 
     local event = {createdAt = datetime, type = eventType, task = task}

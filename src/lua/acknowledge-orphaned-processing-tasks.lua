@@ -29,12 +29,9 @@ if #processingTaskIds > 0 then
 
     for i, taskId in ipairs(taskIdsToAcknowledge) do
         local taskKey = getTaskKey(taskId)
-        local taskString = redis.call('get', taskKey)
-        local task = cjson.decode(taskString)
-
+        local stallTimeout = redis.call('hget', taskKey, 'stallTimeout')
         local lockKey = queue .. ':acknowledged-tasks:' .. taskId
-        redis.call('set', lockKey, '', 'px',
-                   task['stallTimeout'] or defaultStallTimeout)
+        redis.call('set', lockKey, '', 'px', stallTimeout or defaultStallTimeout)
         redis.call('hset', stallingHashKey, taskId, '')
     end
 

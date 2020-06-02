@@ -74,11 +74,13 @@ describe('handleTask', () => {
       retryLimit: 2,
       retries: 3,
     };
+    await enqueueTask({ task, queue, client });
+    const taskToHandle = (await takeTask({ queue, client })) as Task;
     const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
-      task,
+      task: taskToHandle,
       asOf: new Date(),
       onTaskFailed,
       handler: () => 'some-result',
@@ -108,11 +110,13 @@ describe('handleTask', () => {
       errorRetryLimit: 1,
       errorRetries: 2,
     };
+    await enqueueTask({ task, queue, client });
+    const taskToHandle = (await takeTask({ queue, client })) as Task;
     const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
       client,
-      task,
+      task: taskToHandle,
       asOf: new Date(),
       onTaskFailed,
       handler: () => 'some-result',

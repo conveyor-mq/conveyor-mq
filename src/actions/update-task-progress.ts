@@ -23,7 +23,11 @@ export const updateTaskProgress = async ({
   const taskKey = getTaskKey({ taskId: task.id, queue });
   const updatedTask = { ...task, progress };
   const multi = client.multi();
-  multi.set(taskKey, serializeTask(updatedTask));
+  multi.hmset(
+    taskKey,
+    'progress',
+    typeof progress === 'object' ? JSON.stringify(progress) : progress,
+  );
   multi.publish(
     getQueueTaskProgressUpdatedChannel({ queue }),
     serializeEvent({

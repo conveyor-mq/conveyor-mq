@@ -17,7 +17,10 @@ export const persistTaskMulti = ({
   const fields: { [key: string]: string | number | undefined } = {
     id: taskData.id,
     status: taskData.status,
-    data: JSON.stringify(taskData.data),
+    data:
+      typeof taskData.data === 'object'
+        ? JSON.stringify(taskData.data)
+        : taskData.data,
     createdAt: taskData.createdAt?.toISOString(),
     queuedAt: taskData.queuedAt?.toISOString(),
     enqueueAfter: taskData.enqueueAfter?.toISOString(),
@@ -28,11 +31,20 @@ export const persistTaskMulti = ({
     stallTimeout: taskData.stallTimeout,
     taskAcknowledgementInterval: taskData.taskAcknowledgementInterval,
     retries: taskData.retries,
-    retryLimit: taskData.retryLimit || undefined,
+    retryLimit:
+      taskData.retryLimit !== undefined
+        ? JSON.stringify(taskData.retryLimit)
+        : undefined,
     errorRetries: taskData.errorRetries,
-    errorRetryLimit: taskData.errorRetryLimit || undefined,
+    errorRetryLimit:
+      taskData.errorRetryLimit !== undefined
+        ? JSON.stringify(taskData.errorRetryLimit)
+        : undefined,
     stallRetries: taskData.stallRetries,
-    stallRetryLimit: taskData.stallRetryLimit || undefined,
+    stallRetryLimit:
+      taskData.stallRetryLimit !== undefined
+        ? JSON.stringify(taskData.stallRetryLimit)
+        : undefined,
     retryBackoff: JSON.stringify(taskData.retryBackoff),
     result: taskData.result,
     error: taskData.error,
@@ -45,7 +57,9 @@ export const persistTaskMulti = ({
   };
   const args = Object.keys(definedFields).reduce<(string | number)[]>(
     (acc, curr) =>
-      definedFields[curr] ? [...acc, curr, definedFields[curr]] : acc,
+      definedFields[curr] !== undefined
+        ? [...acc, curr, definedFields[curr]]
+        : acc,
     [],
   );
   multi.hmset(getTaskKey({ taskId, queue }), ...args);

@@ -30,21 +30,22 @@ if #delayedTaskIds > 0 then
     end
 
     -- TODO: Use map and MSET
+    local tasks = {}
     for i, taskId in ipairs(delayedTaskIds) do
         local taskKey = getTaskKey(taskId)
-        local taskString = redis.call('get', taskKey)
-        local task = cjson.decode(taskString)
-        task['status'] = status
-        local updatedTaskString = cjson.encode(task)
-        redis.call('set', taskKey, updatedTaskString)
-        local event = {
-            createdAt = asOf,
-            type = eventType,
-            task = cjson.decode(taskString)
-        }
+        redis.call('hset', taskKey, 'status', status)
+
+        local keysAndValues = redis.call('hgetall', taskKey)
+        local task = {}
+        for index = 1, table.getn(keysAndValues), 2 do
+            task[keysAndValues[index]] = keysAndValues[index + 1]
+        end
+
+        local event = {createdAt = asOf, type = eventType, task = task}
         redis.call('publish', taskQueuedChannel, cjson.encode(event))
+        tasks[i] = cjson.encode(task)
     end
-    return redis.call('mget', unpack(map(getTaskKey, delayedTaskIds)))
+    return tasks
 end
 
 return {}

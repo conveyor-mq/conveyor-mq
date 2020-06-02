@@ -38,6 +38,7 @@ export const enqueueTaskMulti = ({
     processingEndedAt: undefined,
     status: TaskStatus.Queued,
     retries: task.retries || 0,
+    retryLimit: task.retryLimit === undefined ? undefined : task.retryLimit,
     errorRetries: task.errorRetries || 0,
     errorRetryLimit:
       task.errorRetryLimit === undefined ? 0 : task.errorRetryLimit,
