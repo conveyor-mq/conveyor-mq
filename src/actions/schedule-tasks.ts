@@ -1,9 +1,7 @@
 import { Redis } from 'ioredis';
 import moment from 'moment';
 import { map, forEach } from 'lodash';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import {
-  getTaskKey,
   getScheduledSetKey,
   getQueueTaskScheduledChannel,
 } from '../utils/keys';
@@ -13,6 +11,7 @@ import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
+import { persistTaskMulti } from './persist-task';
 
 /**
  * @ignore
@@ -48,9 +47,7 @@ export const scheduleTasks = async ({
   });
   const multi = client.multi();
   forEach(tasksToSchedule, (task) => {
-    const taskKey = getTaskKey({ taskId: task.id, queue });
-    const taskString = serializeTask(task);
-    multi.set(taskKey, taskString);
+    persistTaskMulti({ task, queue, multi });
     multi.zadd(
       getScheduledSetKey({ queue }),
       String(moment(task.enqueueAfter).unix()),

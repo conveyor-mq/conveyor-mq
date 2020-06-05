@@ -9,10 +9,10 @@ import {
   getProcessingListKey,
 } from '../utils/keys';
 import { TaskStatus } from '../domain/tasks/task-status';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
 import { exec } from '../utils/redis';
+import { persistTaskMulti } from './persist-task';
 
 /**
  * @ignore
@@ -40,7 +40,7 @@ export const markTaskFailedMulti = ({
   if (remove) {
     multi.del(taskKey);
   } else {
-    multi.set(taskKey, serializeTask(failedTask));
+    persistTaskMulti({ task: failedTask, queue, multi });
     multi.lpush(getFailedListKey({ queue }), task.id);
   }
   multi.lrem(getProcessingListKey({ queue }), 1, task.id);

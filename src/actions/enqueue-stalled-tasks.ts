@@ -28,7 +28,7 @@ export const enqueueStalledTasks = async ({
       stallRetries: (task.stallRetries || 0) + 1,
     };
   });
-  await enqueueTasksMulti({
+  enqueueTasksMulti({
     tasks: tasksToQueue,
     queue,
     multi,

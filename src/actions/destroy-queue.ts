@@ -13,6 +13,7 @@ import { exec } from '../utils/redis';
 /**
  * @ignore
  */
+// TODO: Remove tasks.
 export const destroyQueue = async ({
   queue,
   client,

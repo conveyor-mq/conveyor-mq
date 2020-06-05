@@ -7,12 +7,12 @@ import {
   getStallingHashKey,
   getSuccessListKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
+import { persistTaskMulti } from './persist-task';
 
 /**
  * @ignore
@@ -43,7 +43,7 @@ export const markTaskSuccessMulti = ({
   if (remove) {
     multi.del(taskKey);
   } else {
-    multi.set(taskKey, serializeTask(successfulTask));
+    persistTaskMulti({ task: successfulTask, queue, multi });
     multi.lpush(getSuccessListKey({ queue }), task.id);
   }
   multi.lrem(processingListKey, 1, task.id);

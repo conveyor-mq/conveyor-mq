@@ -7,7 +7,7 @@ import { enqueueTaskMulti } from './enqueue-task';
 /**
  * @ignore
  */
-export const enqueueTasksMulti = async ({
+export const enqueueTasksMulti = ({
   tasks,
   queue,
   multi,
@@ -15,7 +15,7 @@ export const enqueueTasksMulti = async ({
   tasks: Partial<Task>[];
   queue: string;
   multi: Pipeline;
-}): Promise<Task[]> => {
+}): Task[] => {
   const tasksToQueue = map(tasks, (task) =>
     enqueueTaskMulti({ task, queue, multi }),
   );

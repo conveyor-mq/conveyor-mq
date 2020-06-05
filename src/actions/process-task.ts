@@ -76,7 +76,7 @@ export const processTask = async ({
   });
   await clearIntervalAsync(timer);
   await handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed });
-  await takeTaskMulti({ queue, multi, stallTimeout });
+  takeTaskMulti({ queue, multi, stallTimeout });
   const result = await exec(multi);
   const taskString = result[result.length - 1] as string | null;
   return taskString ? deSerializeTask(taskString) : null;
