@@ -6,7 +6,6 @@
     "clean": "rm -rf ./dist",
     "build": "npm run clean && tsc && cp -r ./src/lua/*.lua ./dist/lua/",
     "build-docs": "typedoc --theme ./node_modules/typedoc-neo-theme/bin/default",
-    "publish": "np",
     "test": "jest --runInBand --forceExit ./src",
     "test:watch": "jest --runInBand --watch ./src",
     "start": "ts-node ./src/index.ts",
