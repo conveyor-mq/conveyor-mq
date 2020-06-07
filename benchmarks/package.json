@@ -12,7 +12,7 @@
     "@types/bull": "^3.13.0",
     "bee-queue": "^1.2.3",
     "bull": "^3.14.0",
-    "conveyor-mq": "0.0.19",
+    "conveyor-mq": "0.0.28",
     "ts-node": "^8.10.1"
   }
 }
