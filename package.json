@@ -17,7 +17,7 @@
     "url": "git+https://github.com/conveyor-mq/conveyor-mq.git"
   },
   "author": "Jason Russell",
-  "license": "ISC",
+  "license": "MIT",
   "keywords": [
     "distributed",
     "queue",
