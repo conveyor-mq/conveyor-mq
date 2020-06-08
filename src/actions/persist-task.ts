@@ -3,6 +3,9 @@ import { getTaskKey } from '../utils/keys';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { Task } from '../domain/tasks/task';
 
+/**
+ * @ignore
+ */
 export const persistTaskMulti = ({
   task,
   queue,
