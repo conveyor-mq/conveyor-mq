@@ -68,7 +68,7 @@ export const createManager = ({
   } = {};
 
   const setupListener = async () => {
-    const listener = await createListener({
+    const listener = createListener({
       queue,
       redisConfig,
       events: [EventType.TaskComplete],
