@@ -24,11 +24,6 @@ import { resumeQueue } from './resume-queue';
 
 const debug = debugF('conveyor-mq:manager');
 
-/**
- * @ignore
- */
-const promiseKey = (taskId: string) => `${taskId}-promise`;
-
 export interface TaskResponse {
   task: Task;
   onTaskComplete: () => Promise<Task>;
@@ -69,7 +64,7 @@ export const createManager = ({
   const client = createClientAndLoadLuaScripts(redisConfig);
 
   const eventSubscriptions: {
-    [key: string]: { [key: string]: ({ event }: { event: Event }) => any };
+    [key: string]: { [key: string]: (({ event }: { event: Event }) => any)[] };
   } = {};
 
   const setupListener = async () => {
@@ -82,11 +77,12 @@ export const createManager = ({
     listener.on(EventType.TaskComplete, ({ event }) => {
       if (!event || !event.task || !event.task.id) return;
       const { task } = event;
-      const key = promiseKey(task.id);
-      const handler = eventSubscriptions?.[EventType.TaskComplete]?.[key];
-      if (handler) {
+      const handlers = eventSubscriptions?.[EventType.TaskComplete]?.[task.id];
+      forEach(handlers || [], (handler) => {
         handler({ event });
-        delete eventSubscriptions[EventType.TaskComplete][key];
+      });
+      if (handlers) {
+        delete eventSubscriptions[EventType.TaskComplete][task.id];
       }
     });
     debug('Registered listener');
@@ -95,11 +91,10 @@ export const createManager = ({
 
   const onTaskComplete = async ({ taskId }: { taskId: string }) => {
     const promise = new Promise((resolve) => {
-      set(
-        eventSubscriptions,
-        `${EventType.TaskComplete}.${promiseKey(taskId)}`,
+      set(eventSubscriptions, `${EventType.TaskComplete}.${taskId}`, [
+        ...(eventSubscriptions?.[EventType.TaskComplete]?.[taskId] || []),
         ({ event }: { event: Event }) => resolve(event.task),
-      );
+      ]);
     }) as Promise<Task>;
     const task = await getTaskById({ queue, taskId, client });
     if (
@@ -107,7 +102,7 @@ export const createManager = ({
       task.status &&
       [(TaskStatus.Failed, TaskStatus.Success)].includes(task.status)
     ) {
-      delete eventSubscriptions[EventType.TaskComplete][promiseKey(taskId)];
+      delete eventSubscriptions[EventType.TaskComplete][taskId];
       return task;
     }
     return promise;
