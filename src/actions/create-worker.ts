@@ -59,14 +59,14 @@ const debug = debugF('conveyor-mq:worker');
  * @param idleTimeout - A timeout in ms after which the worker should be considered idle.
  * Defaults to 250.
  * @param onReady - Callback called once the worker is ready to start processing tasks.
- * @param autoStart - Controls whether the worker should auto start or now. Defaults to true. Else .start()
+ * @param autoStart - Controls whether the worker should auto start or not. Defaults to true. Else .start()
  * can be used to start the worker manually.
  * @param removeOnSuccess - Control whether tasks should be removed from the queue on success.
  * Defaults to false.
  * @param removeOnFailed - Control whether tasks should be removed from the queue on fail.
  * Defaults to false.
  * @returns worker
- * - .onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.
+ * - .onReady(): Promise<void> - A function which returns a promise that resolves when the worker is ready.
  * - .pause(): Promise<void> - Pauses the worker from processing tasks.
  * - .start(): Promise<void> - Starts the worker processing tasks.
  * - .shutdown(): Promise<void> - Shuts down the worker and disconnects redis clients.

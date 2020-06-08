@@ -82,17 +82,12 @@ export const createManager = ({
     listener.on(EventType.TaskComplete, ({ event }) => {
       if (!event || !event.task || !event.task.id) return;
       const { task } = event;
-      const subscriptions = map([promiseKey], (keyFunc) => ({
-        key: keyFunc(task.id),
-        handler:
-          eventSubscriptions?.[EventType.TaskComplete]?.[keyFunc(task.id)],
-      }));
-      forEach(subscriptions, (subscription) => {
-        if (subscription.handler) {
-          subscription.handler({ event });
-          delete eventSubscriptions[EventType.TaskComplete][subscription.key];
-        }
-      });
+      const key = promiseKey(task.id);
+      const handler = eventSubscriptions?.[EventType.TaskComplete]?.[key];
+      if (handler) {
+        handler({ event });
+        delete eventSubscriptions[EventType.TaskComplete][key];
+      }
     });
     debug('Registered listener');
   };
