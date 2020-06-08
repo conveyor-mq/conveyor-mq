@@ -203,7 +203,7 @@ describe('createWorker', () => {
     await worker.shutdown();
   });
   it('createWorker triggers worker started event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const startedPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerStarted, ({ event }) => resolve(event));
     }) as Promise<Event>;
@@ -222,7 +222,7 @@ describe('createWorker', () => {
     await worker.shutdown();
   });
   it('createWorker triggers worker paused event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const pausedPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerPaused, ({ event }) => resolve(event));
     }) as Promise<Event>;
@@ -241,7 +241,7 @@ describe('createWorker', () => {
     await worker.shutdown();
   });
   it('createWorker triggers worker shutdown event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const shutdownPromise = new Promise((resolve) => {
       listener.on(EventType.WorkerShutdown, ({ event }) => resolve(event));
     }) as Promise<Event>;

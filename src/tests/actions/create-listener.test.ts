@@ -34,13 +34,13 @@ describe('createListener', () => {
   });
 
   it('createListener listens for task queued event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskQueued, ({ event }) => {
         resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
     const event = await promise;
@@ -49,13 +49,13 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.status', TaskStatus.Queued);
   });
   it('createListener listens for task scheduled event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskScheduled, ({ event }) => {
         resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = {
       id: 'b',
       data: 'c',
@@ -68,16 +68,16 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.status', TaskStatus.Scheduled);
   });
   it('createListener listens for task processing event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskProcessing, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => 'done',
@@ -89,16 +89,16 @@ describe('createListener', () => {
     await worker.shutdown();
   });
   it('createListener listens for task success event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskSuccess, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => 'done',
@@ -110,16 +110,16 @@ describe('createListener', () => {
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskError, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
@@ -133,16 +133,16 @@ describe('createListener', () => {
     await worker.shutdown();
   });
   it('createListener listens for task failed event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskFail, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task: Task = { id: 'b', data: 'c', retryLimit: 0 };
     await manager.enqueueTask(task);
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
@@ -156,16 +156,16 @@ describe('createListener', () => {
     await worker.shutdown();
   });
   it('createListener listens for task error event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskError, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => {
@@ -179,13 +179,13 @@ describe('createListener', () => {
     await worker.shutdown();
   });
   it('createListener listens for task stalled event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskStalled, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task: Task = { id: 'b', data: 'c', stallRetryLimit: 1 };
     await manager.enqueueTask(task);
 
@@ -199,13 +199,13 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.status', TaskStatus.Processing);
   });
   it('createListener listens for task updated event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskUpdated, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     const { task: enqueuedTask } = await manager.enqueueTask(task);
 
@@ -222,17 +222,17 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.status', TaskStatus.Queued);
   });
   it('createListener listens for task progress updated event', async () => {
-    const listener = await createListener({ queue, redisConfig });
+    const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskProgressUpdated, ({ event }) => {
         return resolve(event);
       });
     });
-    const manager = await createManager({ queue, redisConfig });
+    const manager = createManager({ queue, redisConfig });
     const task = { id: 'b', data: 'c' };
     await manager.enqueueTask(task);
 
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: async ({ updateTaskProgress }) => {

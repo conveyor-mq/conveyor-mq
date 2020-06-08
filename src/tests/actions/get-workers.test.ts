@@ -26,13 +26,13 @@ describe('getWorkers', () => {
   });
 
   it('getWorkers gets workers', async () => {
-    const worker = await createWorker({
+    const worker = createWorker({
       queue,
       redisConfig,
       handler: () => 'some-result',
     });
     await worker.onReady();
-    const worker2 = await createWorker({
+    const worker2 = createWorker({
       queue,
       redisConfig,
       handler: () => 'some-result',
