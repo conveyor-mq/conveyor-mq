@@ -31,9 +31,10 @@ import {
 } from '../utils/keys';
 import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
-import { Worker } from '../domain/workers/worker';
-import { serializeWorker } from '../domain/workers/serialize-worker';
+import { WorkerInstance } from '../domain/worker/worker-instance';
+import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Task } from '../domain/tasks/task';
+import { Worker } from '../domain/worker/worker';
 
 const debug = debugF('conveyor-mq:worker');
 
@@ -108,7 +109,7 @@ export const createWorker = ({
   autoStart?: boolean;
   removeOnSuccess?: boolean;
   removeOnFailed?: boolean;
-}) => {
+}): Worker => {
   debug('Starting');
   let isPausing = false;
   let isPaused = true;
@@ -116,7 +117,7 @@ export const createWorker = ({
   let isShutdown = false;
   let upsertInterval: SetIntervalAsyncTimer;
 
-  const worker: Worker = {
+  const worker: WorkerInstance = {
     id: createWorkerId(),
     createdAt: new Date(),
   };
@@ -351,6 +352,8 @@ export const createWorker = ({
   const readyPromise = ready();
 
   return {
+    id: worker.id,
+    createdAt: worker.createdAt,
     onReady: async () => {
       debug('onReady');
       await readyPromise;

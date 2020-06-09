@@ -23,6 +23,7 @@ import {
   createClientAndLoadLuaScripts,
   ensureDisconnected,
 } from '../utils/redis';
+import { Listener } from '../domain/listener/listener';
 
 const debug = debugF('conveyor-mq:listener');
 
@@ -45,7 +46,7 @@ export const createListener = ({
   queue: string;
   redisConfig: RedisConfig;
   events?: EventType[];
-}) => {
+}): Listener => {
   debug('Starting');
   debug('Creating client');
   const client = createClientAndLoadLuaScripts(redisConfig);

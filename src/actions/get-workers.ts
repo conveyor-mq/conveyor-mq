@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { filter, map } from 'lodash';
 import { keys, mget } from '../utils/redis';
 import { getWorkerKeyPrefix } from '../utils/keys';
-import { deSerializeWorker } from '../domain/workers/deserialize-worker';
+import { deSerializeWorker } from '../domain/worker/deserialize-worker';
 
 /**
  * @ignore

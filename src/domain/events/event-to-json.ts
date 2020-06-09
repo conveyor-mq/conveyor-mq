@@ -1,6 +1,6 @@
 import { Event } from './event';
 import { taskToJson } from '../tasks/task-to-json';
-import { workerToJson } from '../workers/worker-to-json';
+import { workerToJson } from '../worker/worker-to-json';
 
 /**
  * @ignore

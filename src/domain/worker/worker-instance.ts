@@ -1,4 +1,4 @@
-export interface Worker {
+export interface WorkerInstance {
   id: string;
   createdAt: Date;
 }

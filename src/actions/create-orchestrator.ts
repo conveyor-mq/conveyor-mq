@@ -12,6 +12,7 @@ import {
 } from '../utils/redis';
 import { RedisConfig } from '../utils/general';
 import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
+import { Orchestrator } from '../domain/orchestrator/orchestrator';
 
 const debug = debugF('conveyor-mq:orchestrator');
 
@@ -41,7 +42,7 @@ export const createOrchestrator = ({
   stalledCheckInterval?: number;
   scheduledTasksCheckInterval?: number;
   defaultStallTimeout?: number;
-}) => {
+}): Orchestrator => {
   debug('Starting');
   debug('Creating client');
   const client = createClientAndLoadLuaScripts(redisConfig);

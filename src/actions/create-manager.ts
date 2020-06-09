@@ -21,13 +21,10 @@ import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
 import { getWorkers } from './get-workers';
 import { pauseQueue } from './pause-queue';
 import { resumeQueue } from './resume-queue';
+import { Manager } from '../domain/manager/manager';
+import { TaskResponse } from '../domain/manager/task-response';
 
 const debug = debugF('conveyor-mq:manager');
-
-export interface TaskResponse {
-  task: Task;
-  onTaskComplete: () => Promise<Task>;
-}
 
 /**
  * Creates a manager which is responsible for enqueuing tasks, as well as querying various
@@ -58,7 +55,7 @@ export const createManager = ({
 }: {
   queue: string;
   redisConfig: RedisConfig;
-}) => {
+}): Manager => {
   debug('Starting');
   debug('Creating client');
   const client = createClientAndLoadLuaScripts(redisConfig);
@@ -229,7 +226,7 @@ export const createManager = ({
     quit: async () => {
       await readyPromise;
       debug(`quit`);
-      return ensureDisconnected({ client });
+      await ensureDisconnected({ client });
     },
   };
 };

@@ -14,4 +14,8 @@ export { TaskStatus } from './domain/tasks/task-status';
 // Interfaces & types
 export { Task } from './domain/tasks/task';
 export { Event } from './domain/events/event';
-export { Worker } from './domain/workers/worker';
+export { Manager } from './domain/manager/manager';
+export { Listener } from './domain/listener/listener';
+export { Worker } from './domain/worker/worker';
+export { WorkerInstance } from './domain/worker/worker-instance';
+export { Orchestrator } from './domain/orchestrator/orchestrator';
