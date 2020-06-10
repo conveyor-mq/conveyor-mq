@@ -2,6 +2,10 @@
   Data structure keys:
 */
 
+export const getQueueRateLimitKey = ({ queue }: { queue: string }) => {
+  return `${queue}:rate-limit`;
+};
+
 export const getQueuePausedKey = ({ queue }: { queue: string }) => {
   return `${queue}:is-paused`;
 };
