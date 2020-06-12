@@ -705,7 +705,7 @@ await manager.quit();
 
 #### createWorker
 
-A is responsible for taking enqueued tasks off of the queue and processing them. Create a worker by calling `createWorker` with at least a `queue`, `redisConfig` and `handler` parameter.
+A worker is responsible for taking enqueued tasks off of the queue and processing them. Create a worker by calling `createWorker` with at least a `queue`, `redisConfig` and `handler` parameter.
 
 The `handler` parameter should be a function which receives a task and is responsible for processing the task.
 The handler should return a promise which should resolve if the task was successful, or reject if failed.
