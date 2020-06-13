@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { markTaskSuccess } from '../../actions/mark-task-success';
 import {
   flushAll,
@@ -34,7 +34,10 @@ describe('markTaskSuccessful', () => {
   it('markTaskSuccessful marks task successful', async () => {
     const task = { id: 'g', data: 'h' };
     await enqueueTask({ queue, client, task });
-    const acquiredTask = (await takeTask({ queue, client })) as Task;
+    const acquiredTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const successfulTask = await markTaskSuccess({
       task: acquiredTask,
       queue,

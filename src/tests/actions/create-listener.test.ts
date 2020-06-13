@@ -12,7 +12,7 @@ import { createListener } from '../../actions/create-listener';
 import { EventType } from '../../domain/events/event-type';
 import { TaskStatus } from '../../domain/tasks/task-status';
 import { createWorker } from '../../actions/create-worker';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { processStalledTasks } from '../../actions/process-stalled-tasks';
 import { updateTask } from '../../actions/update-task';
 import { Task } from '../../domain/tasks/task';
@@ -189,7 +189,7 @@ describe('createListener', () => {
     const task: Task = { id: 'b', data: 'c', stallRetryLimit: 1 };
     await manager.enqueueTask(task);
 
-    await takeTask({ queue, client, stallTimeout: 1 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 1 });
     await sleep(50);
     await processStalledTasks({ queue, client });
 

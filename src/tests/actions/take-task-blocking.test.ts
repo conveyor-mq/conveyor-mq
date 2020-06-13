@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { takeTaskBlocking } from '../../actions/take-task-blocking';
 import { isTaskStalled } from '../../actions/is-task-stalled';
 import {
@@ -38,7 +38,7 @@ describe('takeTaskBlocking', () => {
     });
     expect(processingTask).toHaveProperty('id', task.id);
     expect(processingTask).toHaveProperty('status', TaskStatus.Processing);
-    expect(await takeTask({ queue, client })).toBe(null);
+    expect(await takeTaskAndMarkAsProcessing({ queue, client })).toBe(null);
   });
   it('takeTaskBlocking acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };

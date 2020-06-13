@@ -11,7 +11,7 @@ import { getScheduledSetKey } from '../../utils/keys';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { scheduleTask } from '../../actions/schedule-task';
 
 describe('scheduleTask', () => {
@@ -81,7 +81,7 @@ describe('scheduleTask', () => {
     const scheduledTask = await scheduleTask({ queue, client, task });
     expect(scheduledTask.status).toBe(TaskStatus.Scheduled);
 
-    const taskResult = await takeTask({ queue, client });
+    const taskResult = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(taskResult).toBe(null);
 
     const [taskId] = await zrangebyscore({

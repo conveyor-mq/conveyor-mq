@@ -14,7 +14,7 @@ import {
   handleCallbacks,
 } from './handle-task';
 import { Task } from '../domain/tasks/task';
-import { takeTaskMulti } from './take-task';
+import { takeTaskAndMarkAsProcessingMulti } from './take-task-and-mark-as-processing';
 import { exec } from '../utils/redis';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
@@ -76,7 +76,7 @@ export const processTask = async ({
   });
   await clearIntervalAsync(timer);
   await handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed });
-  takeTaskMulti({ queue, multi, stallTimeout });
+  takeTaskAndMarkAsProcessingMulti({ queue, multi, stallTimeout });
   const result = await exec(multi);
   const taskString = result[result.length - 1] as string | null;
   return taskString ? deSerializeTask(taskString) : null;

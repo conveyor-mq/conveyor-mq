@@ -6,7 +6,7 @@ import {
   createClientAndLoadLuaScripts,
 } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
@@ -36,14 +36,14 @@ describe('enqueueScheduledTasks', () => {
     const task: Task = { id: 'b', data: 'c', enqueueAfter: now };
     await scheduleTask({ queue, task, client });
 
-    const result = await takeTask({ queue, client });
+    const result = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(result).toBe(null);
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
     expect(delayedTask?.status).toBe(TaskStatus.Queued);
 
-    const takenTask = await takeTask({ queue, client });
+    const takenTask = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks enqueues past tasks', async () => {
@@ -51,14 +51,14 @@ describe('enqueueScheduledTasks', () => {
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
     await scheduleTask({ queue, task, client });
 
-    const result = await takeTask({ queue, client });
+    const result = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(result).toBe(null);
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask?.id).toBe(task.id);
     expect(delayedTask?.status).toBe(TaskStatus.Queued);
 
-    const takenTask = await takeTask({ queue, client });
+    const takenTask = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks triggers taskQueued event', async () => {
@@ -85,13 +85,13 @@ describe('enqueueScheduledTasks', () => {
     const task: Task = { id: 'b', data: 'c', enqueueAfter: theFuture };
     await scheduleTask({ queue, task, client });
 
-    const result = await takeTask({ queue, client });
+    const result = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(result).toBe(null);
 
     const [delayedTask] = await enqueueScheduledTasks({ queue, client });
     expect(delayedTask).toBe(undefined);
 
-    const result2 = await takeTask({ queue, client });
+    const result2 = await takeTaskAndMarkAsProcessing({ queue, client });
     expect(result2).toBe(null);
   });
 });

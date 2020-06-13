@@ -8,7 +8,7 @@ import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { getTaskById } from '../../actions/get-task-by-id';
 import { redisConfig } from '../config';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
 
@@ -39,7 +39,7 @@ describe('getTask', () => {
     expect(retrievedTask.id).toBe(task.id);
     expect(retrievedTask.status).toBe(TaskStatus.Queued);
 
-    await takeTask({ queue, client, stallTimeout: 100 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 100 });
     const retrievedTask2 = (await getTaskById({
       queue,
       client,

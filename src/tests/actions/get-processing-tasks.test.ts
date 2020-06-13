@@ -7,7 +7,7 @@ import {
 } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
 
@@ -39,7 +39,7 @@ describe('getProcessingTasks', () => {
     );
     await Promise.all(
       map(puttedTasks, () => {
-        return takeTask({ queue, client });
+        return takeTaskAndMarkAsProcessing({ queue, client });
       }),
     );
     const processingTasks = await getProcessingTasks({ queue, client });

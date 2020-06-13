@@ -6,7 +6,7 @@ import {
 } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { redisConfig } from '../config';
 import { areTasksStalled } from '../../actions/are-tasks-stalled';
 import { markTaskFailed } from '../../actions/mark-task-failed';
@@ -45,8 +45,8 @@ describe('areTasksStalled', () => {
     expect(resultB.taskId).toBe(taskB.id);
     expect(resultB.isStalled).toBe(false);
 
-    await takeTask({ queue, client, stallTimeout: 1 });
-    await takeTask({ queue, client, stallTimeout: 100 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 1 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 100 });
     await sleep(50);
 
     const [resultA2, resultB2] = await areTasksStalled({
@@ -69,7 +69,7 @@ describe('areTasksStalled', () => {
     });
     expect(result.taskId).toBe(taskA.id);
     expect(result.isStalled).toBe(false);
-    await takeTask({ queue, client, stallTimeout: 1 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 1 });
     await sleep(10);
 
     const [result2] = await areTasksStalled({
@@ -105,7 +105,7 @@ describe('areTasksStalled', () => {
     });
     expect(result.taskId).toBe(taskA.id);
     expect(result.isStalled).toBe(false);
-    await takeTask({ queue, client, stallTimeout: 1 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 1 });
     await sleep(10);
 
     const [result2] = await areTasksStalled({

@@ -8,7 +8,7 @@ import {
 } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { redisConfig } from '../config';
 
 describe('acknowledgeTask', () => {
@@ -30,7 +30,7 @@ describe('acknowledgeTask', () => {
   it('acknowledgeTask acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, task, client });
-    await takeTask({ queue, client, stallTimeout: 1 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 1 });
     await sleep(50);
     expect(await isTaskStalled({ taskId: task.id, queue, client })).toBe(true);
     await acknowledgeTask({ taskId: task.id, queue, client, ttl: 50 });

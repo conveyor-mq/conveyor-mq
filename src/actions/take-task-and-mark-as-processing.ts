@@ -17,7 +17,7 @@ import { LuaScriptName } from '../lua';
 /**
  * @ignore
  */
-export const takeTaskMulti = ({
+export const takeTaskAndMarkAsProcessingMulti = ({
   queue,
   multi,
   stallTimeout = 1000,
@@ -47,7 +47,7 @@ export const takeTaskMulti = ({
 /**
  * @ignore
  */
-export const takeTask = async ({
+export const takeTaskAndMarkAsProcessing = async ({
   queue,
   client,
   stallTimeout = 1000,
@@ -57,7 +57,7 @@ export const takeTask = async ({
   stallTimeout?: number;
 }): Promise<Task | null> => {
   const multi = client.multi();
-  takeTaskMulti({ queue, multi, stallTimeout });
+  takeTaskAndMarkAsProcessingMulti({ queue, multi, stallTimeout });
   const result = await exec(multi);
   const taskString = result[result.length - 1] as string | null;
   if (!taskString) return null;

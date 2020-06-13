@@ -7,7 +7,7 @@ import {
 } from '../../utils/redis';
 import { sleep, createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { enqueueStalledTasks } from '../../actions/enqueue-stalled-tasks';
 import { getProcessingTasks } from '../../actions/get-processing-tasks';
@@ -35,8 +35,8 @@ describe('enqueueStalledTasks', () => {
     const taskB = { id: 'b', data: 'g' };
     await enqueueTask({ queue, task: taskA, client });
     await enqueueTask({ queue, task: taskB, client });
-    await takeTask({ queue, client, stallTimeout: 150 });
-    await takeTask({ queue, client, stallTimeout: 10000 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 150 });
+    await takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 10000 });
     expect((await getProcessingTasks({ queue, client })).length).toBe(2);
     expect((await getStalledTasks({ queue, client })).length).toBe(0);
     expect(await isTaskStalled({ taskId: taskA.id, queue, client })).toBe(
