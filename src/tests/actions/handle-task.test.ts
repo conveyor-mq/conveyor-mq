@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { hasTaskExpired } from '../../actions/has-task-expired';
 import { handleTask } from '../../actions/handle-task';
 import { getTaskById } from '../../actions/get-task-by-id';
@@ -39,7 +39,10 @@ describe('handleTask', () => {
     const expiredTask: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
     await enqueueTask({ task: expiredTask, queue, client });
-    const takenTask = (await takeTask({ queue, client })) as Task;
+    const takenTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const onTaskFailed = jest.fn();
     const result = await handleTask({
       queue,
@@ -139,7 +142,10 @@ describe('handleTask', () => {
     const now = moment('2020-01-02').toDate();
     const theTask: Task = { id: 'i', data: 'j' };
     await enqueueTask({ queue, task: theTask, client });
-    const processingTask = (await takeTask({ queue, client })) as Task;
+    const processingTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();
     const onFailure = jest.fn();
@@ -181,7 +187,10 @@ describe('handleTask', () => {
     const now = moment('2020-01-02').toDate();
     const theTask: Task = { id: 'i', data: 'j', retryLimit: 0 };
     await enqueueTask({ queue, task: theTask, client });
-    const processingTask = (await takeTask({ queue, client })) as Task;
+    const processingTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();
     const onFailure = jest.fn();
@@ -224,7 +233,10 @@ describe('handleTask', () => {
     const now = moment('2020-01-02').toDate();
     const task: Task = { id: 'i', data: 'j', errorRetryLimit: 1 };
     await enqueueTask({ queue, task, client });
-    const processingTask = (await takeTask({ queue, client })) as Task;
+    const processingTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const onSuccess = jest.fn();
     const onError = jest.fn();
     const onFailure = jest.fn();
@@ -263,10 +275,9 @@ describe('handleTask', () => {
     expect(handledTask.error).toBe(undefined);
     expect(handledTask.result).toBe(undefined);
 
-    await expect(takeTask({ queue, client })).resolves.toHaveProperty(
-      'id',
-      task.id,
-    );
+    await expect(
+      takeTaskAndMarkAsProcessing({ queue, client }),
+    ).resolves.toHaveProperty('id', task.id);
     await handleTask({
       queue,
       client,
@@ -287,7 +298,7 @@ describe('handleTask', () => {
     expect(handledTask2.status).toBe(TaskStatus.Failed);
     expect(handledTask2.error).toBe('some-error');
     expect(handledTask2.result).toBe(undefined);
-    expect(await takeTask({ queue, client })).toBe(null);
+    expect(await takeTaskAndMarkAsProcessing({ queue, client })).toBe(null);
   });
   it('handleTask times out task with executionTimeout', async () => {
     const task: Task = {
@@ -297,7 +308,10 @@ describe('handleTask', () => {
       retryLimit: 0,
     };
     await enqueueTask({ queue, task, client });
-    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const taskToHandle = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const result = await handleTask({
       queue,
       client,
@@ -333,7 +347,10 @@ describe('handleTask', () => {
       data: 'j',
     };
     await enqueueTask({ queue, task, client });
-    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const taskToHandle = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const result = await handleTask({
       queue,
       client,
@@ -364,7 +381,10 @@ describe('handleTask', () => {
       data: 'j',
     };
     await enqueueTask({ queue, task, client });
-    const taskToHandle = (await takeTask({ queue, client })) as Task;
+    const taskToHandle = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const result = await handleTask({
       queue,
       client,

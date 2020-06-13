@@ -13,7 +13,7 @@ import {
 } from '../../utils/keys';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { removeTaskById } from '../../actions/remove-task-by-id';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 
 describe('removeTaskById', () => {
   const queue = createUuid();
@@ -43,7 +43,7 @@ describe('removeTaskById', () => {
   it('removeTaskById removes processing task', async () => {
     const task = { id: '2', data: 'c' };
     await enqueueTask({ queue, task, client });
-    await takeTask({ queue, client });
+    await takeTaskAndMarkAsProcessing({ queue, client });
     expect(await client.exists(getTaskKey({ taskId: task.id, queue }))).toBe(1);
     expect(await client.llen(getProcessingListKey({ queue }))).toBe(1);
     await removeTaskById({ taskId: task.id, queue, client });

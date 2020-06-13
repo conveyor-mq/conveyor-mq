@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { markTaskFailed } from '../../actions/mark-task-failed';
 import {
   flushAll,
@@ -34,7 +34,10 @@ describe('markTaskFailed', () => {
   it('markTaskFailed marks task failed', async () => {
     const task = { id: 'i', data: 'j' };
     await enqueueTask({ queue, client, task });
-    const acquiredTask = (await takeTask({ queue, client })) as Task;
+    const acquiredTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     const failedTask = await markTaskFailed({
       task: acquiredTask,
       queue,

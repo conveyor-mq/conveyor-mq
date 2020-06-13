@@ -35,6 +35,7 @@ import { WorkerInstance } from '../domain/worker/worker-instance';
 import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Task } from '../domain/tasks/task';
 import { Worker } from '../domain/worker/worker';
+import { markTaskProcessing } from './mark-task-processing';
 
 const debug = debugF('conveyor-mq:worker');
 
@@ -148,13 +149,20 @@ export const createWorker = ({
       const task =
         t ||
         (await tryIgnore(
-          () =>
-            takeTaskBlocking({
+          async () => {
+            const taskId = await takeTaskBlocking({
               queue,
               client: takerClient,
-              client2: workerClient,
+            });
+            if (!taskId) return null;
+            const processingTask = await markTaskProcessing({
+              taskId,
+              queue,
               stallTimeout: defaultStallTimeout,
-            }),
+              client: workerClient,
+            });
+            return processingTask;
+          },
           () => isActive(),
         ));
       if (task) {
@@ -163,7 +171,7 @@ export const createWorker = ({
           tryIgnore(
             async () => {
               debug(`Processing task ${task.id}`);
-              const theNextTask = await processTask({
+              const nextTaskToHandle = await processTask({
                 task,
                 queue,
                 client: workerClient,
@@ -193,7 +201,7 @@ export const createWorker = ({
                     : removeOnFailed,
               });
               debug(`Processed task ${task.id}`);
-              return theNextTask;
+              return nextTaskToHandle;
             },
             () => isActive(),
           ),

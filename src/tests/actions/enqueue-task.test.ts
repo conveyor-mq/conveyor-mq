@@ -13,7 +13,7 @@ import { redisConfig } from '../config';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
 import { pauseQueue } from '../../actions/pause-queue';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { resumeQueue } from '../../actions/resume-queue';
 
 describe('enqueueTask', () => {
@@ -119,12 +119,20 @@ describe('enqueueTask', () => {
     expect(typeof queuedTask.queuedAt).toBe('object'); // Moment date is type 'object'.
     expect(queuedTask.processingStartedAt).toBe(undefined);
     expect(queuedTask.processingEndedAt).toBe(undefined);
-    const result = await takeTask({ queue, client, stallTimeout: 1000 });
+    const result = await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+      stallTimeout: 1000,
+    });
     expect(result).toBe(null);
 
     await resumeQueue({ queue, client });
 
-    const result2 = await takeTask({ queue, client, stallTimeout: 1000 });
+    const result2 = await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+      stallTimeout: 1000,
+    });
     expect(result2?.id).toBe(task.id);
   });
 });

@@ -6,7 +6,7 @@ import {
 } from '../../utils/redis';
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
-import { takeTask } from '../../actions/take-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { Task } from '../../domain/tasks/task';
 import { enqueueTasks } from '../../actions/enqueue-tasks';
 import { markTaskSuccess } from '../../actions/mark-task-success';
@@ -43,9 +43,15 @@ describe('getTaskCounts', () => {
       tasks: [task2, task3, task4, task5, task6],
       client,
     });
-    await takeTask({ queue, client });
-    const successfulTask = (await takeTask({ queue, client })) as Task;
-    const failedTask = (await takeTask({ queue, client })) as Task;
+    await takeTaskAndMarkAsProcessing({ queue, client });
+    const successfulTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
+    const failedTask = (await takeTaskAndMarkAsProcessing({
+      queue,
+      client,
+    })) as Task;
     await markTaskSuccess({
       task: successfulTask,
       queue,
