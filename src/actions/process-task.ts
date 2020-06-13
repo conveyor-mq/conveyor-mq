@@ -62,7 +62,7 @@ export const processTask = async ({
     });
     if (onAcknowledgedTask) onAcknowledgedTask({ task });
   }, taskAcknowledgementInterval);
-  const multi = client.multi();
+  const multi = client.pipeline();
   const response = await handleTaskMulti({
     task,
     queue,
@@ -74,10 +74,13 @@ export const processTask = async ({
     removeOnSuccess,
     removeOnFailed,
   });
-  await clearIntervalAsync(timer);
-  await handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed });
   takeTaskAndMarkAsProcessingMulti({ queue, multi, stallTimeout });
-  const result = await exec(multi);
+  const [result] = await Promise.all([
+    exec(multi),
+    clearIntervalAsync(timer),
+    handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed }),
+  ]);
   const taskString = result[result.length - 1] as string | null;
-  return taskString ? deSerializeTask(taskString) : null;
+  const nextTaskToHandle = taskString ? deSerializeTask(taskString) : null;
+  return nextTaskToHandle;
 };

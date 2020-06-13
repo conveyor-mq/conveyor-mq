@@ -11,6 +11,7 @@ import {
 import { createUuid } from '../../utils/general';
 import { redisConfig } from '../config';
 import { TaskStatus } from '../../domain/tasks/task-status';
+import { markTaskProcessing } from '../../actions/mark-task-processing';
 
 describe('takeTaskBlocking', () => {
   const queue = createUuid();
@@ -31,10 +32,15 @@ describe('takeTaskBlocking', () => {
   it('takeTaskBlocking takes task off a queue and returns task', async () => {
     const task = { id: 'e', data: 'f' };
     await enqueueTask({ queue, client, task });
-    const processingTask = await takeTaskBlocking({
+    const taskId = (await takeTaskBlocking({
       queue,
       client,
-      client2: client,
+    })) as string;
+    const processingTask = await markTaskProcessing({
+      taskId,
+      queue,
+      client,
+      stallTimeout: 1000,
     });
     expect(processingTask).toHaveProperty('id', task.id);
     expect(processingTask).toHaveProperty('status', TaskStatus.Processing);
@@ -43,7 +49,8 @@ describe('takeTaskBlocking', () => {
   it('takeTaskBlocking acknowledges task', async () => {
     const task = { id: 'b', data: 'c' };
     await enqueueTask({ queue, client, task });
-    await takeTaskBlocking({ queue, client, client2: client });
+    const taskId = (await takeTaskBlocking({ queue, client })) as string;
+    await markTaskProcessing({ taskId, stallTimeout: 1000, queue, client });
     const isStalled = await isTaskStalled({ taskId: task.id, queue, client });
     expect(isStalled).toBe(false);
   });
@@ -52,7 +59,6 @@ describe('takeTaskBlocking', () => {
     const task = await takeTaskBlocking({
       queue,
       client: blockingClient,
-      client2: client,
       timeout: 1,
     });
     expect(task).toBe(null);
