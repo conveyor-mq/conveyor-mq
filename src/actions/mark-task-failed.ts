@@ -5,7 +5,6 @@ import {
   getFailedListKey,
   getStallingHashKey,
   getQueueTaskFailedChannel,
-  getQueueTaskCompleteChannel,
   getProcessingListKey,
 } from '../utils/keys';
 import { TaskStatus } from '../domain/tasks/task-status';
@@ -50,14 +49,6 @@ export const markTaskFailedMulti = ({
     serializeEvent({
       createdAt: new Date(),
       type: EventType.TaskFail,
-      task: failedTask,
-    }),
-  );
-  multi.publish(
-    getQueueTaskCompleteChannel({ queue }),
-    serializeEvent({
-      createdAt: new Date(),
-      type: EventType.TaskComplete,
       task: failedTask,
     }),
   );

@@ -23,7 +23,7 @@ export const loadLuaScripts = ({ client }: { client: Redis }) => {
     {
       name: LuaScriptName.markTaskSuccess,
       filePath: './mark-task-success.lua',
-      numberOfKeys: 13,
+      numberOfKeys: 12,
     },
     {
       name: LuaScriptName.takeTask,
