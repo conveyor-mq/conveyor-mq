@@ -1,21 +1,20 @@
-local taskId = KEYS[1]
-local taskKeyPrefix = KEYS[2]
-local defaultStallTimeout = KEYS[3]
-local queue = KEYS[4]
-local datetime = KEYS[5]
-local publishChannel = KEYS[6]
-local stallingHashKey = KEYS[7]
-local eventType = KEYS[8]
-local status = KEYS[9]
+local taskKey = KEYS[1]
+local stallingHashKey = KEYS[2]
+local acknowledgedKey = KEYS[3]
 
-local taskKey = taskKeyPrefix .. taskId
+local defaultStallTimeout = ARGV[1]
+local datetime = ARGV[2]
+local publishChannel = ARGV[3]
+local eventType = ARGV[4]
+local status = ARGV[5]
+local taskId = ARGV[6]
+
 local taskJson = redis.call('get', taskKey)
 local task = cjson.decode(taskJson)
 task['status'] = status
 task['processingStartedAt'] = datetime
 
-local lockKey = queue .. ':acknowledged-tasks:' .. taskId
-redis.call('set', lockKey, '', 'px', task['stallTimeout'] or defaultStallTimeout)
+redis.call('set', acknowledgedKey, '', 'px', task['stallTimeout'] or defaultStallTimeout)
 redis.call('hset', stallingHashKey, taskId, '')
 
 local processingTaskJson = cjson.encode(task)

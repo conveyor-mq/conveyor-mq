@@ -1,5 +1,4 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { map } from 'lodash';
 import { callLuaScript } from '../utils/redis';
 import {
@@ -25,21 +24,21 @@ export const enqueueScheduledTasks = async ({
   queue: string;
   client: Redis;
 }) => {
-  const now = moment();
+  const now = new Date();
   const taskStrings = (await callLuaScript({
     client,
     script: LuaScriptName.enqueueScheduledTasks,
     args: [
       getScheduledSetKey({ queue }),
       getQueuedListKey({ queue }),
-      now.unix(),
+      getQueuePausedKey({ queue }),
+      getPausedListKey({ queue }),
+      now.getTime() / 1000,
       getTaskKeyPrefix({ queue }),
       TaskStatus.Queued,
       now.toISOString(),
       EventType.TaskQueued,
       getQueueTaskQueuedChannel({ queue }),
-      getQueuePausedKey({ queue }),
-      getPausedListKey({ queue }),
     ],
   })) as string[];
   const tasks = map(taskStrings, (taskString) => deSerializeTask(taskString));

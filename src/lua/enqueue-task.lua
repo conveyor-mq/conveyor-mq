@@ -1,12 +1,13 @@
 local taskKey = KEYS[1]
-local taskString = KEYS[2]
-local queuedListKey = KEYS[3]
-local taskQueuedChannel = KEYS[4]
-local eventType = KEYS[5]
-local asOf = KEYS[6]
-local taskId = KEYS[7]
-local isPausedKey = KEYS[8]
-local pausedListKey = KEYS[9]
+local queuedListKey = KEYS[2]
+local isPausedKey = KEYS[3]
+local pausedListKey = KEYS[4]
+
+local taskString = ARGV[1]
+local taskQueuedChannel = ARGV[2]
+local eventType = ARGV[3]
+local asOf = ARGV[4]
+local taskId = ARGV[5]
 
 redis.call('set', taskKey, taskString)
 

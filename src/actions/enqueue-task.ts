@@ -49,14 +49,14 @@ export const enqueueTaskMulti = ({
     script: LuaScriptName.enqueueTask,
     args: [
       taskKey,
-      taskString,
       getQueuedListKey({ queue }),
+      getQueuePausedKey({ queue }),
+      getPausedListKey({ queue }),
+      taskString,
       getQueueTaskQueuedChannel({ queue }),
       EventType.TaskQueued,
       new Date().toISOString(),
       taskToQueue.id,
-      getQueuePausedKey({ queue }),
-      getPausedListKey({ queue }),
     ],
   });
   return taskToQueue;

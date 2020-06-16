@@ -4,7 +4,7 @@ import { Redis } from 'ioredis';
 import { forEach } from 'lodash';
 
 export enum LuaScriptName {
-  takeTask = 'takeTask',
+  takeTaskAndMarkAsProcessing = 'takeTask',
   markTaskProcessing = 'markTaskProcessing',
   enqueueScheduledTasks = 'enqueueScheduledTasks',
   acknowledgeOrphanedProcessingTasks = 'acknowledgeOrphanedProcessingTasks',
@@ -18,37 +18,32 @@ export const loadLuaScripts = ({ client }: { client: Redis }) => {
     {
       name: LuaScriptName.enqueueTask,
       filePath: './enqueue-task.lua',
-      numberOfKeys: 9,
+      numberOfKeys: 4,
     },
     {
-      name: LuaScriptName.markTaskSuccess,
-      filePath: './mark-task-success.lua',
-      numberOfKeys: 13,
-    },
-    {
-      name: LuaScriptName.takeTask,
-      filePath: './take-task.lua',
-      numberOfKeys: 10,
+      name: LuaScriptName.takeTaskAndMarkAsProcessing,
+      filePath: './take-task-and-mark-as-processing.lua',
+      numberOfKeys: 3,
     },
     {
       name: LuaScriptName.markTaskProcessing,
       filePath: './mark-task-processing.lua',
-      numberOfKeys: 9,
+      numberOfKeys: 3,
     },
     {
       name: LuaScriptName.enqueueScheduledTasks,
       filePath: './enqueue-scheduled-tasks.lua',
-      numberOfKeys: 10,
+      numberOfKeys: 4,
     },
     {
       name: LuaScriptName.acknowledgeOrphanedProcessingTasks,
       filePath: './acknowledge-orphaned-processing-tasks.lua',
-      numberOfKeys: 5,
+      numberOfKeys: 2,
     },
     {
       name: LuaScriptName.updateTask,
       filePath: './update-task.lua',
-      numberOfKeys: 5,
+      numberOfKeys: 1,
     },
   ];
   forEach(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {

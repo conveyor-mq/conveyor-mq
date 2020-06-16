@@ -1,10 +1,10 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
 import { callLuaScript } from '../utils/redis';
 import {
   getQueueTaskProcessingChannel,
   getStallingHashKey,
-  getTaskKeyPrefix,
+  getTaskKey,
+  getTaskAcknowledgedKey,
 } from '../utils/keys';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { EventType } from '../domain/events/event-type';
@@ -29,15 +29,15 @@ export const markTaskProcessing = async ({
     client,
     script: LuaScriptName.markTaskProcessing,
     args: [
-      taskId,
-      getTaskKeyPrefix({ queue }),
-      stallTimeout,
-      queue,
-      moment().toISOString(),
-      getQueueTaskProcessingChannel({ queue }),
+      getTaskKey({ taskId, queue }),
       getStallingHashKey({ queue }),
+      getTaskAcknowledgedKey({ taskId, queue }),
+      stallTimeout,
+      new Date().toISOString(),
+      getQueueTaskProcessingChannel({ queue }),
       EventType.TaskProcessing,
       TaskStatus.Processing,
+      taskId,
     ],
   })) as string;
   const task = deSerializeTask(taskString);

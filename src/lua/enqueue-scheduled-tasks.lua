@@ -1,13 +1,14 @@
-local delayedSetKey = KEYS[1]
+local scheduledSetKey = KEYS[1]
 local queuedListKey = KEYS[2]
-local nowUnix = tonumber(KEYS[3])
-local taskKeyPrefix = KEYS[4]
-local status = KEYS[5]
-local asOf = KEYS[6]
-local eventType = KEYS[7]
-local taskQueuedChannel = KEYS[8]
-local isPausedKey = KEYS[9]
-local pausedListKey = KEYS[10]
+local isPausedKey = KEYS[3]
+local pausedListKey = KEYS[4]
+
+local nowUnix = tonumber(ARGV[1])
+local taskKeyPrefix = ARGV[2]
+local status = ARGV[3]
+local asOf = ARGV[4]
+local eventType = ARGV[5]
+local taskQueuedChannel = ARGV[6]
 
 local function map(func, array)
     local new_array = {}
@@ -17,10 +18,10 @@ end
 
 local function getTaskKey(taskId) return taskKeyPrefix .. taskId end
 
-local delayedTaskIds = redis.call('zrangebyscore', delayedSetKey, 0, nowUnix)
+local delayedTaskIds = redis.call('zrangebyscore', scheduledSetKey, 0, nowUnix)
 
 if #delayedTaskIds > 0 then
-    redis.call('zremrangebyscore', delayedSetKey, 0, nowUnix)
+    redis.call('zremrangebyscore', scheduledSetKey, 0, nowUnix)
 
     local isPaused = redis.call('get', isPausedKey) == 'true'
     if (isPaused) then

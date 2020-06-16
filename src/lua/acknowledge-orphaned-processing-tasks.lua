@@ -1,8 +1,9 @@
 local processingListKey = KEYS[1]
 local stallingHashKey = KEYS[2]
-local taskKeyPrefix = KEYS[3]
-local queue = KEYS[4]
-local defaultStallTimeout = KEYS[5]
+
+local taskKeyPrefix = ARGV[1]
+local queue = ARGV[2]
+local defaultStallTimeout = ARGV[3]
 
 local function difference(a, b)
     local aa = {}

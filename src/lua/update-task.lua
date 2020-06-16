@@ -1,8 +1,9 @@
 local taskKey = KEYS[1]
-local taskUpdateDataString = KEYS[2]
-local asOf = KEYS[3]
-local publishChannel = KEYS[4]
-local eventType = KEYS[5]
+
+local taskUpdateDataString = ARGV[1]
+local asOf = ARGV[2]
+local publishChannel = ARGV[3]
+local eventType = ARGV[4]
 
 local taskString = redis.call('get', taskKey)
 if not taskString then return end

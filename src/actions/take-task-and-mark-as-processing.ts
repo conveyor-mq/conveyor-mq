@@ -1,5 +1,4 @@
 import { Redis, Pipeline } from 'ioredis';
-import moment from 'moment';
 import { exec, callLuaScriptMulti } from '../utils/redis';
 import {
   getQueuedListKey,
@@ -28,16 +27,16 @@ export const takeTaskAndMarkAsProcessingMulti = ({
 }): void => {
   callLuaScriptMulti({
     multi,
-    script: LuaScriptName.takeTask,
+    script: LuaScriptName.takeTaskAndMarkAsProcessing,
     args: [
       getQueuedListKey({ queue }),
       getProcessingListKey({ queue }),
+      getStallingHashKey({ queue }),
       getTaskKeyPrefix({ queue }),
       stallTimeout,
       queue,
-      moment().toISOString(),
+      new Date().toISOString(),
       getQueueTaskProcessingChannel({ queue }),
-      getStallingHashKey({ queue }),
       EventType.TaskProcessing,
       TaskStatus.Processing,
     ],

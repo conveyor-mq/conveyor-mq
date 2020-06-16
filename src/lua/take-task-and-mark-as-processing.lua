@@ -1,13 +1,14 @@
 local fromQueue = KEYS[1]
 local toQueue = KEYS[2]
-local taskKeyPrefix = KEYS[3]
-local defaultStallTimeout = KEYS[4]
-local queue = KEYS[5]
-local datetime = KEYS[6]
-local publishChannel = KEYS[7]
-local stallingHashKey = KEYS[8]
-local eventType = KEYS[9]
-local status = KEYS[10]
+local stallingHashKey = KEYS[3]
+
+local taskKeyPrefix = ARGV[1]
+local defaultStallTimeout = ARGV[2]
+local queue = ARGV[3]
+local datetime = ARGV[4]
+local publishChannel = ARGV[5]
+local eventType = ARGV[6]
+local status = ARGV[7]
 
 local taskId = redis.call('rpoplpush', fromQueue, toQueue)
 
