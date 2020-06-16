@@ -85,9 +85,13 @@
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface"><a href="interfaces/event.html" class="tsd-kind-icon">Event</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/listener.html" class="tsd-kind-icon">Listener</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/manager.html" class="tsd-kind-icon">Manager</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/orchestrator.html" class="tsd-kind-icon">Orchestrator</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/task.html" class="tsd-kind-icon">Task</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/taskresponse.html" class="tsd-kind-icon">TaskResponse</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/worker.html" class="tsd-kind-icon">Worker</a></li>
+								<li class="tsd-kind-interface"><a href="interfaces/workerinstance.html" class="tsd-kind-icon">WorkerInstance</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -116,10 +120,10 @@
 					<div class="tsd-signature tsd-kind-icon">debug<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Debugger</span><span class="tsd-signature-symbol"> = debugF(&#x27;conveyor-mq:orchestrator&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in actions/create-listener.ts:27</li>
-							<li>Defined in actions/create-manager.ts:25</li>
-							<li>Defined in actions/create-worker.ts:38</li>
-							<li>Defined in actions/create-orchestrator.ts:16</li>
+							<li>Defined in actions/create-listener.ts:28</li>
+							<li>Defined in actions/create-manager.ts:27</li>
+							<li>Defined in actions/create-worker.ts:40</li>
+							<li>Defined in actions/create-orchestrator.ts:17</li>
 						</ul>
 					</aside>
 				</section>
@@ -130,13 +134,13 @@
 					<a name="createlistener" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Listener</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Listener<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Listener<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/listener.html" class="tsd-signature-type">Listener</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-listener.ts:40</li>
+									<li>Defined in actions/create-listener.ts:41</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -168,91 +172,12 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/listener.html" class="tsd-signature-type">Listener</a></h4>
 							<p>listener</p>
 							<ul>
 								<li>.onReady(): Promise<void> - A function which returns a promise that resolves when the listener is ready.</li>
 								<li>.on(eventName, handler): void - A function which registers a handler function for a particular event.</li>
 								<li>.quit(): Promise<void> - Quits the listener, disconnects the redis client and removes all handlers.</li>
-							</ul>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>on<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>eventType<span class="tsd-signature-symbol">: </span><a href="enums/eventtype.html" class="tsd-signature-type">EventType</a>, f<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-listener.ts:104</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>eventType: <a href="enums/eventtype.html" class="tsd-signature-type">EventType</a></h5>
-												</li>
-												<li>
-													<h5>f: <span class="tsd-signature-type">function</span></h5>
-													<ul class="tsd-parameters">
-														<li class="tsd-parameter-siganture">
-															<ul class="tsd-signatures tsd-kind-type-literal">
-																<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-															</ul>
-															<ul class="tsd-descriptions">
-																<li class="tsd-description">
-																	<h4 class="tsd-parameters-title">Parameters</h4>
-																	<ul class="tsd-parameters">
-																		<li>
-																			<h5>__namedParameters: <span class="tsd-signature-type">object</span></h5>
-																			<ul class="tsd-parameters">
-																				<li class="tsd-parameter">
-																					<h5>event<span class="tsd-signature-symbol">: </span><a href="interfaces/event.html" class="tsd-signature-type">Event</a></h5>
-																				</li>
-																			</ul>
-																		</li>
-																	</ul>
-																	<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-																</li>
-															</ul>
-														</li>
-													</ul>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>on<wbr>Ready<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Ready<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-listener.ts:101</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>quit<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">quit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-listener.ts:107</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
 							</ul>
 						</li>
 					</ul>
@@ -261,13 +186,13 @@
 					<a name="createmanager" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Manager</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Manager<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Manager<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/manager.html" class="tsd-signature-type">Manager</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-manager.ts:55</li>
+									<li>Defined in actions/create-manager.ts:52</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -297,7 +222,7 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/manager.html" class="tsd-signature-type">Manager</a></h4>
 							<p>manager</p>
 							<ul>
 								<li>.enqueueTask(task): Promise<Task> - Enqueues a task on the queue.</li>
@@ -316,281 +241,6 @@
 								<li>.onReady(): Promise<void> - Returns a promise which resolves once the manager is ready.</li>
 								<li>.quit(): Promise<void> - Quits the manager, disconnects the redis clients.</li>
 							</ul>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>destroy<wbr>Queue<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">destroy<wbr>Queue<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:210</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>enqueue<wbr>Task<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">enqueue<wbr>Task<span class="tsd-signature-symbol">(</span>task<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:160</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>task: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>enqueue<wbr>Tasks<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">enqueue<wbr>Tasks<span class="tsd-signature-symbol">(</span>tasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:165</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>tasks: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>get<wbr>Task<wbr>ById<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">get<wbr>Task<wbr>ById<span class="tsd-signature-symbol">(</span>taskId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:185</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>taskId: <span class="tsd-signature-type">string</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>get<wbr>Task<wbr>Counts<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">get<wbr>Task<wbr>Counts<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:195</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>get<wbr>Tasks<wbr>ById<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">get<wbr>Tasks<wbr>ById<span class="tsd-signature-symbol">(</span>taskIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:190</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>taskIds: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>get<wbr>Workers<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">get<wbr>Workers<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:200</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>on<wbr>Ready<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Ready<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:225</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>on<wbr>Task<wbr>Complete<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Task<wbr>Complete<span class="tsd-signature-symbol">(</span>taskId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:180</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>taskId: <span class="tsd-signature-type">string</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>pause<wbr>Queue<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">pause<wbr>Queue<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:215</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>quit<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">quit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:229</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>remove<wbr>Task<wbr>ById<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">remove<wbr>Task<wbr>ById<span class="tsd-signature-symbol">(</span>taskId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:205</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>taskId: <span class="tsd-signature-type">string</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>resume<wbr>Queue<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">resume<wbr>Queue<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:220</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>schedule<wbr>Task<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">schedule<wbr>Task<span class="tsd-signature-symbol">(</span>task<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:170</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>task: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>schedule<wbr>Tasks<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">schedule<wbr>Tasks<span class="tsd-signature-symbol">(</span>tasks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-manager.ts:175</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5>tasks: <span class="tsd-signature-type">Partial</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/task.html" class="tsd-signature-type">Task</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/taskresponse.html" class="tsd-signature-type">TaskResponse</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-							</ul>
 						</li>
 					</ul>
 				</section>
@@ -598,13 +248,13 @@
 					<a name="createorchestrator" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Orchestrator</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Orchestrator<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Orchestrator<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/orchestrator.html" class="tsd-signature-type">Orchestrator</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-orchestrator.ts:32</li>
+									<li>Defined in actions/create-orchestrator.ts:33</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -644,31 +294,11 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/orchestrator.html" class="tsd-signature-type">Orchestrator</a></h4>
 							<p>orchestrator</p>
 							<ul>
 								<li>.onReady(): Promise<void> - Returns a promise that resolves when the orchestrator is ready.</li>
 								<li>.quit(): Promise<void> - Quits the orchestrator, terminating all intervals and the redis client.</li>
-							</ul>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>quit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">quit</span></h5>
-								</li>
-								<li class="tsd-parameter">
-									<h5>on<wbr>Ready<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Ready<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-orchestrator.ts:97</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
 							</ul>
 						</li>
 					</ul>
@@ -677,13 +307,13 @@
 					<a name="createworker" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> create<wbr>Worker</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Worker<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Worker<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/worker.html" class="tsd-signature-type">Worker</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in actions/create-worker.ts:75</li>
+									<li>Defined in actions/create-worker.ts:77</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
@@ -822,7 +452,7 @@
 									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/worker.html" class="tsd-signature-type">Worker</a></h4>
 							<p>worker</p>
 							<ul>
 								<li>.onReady(): Promise<void> - A function which returns a promise that resolves when the worker is ready.</li>
@@ -831,100 +461,11 @@
 								<li>.shutdown(): Promise<void> - Shuts down the worker and disconnects redis clients.</li>
 								<li>.onIdle(): Promise<void> - Returns a promise which resolves once the worker is idle.</li>
 							</ul>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>on<wbr>Idle<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Idle<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-worker.ts:367</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>on<wbr>Ready<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">on<wbr>Ready<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-worker.ts:354</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>pause<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">pause<span class="tsd-signature-symbol">(</span>killProcessingTasks<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-worker.ts:358</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5><span class="tsd-flag ts-flagOptional">Optional</span> killProcessingTasks: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>shutdown<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">shutdown<span class="tsd-signature-symbol">(</span>killProcessingTasks<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-worker.ts:363</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-parameters-title">Parameters</h4>
-											<ul class="tsd-parameters">
-												<li>
-													<h5><span class="tsd-flag ts-flagOptional">Optional</span> killProcessingTasks: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></h5>
-												</li>
-											</ul>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-								<li class="tsd-parameter">
-									<h5>start<span class="tsd-signature-symbol">: </span>function</h5>
-									<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
-										<li class="tsd-signature tsd-kind-icon">start<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-									</ul>
-									<ul class="tsd-descriptions">
-										<li class="tsd-description">
-											<aside class="tsd-sources">
-												<ul>
-													<li>Defined in actions/create-worker.ts:362</li>
-												</ul>
-											</aside>
-											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-										</li>
-								</ul>        </li>
-							</ul>
 						</li>
 					</ul>
 				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/jason/projects/conveyor-mq&quot;,&quot;tsconfig&quot;:&quot;/Users/jason/projects/conveyor-mq&quot;,&quot;inputFiles&quot;:[&quot;/Users/jason/projects/conveyor-mq/src/index.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/acknowledge-orphaned-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/acknowledge-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/are-tasks-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-listener.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-manager.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-orchestrator.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/destroy-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-scheduled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-stalling-task-ids.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-task-counts.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-tasks-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-workers.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/handle-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/handle-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/has-task-expired.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/is-task-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-failed.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-processing.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-success.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-tasks-failed.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/pause-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/persist-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/process-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/process-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/remove-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/resume-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/schedule-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/schedule-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/take-task-blocking.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/take-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/update-task-progress.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/update-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/deserialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-type.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/serialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/deserialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/serialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-status.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/deserialize-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/serialize-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/lua/index.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/config.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/acknowledge-orphaned-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/acknowledge-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/are-tasks-stalled.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-listener.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-manager.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-worker.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/destroy-queue.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-scheduled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-task-counts.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-workers.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/handle-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/handle-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/has-task-expired.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/mark-task-failed.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/mark-task-successful.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/remove-task-by-id.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/schedule-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/take-task-blocking.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/take-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/general.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/keys.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/redis.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/retry-strategies.ts&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;./src/tests/**&quot;,&quot;./src/utils/**&quot;,&quot;./src/lua/**&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;none&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false}-->
+			<!--{&quot;options&quot;:&quot;/home/jason/projects/conveyor-mq&quot;,&quot;tsconfig&quot;:&quot;/home/jason/projects/conveyor-mq&quot;,&quot;inputFiles&quot;:[&quot;/home/jason/projects/conveyor-mq/src/index.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/acknowledge-orphaned-processing-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/acknowledge-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/are-tasks-stalled.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-listener.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-manager.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-orchestrator.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/destroy-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-scheduled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-processing-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-stalling-task-ids.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-task-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-task-counts.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-tasks-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-workers.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/handle-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/handle-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/has-task-expired.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/is-task-stalled.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-failed.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-processing.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-success.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-tasks-failed.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/pause-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/persist-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/process-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/process-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/remove-task-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/resume-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/schedule-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/schedule-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/take-task-and-mark-as-processing.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/take-task-blocking.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/update-task-progress.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/update-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/deserialize-event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-type.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/serialize-event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/listener/listener.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/manager/manager.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/manager/task-response.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/orchestrator/orchestrator.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/deserialize-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/serialize-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-status.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/deserialize-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/serialize-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-instance.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/lua/index.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/config.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/acknowledge-orphaned-processing-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/acknowledge-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/are-tasks-stalled.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-listener.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-manager.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-worker.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/destroy-queue.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-scheduled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-processing-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-task-counts.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-workers.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/handle-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/handle-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/has-task-expired.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/mark-task-failed.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/mark-task-successful.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/remove-task-by-id.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/schedule-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/take-task-and-mark-as-processing.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/take-task-blocking.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/general.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/keys.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/redis.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/retry-strategies.ts&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;./src/tests/**&quot;,&quot;./src/utils/**&quot;,&quot;./src/lua/**&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;none&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
@@ -939,6 +480,15 @@
 						<a href="interfaces/event.html" class="tsd-kind-icon">Event</a>
 					</li>
 					<li class=" tsd-kind-interface root">
+						<a href="interfaces/listener.html" class="tsd-kind-icon">Listener</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/manager.html" class="tsd-kind-icon">Manager</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/orchestrator.html" class="tsd-kind-icon">Orchestrator</a>
+					</li>
+					<li class=" tsd-kind-interface root">
 						<a href="interfaces/task.html" class="tsd-kind-icon">Task</a>
 					</li>
 					<li class=" tsd-kind-interface root">
@@ -946,6 +496,9 @@
 					</li>
 					<li class=" tsd-kind-interface root">
 						<a href="interfaces/worker.html" class="tsd-kind-icon">Worker</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="interfaces/workerinstance.html" class="tsd-kind-icon">Worker<wbr>Instance</a>
 					</li>
 					<li class=" tsd-kind-variable root">
 						<a href="index.html#debug" class="tsd-kind-icon">debug</a>

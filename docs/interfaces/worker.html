@@ -90,6 +90,11 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#createdat" class="tsd-kind-icon">createdAt</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#onidle" class="tsd-kind-icon">onIdle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#onready" class="tsd-kind-icon">onReady</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#pause" class="tsd-kind-icon">pause</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#shutdown" class="tsd-kind-icon">shutdown</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="worker.html#start" class="tsd-kind-icon">start</a></li>
 							</ul>
 						</section>
 					</div>
@@ -103,7 +108,7 @@
 					<div class="tsd-signature tsd-kind-icon">created<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in domain/workers/worker.ts:3</li>
+							<li>Defined in domain/worker/worker.ts:3</li>
 						</ul>
 					</aside>
 				</section>
@@ -113,12 +118,137 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in domain/workers/worker.ts:2</li>
+							<li>Defined in domain/worker/worker.ts:2</li>
 						</ul>
 					</aside>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onidle" class="tsd-anchor"></a>
+					<h3>on<wbr>Idle</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Idle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/worker/worker.ts:8</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onready" class="tsd-anchor"></a>
+					<h3>on<wbr>Ready</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Ready<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/worker/worker.ts:4</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pause" class="tsd-anchor"></a>
+					<h3>pause</h3>
+					<div class="tsd-signature tsd-kind-icon">pause<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/worker/worker.ts:5</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="shutdown" class="tsd-anchor"></a>
+					<h3>shutdown</h3>
+					<div class="tsd-signature tsd-kind-icon">shutdown<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/worker/worker.ts:7</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="start" class="tsd-anchor"></a>
+					<h3>start</h3>
+					<div class="tsd-signature tsd-kind-icon">start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in domain/worker/worker.ts:6</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
 			</section>
-			<!--{&quot;options&quot;:&quot;/Users/jason/projects/conveyor-mq&quot;,&quot;tsconfig&quot;:&quot;/Users/jason/projects/conveyor-mq&quot;,&quot;inputFiles&quot;:[&quot;/Users/jason/projects/conveyor-mq/src/index.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/acknowledge-orphaned-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/acknowledge-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/are-tasks-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-listener.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-manager.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-orchestrator.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/create-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/destroy-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-scheduled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/enqueue-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-processing-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-stalling-task-ids.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-task-counts.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-tasks-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/get-workers.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/handle-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/handle-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/has-task-expired.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/is-task-stalled.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-failed.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-processing.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-task-success.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/mark-tasks-failed.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/pause-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/persist-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/process-stalled-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/process-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/remove-task-by-id.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/resume-queue.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/schedule-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/schedule-tasks.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/take-task-blocking.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/take-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/update-task-progress.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/actions/update-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/deserialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event-type.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/events/serialize-event.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/deserialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/serialize-task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-status.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/tasks/task.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/deserialize-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/serialize-worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker-from-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker-to-json.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/domain/workers/worker.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/lua/index.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/config.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/acknowledge-orphaned-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/acknowledge-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/are-tasks-stalled.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-listener.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-manager.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/create-worker.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/destroy-queue.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-scheduled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/enqueue-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-processing-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-task-counts.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/get-workers.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/handle-stalled-tasks.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/handle-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/has-task-expired.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/mark-task-failed.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/mark-task-successful.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/remove-task-by-id.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/schedule-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/take-task-blocking.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/tests/actions/take-task.test.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/general.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/keys.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/redis.ts&quot;,&quot;/Users/jason/projects/conveyor-mq/src/utils/retry-strategies.ts&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;./src/tests/**&quot;,&quot;./src/utils/**&quot;,&quot;./src/lua/**&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;none&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false}-->
+			<!--{&quot;options&quot;:&quot;/home/jason/projects/conveyor-mq&quot;,&quot;tsconfig&quot;:&quot;/home/jason/projects/conveyor-mq&quot;,&quot;inputFiles&quot;:[&quot;/home/jason/projects/conveyor-mq/src/index.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/acknowledge-orphaned-processing-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/acknowledge-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/are-tasks-stalled.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-listener.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-manager.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-orchestrator.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/create-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/destroy-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-scheduled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/enqueue-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-processing-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-stalling-task-ids.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-task-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-task-counts.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-tasks-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/get-workers.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/handle-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/handle-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/has-task-expired.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/is-task-stalled.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-failed.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-processing.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-task-success.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/mark-tasks-failed.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/pause-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/persist-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/process-stalled-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/process-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/remove-task-by-id.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/resume-queue.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/schedule-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/schedule-tasks.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/take-task-and-mark-as-processing.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/take-task-blocking.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/update-task-progress.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/actions/update-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/deserialize-event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event-type.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/events/serialize-event.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/listener/listener.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/manager/manager.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/manager/task-response.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/orchestrator/orchestrator.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/deserialize-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/serialize-task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-status.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/tasks/task.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/deserialize-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/serialize-worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-from-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-instance.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker-to-json.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/domain/worker/worker.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/lua/index.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/config.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/acknowledge-orphaned-processing-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/acknowledge-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/are-tasks-stalled.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-listener.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-manager.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/create-worker.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/destroy-queue.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-scheduled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/enqueue-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-processing-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-task-counts.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/get-workers.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/handle-stalled-tasks.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/handle-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/has-task-expired.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/mark-task-failed.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/mark-task-successful.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/remove-task-by-id.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/schedule-task.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/take-task-and-mark-as-processing.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/tests/actions/take-task-blocking.test.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/general.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/keys.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/redis.ts&quot;,&quot;/home/jason/projects/conveyor-mq/src/utils/retry-strategies.ts&quot;],&quot;mode&quot;:0,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[&quot;./src/tests/**&quot;,&quot;./src/utils/**&quot;,&quot;./src/lua/**&quot;],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;none&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false}-->
 		</div>
 		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
@@ -131,6 +261,15 @@
 					</li>
 					<li class=" tsd-kind-interface root">
 						<a href="event.html" class="tsd-kind-icon">Event</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="listener.html" class="tsd-kind-icon">Listener</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="manager.html" class="tsd-kind-icon">Manager</a>
+					</li>
+					<li class=" tsd-kind-interface root">
+						<a href="orchestrator.html" class="tsd-kind-icon">Orchestrator</a>
 					</li>
 					<li class=" tsd-kind-interface root">
 						<a href="task.html" class="tsd-kind-icon">Task</a>
@@ -149,10 +288,28 @@
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="worker.html#id" class="tsd-kind-icon">id</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="worker.html#onidle" class="tsd-kind-icon">on<wbr>Idle</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="worker.html#onready" class="tsd-kind-icon">on<wbr>Ready</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="worker.html#pause" class="tsd-kind-icon">pause</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="worker.html#shutdown" class="tsd-kind-icon">shutdown</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="worker.html#start" class="tsd-kind-icon">start</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface root">
+						<a href="workerinstance.html" class="tsd-kind-icon">Worker<wbr>Instance</a>
+					</li>
 					<li class=" tsd-kind-variable root">
 						<a href="../index.html#debug" class="tsd-kind-icon">debug</a>
 					</li>
