@@ -8,7 +8,6 @@ import {
   getQueueTaskErrorChannel,
   getQueueTaskStalledChannel,
   getQueueTaskFailedChannel,
-  getQueueTaskCompleteChannel,
   getQueueTaskUpdatedChannel,
   getWorkerStartedChannel,
   getWorkerPausedChannel,
@@ -64,7 +63,6 @@ export const createListener = ({
       [EventType.TaskError]: getQueueTaskErrorChannel({ queue }),
       [EventType.TaskStalled]: getQueueTaskStalledChannel({ queue }),
       [EventType.TaskFail]: getQueueTaskFailedChannel({ queue }),
-      [EventType.TaskComplete]: getQueueTaskCompleteChannel({ queue }),
       [EventType.TaskUpdated]: getQueueTaskUpdatedChannel({ queue }),
       [EventType.TaskProgressUpdated]: getQueueTaskProgressUpdatedChannel({
         queue,

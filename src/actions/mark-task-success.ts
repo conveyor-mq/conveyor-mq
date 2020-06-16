@@ -3,7 +3,6 @@ import {
   getTaskKey,
   getProcessingListKey,
   getQueueTaskSuccessChannel,
-  getQueueTaskCompleteChannel,
   getStallingHashKey,
   getSuccessListKey,
 } from '../utils/keys';
@@ -53,14 +52,6 @@ export const markTaskSuccessMulti = ({
     serializeEvent({
       createdAt: new Date(),
       type: EventType.TaskSuccess,
-      task: successfulTask,
-    }),
-  );
-  multi.publish(
-    getQueueTaskCompleteChannel({ queue }),
-    serializeEvent({
-      createdAt: new Date(),
-      type: EventType.TaskComplete,
       task: successfulTask,
     }),
   );

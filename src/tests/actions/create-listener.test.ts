@@ -155,29 +155,6 @@ describe('createListener', () => {
     expect(event).toHaveProperty('task.status', TaskStatus.Failed);
     await worker.shutdown();
   });
-  it('createListener listens for task error event', async () => {
-    const listener = createListener({ queue, redisConfig });
-    const promise = new Promise((resolve) => {
-      listener.on(EventType.TaskError, ({ event }) => {
-        return resolve(event);
-      });
-    });
-    const manager = createManager({ queue, redisConfig });
-    const task = { id: 'b', data: 'c' };
-    await manager.enqueueTask(task);
-    const worker = createWorker({
-      queue,
-      redisConfig,
-      handler: () => {
-        throw new Error('some-error');
-      },
-    });
-    const event = await promise;
-    expect(event).toHaveProperty('task.id', task.id);
-    expect(event).toHaveProperty('task.data', task.data);
-    expect(event).toHaveProperty('task.status', TaskStatus.Processing);
-    await worker.shutdown();
-  });
   it('createListener listens for task stalled event', async () => {
     const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {

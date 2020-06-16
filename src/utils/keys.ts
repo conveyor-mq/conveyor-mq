@@ -106,6 +106,3 @@ export const getQueueTaskStalledChannel = ({ queue }: { queue: string }) =>
 
 export const getQueueTaskFailedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-fail`;
-
-export const getQueueTaskCompleteChannel = ({ queue }: { queue: string }) =>
-  `queue:${queue}:task-complete`;

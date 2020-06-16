@@ -10,7 +10,6 @@ local stallingHashKey = KEYS[9]
 local successEventType = KEYS[10]
 local completeEventType = KEYS[11]
 local taskSuccessChannel = KEYS[12]
-local taskCompleteChannel = KEYS[13]
 
 redis.call('lrem', processingListKey, 1, taskId)
 redis.call('hdel', stallingHashKey, taskId)
@@ -34,12 +33,5 @@ local successEvent = {
     task = taskJson
 }
 redis.call('publish', taskSuccessChannel, cjson.encode(successEvent))
-
-local completeEvent = {
-    createdAt = asOf,
-    type = completeEventType,
-    task = taskJson
-}
-redis.call('publish', taskCompleteChannel, cjson.encode(completeEvent))
 
 return cjson.encode(taskJson)

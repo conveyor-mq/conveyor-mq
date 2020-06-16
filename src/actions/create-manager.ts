@@ -68,19 +68,21 @@ export const createManager = ({
     const listener = createListener({
       queue,
       redisConfig,
-      events: [EventType.TaskComplete],
+      events: [EventType.TaskSuccess, EventType.TaskFail],
     });
     debug('Created listener');
-    listener.on(EventType.TaskComplete, ({ event }) => {
-      if (!event || !event.task || !event.task.id) return;
-      const { task } = event;
-      const handlers = eventSubscriptions?.[EventType.TaskComplete]?.[task.id];
-      forEach(handlers || [], (handler) => {
-        handler({ event });
+    forEach([EventType.TaskSuccess, EventType.TaskFail], (eventType) => {
+      listener.on(eventType, ({ event }) => {
+        if (!event || !event.task || !event.task.id) return;
+        const { task } = event;
+        const handlers = eventSubscriptions?.[eventType]?.[task.id];
+        forEach(handlers || [], (handler) => {
+          handler({ event });
+        });
+        if (handlers) {
+          delete eventSubscriptions[eventType][task.id];
+        }
       });
-      if (handlers) {
-        delete eventSubscriptions[EventType.TaskComplete][task.id];
-      }
     });
     debug('Registered listener');
   };
@@ -88,10 +90,13 @@ export const createManager = ({
 
   const onTaskComplete = async ({ taskId }: { taskId: string }) => {
     const promise = new Promise((resolve) => {
-      set(eventSubscriptions, `${EventType.TaskComplete}.${taskId}`, [
-        ...(eventSubscriptions?.[EventType.TaskComplete]?.[taskId] || []),
-        ({ event }: { event: Event }) => resolve(event.task),
-      ]);
+      const handler = ({ event }: { event: Event }) => resolve(event.task);
+      forEach([EventType.TaskSuccess, EventType.TaskFail], (eventType) => {
+        set(eventSubscriptions, `${eventType}.${taskId}`, [
+          ...(eventSubscriptions?.[eventType]?.[taskId] || []),
+          handler,
+        ]);
+      });
     }) as Promise<Task>;
     const task = await getTaskById({ queue, taskId, client });
     if (
@@ -99,7 +104,7 @@ export const createManager = ({
       task.status &&
       [(TaskStatus.Failed, TaskStatus.Success)].includes(task.status)
     ) {
-      delete eventSubscriptions[EventType.TaskComplete][taskId];
+      delete eventSubscriptions[EventType.TaskSuccess][taskId];
       return task;
     }
     return promise;
