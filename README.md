@@ -70,6 +70,7 @@ const worker = createWorker({
    - [Stalled tasks](#stalled-tasks)
    - [Scheduled tasks](#scheduled-tasks)
    - [Listener](#listener)
+   - [Debugging](#debugging)
 6. [API Reference](#api-reference)
 7. [Examples](#examples)
    - [Simple example](#simple-example)
@@ -500,6 +501,17 @@ const listener = createListener({
 listener.on('task_complete', ({ event }) => {
   console.log(`Task ${event.task.id} has completed!`),
 });
+```
+
+### Debugging
+
+Conveyor MQ makes use of the [debug](https://www.npmjs.com/package/debug) package for debug logging.
+
+Enable Conveyor MQ debug logging by setting the `DEBUG` environment variable to `conveyor-mq:*` and then executing your project/app in the same shell session:
+
+```bash
+export DEBUG=conveyor-mq:*
+node ./my-app.js
 ```
 
 ## API Reference
