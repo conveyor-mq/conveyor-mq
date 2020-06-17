@@ -1,6 +1,11 @@
 import { v4 as uuid } from 'uuid';
 
-export type RedisConfig = { host: string; port: number };
+export type RedisConfig = {
+  host: string;
+  port: number;
+  db?: number;
+  password?: string;
+};
 
 export const createUuid = () => {
   return uuid();

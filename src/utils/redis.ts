@@ -5,17 +5,23 @@ import { loadLuaScripts, LuaScriptName } from '../lua';
 export const createClientAndLoadLuaScripts = ({
   host,
   port,
+  db = 0,
+  password,
   lazyConnect,
   enableReadyCheck,
 }: {
   host: string;
   port: number;
+  db?: number;
+  password?: string;
   lazyConnect?: boolean;
   enableReadyCheck?: boolean;
 }) => {
   const client = new RedisClient({
     host,
     port,
+    db,
+    password,
     lazyConnect,
     maxRetriesPerRequest: null,
     enableReadyCheck,
