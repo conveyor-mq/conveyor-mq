@@ -1,8 +1,12 @@
 import { Redis, Pipeline } from 'ioredis';
-import { map } from 'lodash';
+import { map, forEach } from 'lodash';
 import { exec } from '../utils/redis';
 import { Task } from '../domain/tasks/task';
-import { enqueueTaskMulti } from './enqueue-task';
+import {
+  enqueueTaskMulti,
+  OnBeforeEnqueueTask,
+  OnAfterEnqueueTask,
+} from './enqueue-task';
 
 /**
  * @ignore
@@ -29,13 +33,27 @@ export const enqueueTasks = async ({
   tasks,
   queue,
   client,
+  onBeforeEnqueueTask,
+  onAfterEnqueueTask,
 }: {
   tasks: Partial<Task>[];
   queue: string;
   client: Redis;
+  onBeforeEnqueueTask?: OnBeforeEnqueueTask;
+  onAfterEnqueueTask?: OnAfterEnqueueTask;
 }): Promise<Task[]> => {
   const multi = client.multi();
   const tasksToQueue = await enqueueTasksMulti({ tasks, queue, multi });
+  if (onBeforeEnqueueTask) {
+    forEach(tasksToQueue, (task) => {
+      onBeforeEnqueueTask({ task, multi });
+    });
+  }
   await exec(multi);
+  if (onAfterEnqueueTask) {
+    forEach(tasksToQueue, (task) => {
+      onAfterEnqueueTask({ task });
+    });
+  }
   return tasksToQueue;
 };

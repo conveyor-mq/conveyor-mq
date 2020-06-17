@@ -24,8 +24,19 @@ import { pauseQueue } from './pause-queue';
 import { resumeQueue } from './resume-queue';
 import { Manager } from '../domain/manager/manager';
 import { TaskResponse } from '../domain/manager/task-response';
+import { OnBeforeEnqueueTask, OnAfterEnqueueTask } from './enqueue-task';
 
 const debug = debugF('conveyor-mq:manager');
+
+export interface ManagerInput {
+  queue: string;
+  redisConfig: RedisConfig;
+  redisClient?: Redis;
+  hooks?: {
+    onBeforeEnqueueTask?: OnBeforeEnqueueTask;
+    onAfterEnqueueTask?: OnAfterEnqueueTask;
+  };
+}
 
 /**
  * Creates a manager which is responsible for enqueuing tasks, as well as querying various
@@ -56,11 +67,8 @@ export const createManager = ({
   queue,
   redisConfig,
   redisClient,
-}: {
-  queue: string;
-  redisConfig: RedisConfig;
-  redisClient?: Redis;
-}): Manager => {
+  hooks,
+}: ManagerInput): Manager => {
   debug('Starting');
   debug('Creating client');
   const client = redisClient || createClientAndLoadLuaScripts(redisConfig);
@@ -115,7 +123,13 @@ export const createManager = ({
   }: {
     tasks: Partial<Task>[];
   }): Promise<TaskResponse[]> => {
-    const enqueuedTasks = await enqueueTasksAction({ queue, tasks, client });
+    const enqueuedTasks = await enqueueTasksAction({
+      queue,
+      tasks,
+      client,
+      onBeforeEnqueueTask: hooks?.onBeforeEnqueueTask,
+      onAfterEnqueueTask: hooks?.onAfterEnqueueTask,
+    });
     return map(enqueuedTasks, (task) => ({
       task,
       onTaskComplete: () => onTaskComplete({ taskId: task.id }),
