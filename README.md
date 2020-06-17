@@ -70,6 +70,7 @@ const worker = createWorker({
    - [Stalled tasks](#stalled-tasks)
    - [Scheduled tasks](#scheduled-tasks)
    - [Listener](#listener)
+   - [Sharing Redis connections](#sharing-redis-connections)
    - [Debugging](#debugging)
 6. [API Reference](#api-reference)
 7. [Examples](#examples)
