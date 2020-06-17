@@ -270,8 +270,8 @@ export const handleCallbacks = ({
       }),
     taskError: () => onTaskError && onTaskError({ task, error }),
     taskFailed: () => {
-      if (onTaskFailed) onTaskFailed({ task, error });
       if (onTaskError) onTaskError({ task, error });
+      if (onTaskFailed) onTaskFailed({ task, error });
     },
   };
   const callback = callbacks[response.name];

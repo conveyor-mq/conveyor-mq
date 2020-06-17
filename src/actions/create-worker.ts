@@ -40,6 +40,34 @@ import { markTaskProcessing } from './mark-task-processing';
 
 const debug = debugF('conveyor-mq:worker');
 
+export type OnBeforeTaskProcessing = ({ taskId }: { taskId: string }) => any;
+export type OnAfterTaskProcessing = ({ task }: { task: Task }) => any;
+
+export interface WorkerInput {
+  queue: string;
+  redisConfig: RedisConfig;
+  redisClient?: Redis;
+  handler: Handler;
+  concurrency?: number;
+  defaultStallTimeout?: number;
+  defaultTaskAcknowledgementInterval?: number;
+  getRetryDelay?: getRetryDelayType;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
+  onHandlerError?: (error: any) => any;
+  onIdle?: () => any;
+  idleTimeout?: number;
+  onReady?: () => any;
+  autoStart?: boolean;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
+  hooks?: {
+    onBeforeTaskProcessing?: OnBeforeTaskProcessing;
+    onAfterTaskProcessing?: OnAfterTaskProcessing;
+  };
+}
+
 /**
  * Creates a worker which processes tasks on the queue.
  *
@@ -96,26 +124,8 @@ export const createWorker = ({
   autoStart = true,
   removeOnSuccess = false,
   removeOnFailed = false,
-}: {
-  queue: string;
-  redisConfig: RedisConfig;
-  redisClient?: Redis;
-  handler: Handler;
-  concurrency?: number;
-  defaultStallTimeout?: number;
-  defaultTaskAcknowledgementInterval?: number;
-  getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: TaskSuccessCb;
-  onTaskError?: TaskErrorCb;
-  onTaskFailed?: TaskFailedCb;
-  onHandlerError?: (error: any) => any;
-  onIdle?: () => any;
-  idleTimeout?: number;
-  onReady?: () => any;
-  autoStart?: boolean;
-  removeOnSuccess?: boolean;
-  removeOnFailed?: boolean;
-}): Worker => {
+  hooks,
+}: WorkerInput): Worker => {
   debug('Starting');
   let isPausing = false;
   let isPaused = true;
@@ -161,12 +171,18 @@ export const createWorker = ({
               client: takerClient,
             });
             if (!taskId) return null;
+            if (hooks?.onBeforeTaskProcessing) {
+              hooks.onBeforeTaskProcessing({ taskId });
+            }
             const processingTask = await markTaskProcessing({
               taskId,
               queue,
               stallTimeout: defaultStallTimeout,
               client: workerClient,
             });
+            if (hooks?.onAfterTaskProcessing) {
+              hooks.onAfterTaskProcessing({ task: processingTask });
+            }
             return processingTask;
           },
           () => isActive(),
