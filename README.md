@@ -77,6 +77,8 @@ const worker = createWorker({
    - [Scheduled task example](#scheduled-task-example)
    - [Express example](#express-example)
    - [Child/sub tasks example](#childsub-tasks-example)
+   - [Task types example](#task-types-example)
+   - [Shared Redis client example](#shared-redis-client-example)
 8. [Roadmap](#roadmap)
 9. [Contributing](#contributing)
 10. [License](#license)
@@ -503,6 +505,14 @@ listener.on('task_complete', ({ event }) => {
 });
 ```
 
+### Sharing Redis connections
+
+Redis connections can be shared between a manager, worker and orchestrator as an optimization to reduce the total number of Redis connections used. This is particularly useful to do when your Redis server is hosted and priced based on the number of active connections, such as on Heroku or Compose.
+
+The functions `createManager`, `createWorker` and `createOrchestrator` each take an optional `redisClient` parameter where a shared Redis client can be passed. The shared Redis client must first be configured with the custom Lua scripts by calling `loadLuaScripts({ client })`.
+
+See the [Shared redis client example](#shared-redis-client-example) for more details.
+
 ### Debugging
 
 Conveyor MQ makes use of the [debug](https://www.npmjs.com/package/debug) package for debug logging.
@@ -810,6 +820,10 @@ const worker = createWorker({
 ### [Scheduled task example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/scheduled-task-example)
 
 ### [Child/sub tasks example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/sub-tasks-example)
+
+### [Task types example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/task-types-example)
+
+### [Shared redis client example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/redis-client-sharing-example)
 
 ## Roadmap
 

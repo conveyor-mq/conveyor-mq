@@ -1,4 +1,4 @@
-import { Redis } from 'ioredis';
+import RedisClient, { Redis } from 'ioredis';
 import {
   flushAll,
   quit,
@@ -14,6 +14,8 @@ import { Task } from '../../domain/tasks/task';
 import { createListener } from '../../actions/create-listener';
 import { EventType } from '../../domain/events/event-type';
 import { Event } from '../../domain/events/event';
+import { loadLuaScripts } from '../../lua';
+import { createManager } from '../../actions/create-manager';
 
 describe('createWorker', () => {
   const queue = createUuid();
@@ -257,5 +259,29 @@ describe('createWorker', () => {
     expect(typeof shutdownEvent?.worker?.id).toBe('string');
     expect(typeof shutdownEvent?.worker?.createdAt).toBe('object');
     expect(shutdownEvent?.type).toBe(EventType.WorkerShutdown);
+  });
+  it('createWorker can be passed a shared redis client', async () => {
+    const redisClient = new RedisClient(redisConfig.port, redisConfig.host);
+    const configuredRedisClient = loadLuaScripts({ client: redisClient });
+    const manager = createManager({
+      queue,
+      redisConfig,
+      redisClient: configuredRedisClient,
+    });
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      redisClient: configuredRedisClient,
+      handler: () => 'ok',
+    });
+    const { task } = await manager.enqueueTask({ data: 'hi' });
+    await sleep(30);
+    expect((await manager.getTaskById(task.id))?.status).toBe(
+      TaskStatus.Success,
+    );
+    await manager.quit();
+    await worker.shutdown();
+    // A shared redis client should be left ready after worker.shutdown call
+    expect(configuredRedisClient.status).toBe('ready');
   });
 });

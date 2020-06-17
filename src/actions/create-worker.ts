@@ -6,6 +6,7 @@ import {
   SetIntervalAsyncTimer,
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
+import { Redis } from 'ioredis';
 import { RedisConfig, sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -44,6 +45,8 @@ const debug = debugF('conveyor-mq:worker');
  *
  * @param queue - The name of the queue.
  * @param redisConfig - Redis configuration.
+ * @param redisClient - An optional Redis client for the worker to re-use. The client
+ * must have lua scripts loaded which can be done by calling loadLuaScripts({ client }).
  * @param handler - A handler function used to process tasks. This should return a promise which
  * resolves to indicate task success, or rejects to indicate task failure.
  * @param concurrency - The max number of tasks a worker can process in parallel. Defaults to 10.
@@ -77,6 +80,7 @@ const debug = debugF('conveyor-mq:worker');
 export const createWorker = ({
   queue,
   redisConfig,
+  redisClient,
   handler,
   concurrency = 10,
   defaultStallTimeout = 1000,
@@ -95,6 +99,7 @@ export const createWorker = ({
 }: {
   queue: string;
   redisConfig: RedisConfig;
+  redisClient?: Redis;
   handler: Handler;
   concurrency?: number;
   defaultStallTimeout?: number;
@@ -134,7 +139,8 @@ export const createWorker = ({
     ...redisConfig,
     enableReadyCheck: false,
   });
-  const workerClient = createClientAndLoadLuaScripts(redisConfig);
+  const workerClient =
+    redisClient || createClientAndLoadLuaScripts(redisConfig);
 
   const isActive = () =>
     !isPausing && !isPaused && !isShuttingDown && !isShutdown;
@@ -266,7 +272,9 @@ export const createWorker = ({
     });
     await Promise.all([
       ...map(
-        killProcessingTasks ? [takerClient, workerClient] : [takerClient],
+        killProcessingTasks && !redisClient
+          ? [takerClient, workerClient]
+          : [takerClient],
         (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),
@@ -342,7 +350,9 @@ export const createWorker = ({
     });
     await Promise.all([
       ...map(
-        killProcessingTasks ? [takerClient, workerClient] : [takerClient],
+        killProcessingTasks && !redisClient
+          ? [takerClient, workerClient]
+          : [takerClient],
         (client) => ensureDisconnected({ client }),
       ),
       ...map([workerQueue, takerQueue], (q) => q.onIdle()),

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { forEach, map, set } from 'lodash';
 import debugF from 'debug';
+import { Redis } from 'ioredis';
 import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import {
   ensureDisconnected,
@@ -32,6 +33,8 @@ const debug = debugF('conveyor-mq:manager');
  *
  * @param queue - The name of the queue.
  * @param redisConfig - Redis configuration.
+ * @param redisClient - An optional Redis client for the manager to re-use. The client
+ * must have lua scripts loaded which can be done by calling loadLuaScripts({ client }).
  * @returns manager
  * - .enqueueTask(task): Promise<Task> - Enqueues a task on the queue.
  * - .enqueueTasks(tasks): Promise<Task[]> - Enqueues multiple tasks on the queue in a single transaction.
@@ -52,13 +55,15 @@ const debug = debugF('conveyor-mq:manager');
 export const createManager = ({
   queue,
   redisConfig,
+  redisClient,
 }: {
   queue: string;
   redisConfig: RedisConfig;
+  redisClient?: Redis;
 }): Manager => {
   debug('Starting');
   debug('Creating client');
-  const client = createClientAndLoadLuaScripts(redisConfig);
+  const client = redisClient || createClientAndLoadLuaScripts(redisConfig);
 
   const eventSubscriptions: {
     [key: string]: { [key: string]: (({ event }: { event: Event }) => any)[] };
@@ -226,7 +231,9 @@ export const createManager = ({
     quit: async () => {
       await readyPromise;
       debug(`quit`);
-      await ensureDisconnected({ client });
+      if (!redisClient) {
+        await ensureDisconnected({ client });
+      }
     },
   };
 };

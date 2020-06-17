@@ -4,8 +4,9 @@ import {
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
 import { map } from 'lodash';
-import { processStalledTasks as processStalledTasksAction } from './process-stalled-tasks';
-import { enqueueScheduledTasks as enqueueScheduledTasksAction } from './enqueue-scheduled-tasks';
+import { Redis } from 'ioredis';
+import { processStalledTasks } from './process-stalled-tasks';
+import { enqueueScheduledTasks } from './enqueue-scheduled-tasks';
 import {
   quit as redisQuit,
   createClientAndLoadLuaScripts,
@@ -23,6 +24,8 @@ const debug = debugF('conveyor-mq:orchestrator');
  *
  * @param queue - The name of the queue.
  * @param redisConfig - Redis configuration.
+ * @param redisClient - An optional Redis client for the orchestrator to re-use. The client
+ * must have lua scripts loaded which can be done by calling loadLuaScripts({ client }).
  * @param stalledCheckInterval - The frequency at which stalled tasks should be checked at.
  * @param scheduledTasksCheckInterval - The frequency at which scheduled tasks should be checked at.
  * @param defaultStallTimeout - The default stall timeout to use for orphaned processing tasks.
@@ -33,21 +36,27 @@ const debug = debugF('conveyor-mq:orchestrator');
 export const createOrchestrator = ({
   queue,
   redisConfig,
+  redisClient,
   stalledCheckInterval = 1000,
   scheduledTasksCheckInterval = 1000,
   defaultStallTimeout = 1000,
 }: {
   queue: string;
-  redisConfig: RedisConfig;
+  redisConfig?: RedisConfig;
+  redisClient?: Redis;
   stalledCheckInterval?: number;
   scheduledTasksCheckInterval?: number;
   defaultStallTimeout?: number;
 }): Orchestrator => {
   debug('Starting');
+  if (!redisClient && !redisConfig) {
+    throw new Error('redisClient or redisConfig must be provided');
+  }
   debug('Creating client');
-  const client = createClientAndLoadLuaScripts(redisConfig);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const client = redisClient || createClientAndLoadLuaScripts(redisConfig!);
 
-  const processStalledTasks = async () => {
+  const processStalledTasksTick = async () => {
     try {
       debug('acknowledgeOrphanedProcessingTasks');
       await acknowledgeOrphanedProcessingTasks({
@@ -56,37 +65,39 @@ export const createOrchestrator = ({
         client,
       });
       debug('processStalledTasks');
-      await processStalledTasksAction({ queue, client });
+      await processStalledTasks({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
   };
   const stalledTimer = setIntervalAsync(
-    processStalledTasks,
+    processStalledTasksTick,
     stalledCheckInterval,
   );
 
-  const enqueueScheduledTasks = async () => {
+  const enqueueScheduledTasksTick = async () => {
     debug('enqueueScheduledTasks');
     try {
-      await enqueueScheduledTasksAction({ queue, client });
+      await enqueueScheduledTasks({ queue, client });
     } catch (e) {
       console.error(e.toString());
     }
   };
   const enqueueDelayedTasksTimer = setIntervalAsync(
-    enqueueScheduledTasks,
+    enqueueScheduledTasksTick,
     scheduledTasksCheckInterval,
   );
 
   const quit = async () => {
     debug('quit');
-    await Promise.all([
-      redisQuit({ client }),
+    await Promise.all(
       map([stalledTimer, enqueueDelayedTasksTimer], (timer) =>
         clearIntervalAsync(timer),
       ),
-    ]);
+    );
+    if (!redisClient) {
+      await redisQuit({ client });
+    }
   };
 
   const ready = async () => {
