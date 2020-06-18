@@ -3,6 +3,7 @@ export { createManager } from './actions/create-manager';
 export { createWorker } from './actions/create-worker';
 export { createOrchestrator } from './actions/create-orchestrator';
 export { createListener } from './actions/create-listener';
+export { registerPlugins } from './actions/register-plugins';
 
 // Utils
 export { loadLuaScripts } from './lua/index';
@@ -19,3 +20,4 @@ export { Listener } from './domain/listener/listener';
 export { Worker } from './domain/worker/worker';
 export { WorkerInstance } from './domain/worker/worker-instance';
 export { Orchestrator } from './domain/orchestrator/orchestrator';
+export { Plugin } from './actions/register-plugins';

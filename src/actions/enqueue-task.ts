@@ -62,6 +62,16 @@ export const enqueueTaskMulti = ({
   return taskToQueue;
 };
 
+export type OnBeforeEnqueueTask = ({
+  task,
+  multi,
+}: {
+  task: Task;
+  multi: Pipeline;
+}) => any;
+
+export type OnAfterEnqueueTask = ({ task }: { task: Task }) => any;
+
 /**
  * @ignore
  */
@@ -69,13 +79,23 @@ export const enqueueTask = async ({
   task,
   queue,
   client,
+  onBeforeEnqueueTask,
+  onAfterEnqueueTask,
 }: {
   task: Partial<Task>;
   queue: string;
   client: Redis;
+  onBeforeEnqueueTask?: OnBeforeEnqueueTask;
+  onAfterEnqueueTask?: OnAfterEnqueueTask;
 }): Promise<Task> => {
   const multi = client.multi();
   const queuedTask = enqueueTaskMulti({ task, queue, multi });
+  if (onBeforeEnqueueTask) {
+    await onBeforeEnqueueTask({ task: queuedTask, multi });
+  }
   await exec(multi);
+  if (onAfterEnqueueTask) {
+    await onAfterEnqueueTask({ task: queuedTask });
+  }
   return queuedTask;
 };

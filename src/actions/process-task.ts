@@ -18,6 +18,10 @@ import { takeTaskAndMarkAsProcessingMulti } from './take-task-and-mark-as-proces
 import { exec } from '../utils/redis';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 
+export type OnAfterTaskSuccess = ({ task }: { task: Task }) => any;
+export type OnAfterTaskError = ({ task }: { task: Task }) => any;
+export type OnAfterTaskFail = ({ task }: { task: Task }) => any;
+
 /**
  * @ignore
  */
@@ -36,6 +40,7 @@ export const processTask = async ({
   onTaskFailed,
   removeOnSuccess,
   removeOnFailed,
+  hooks,
 }: {
   task: Task;
   queue: string;
@@ -51,6 +56,11 @@ export const processTask = async ({
   onTaskFailed?: TaskFailedCb;
   removeOnSuccess?: boolean;
   removeOnFailed?: boolean;
+  hooks?: {
+    onAfterTaskSuccess?: OnAfterTaskSuccess;
+    onAfterTaskError?: OnAfterTaskError;
+    onAfterTaskFail?: OnAfterTaskFail;
+  };
 }): Promise<Task | null> => {
   const timer = setIntervalAsync(async () => {
     if (onAcknowledgeTask) onAcknowledgeTask({ task });
@@ -80,6 +90,24 @@ export const processTask = async ({
     clearIntervalAsync(timer),
     handleCallbacks({ response, onTaskSuccess, onTaskError, onTaskFailed }),
   ]);
+  const hookMap = {
+    taskSuccess: () =>
+      hooks?.onAfterTaskSuccess &&
+      hooks.onAfterTaskSuccess({ task: response.params.task }),
+    taskError: () =>
+      hooks?.onAfterTaskError &&
+      hooks.onAfterTaskError({ task: response.params.task }),
+    taskFailed: async () => {
+      if (hooks?.onAfterTaskError) {
+        await hooks.onAfterTaskError({ task: response.params.task });
+      }
+      if (hooks?.onAfterTaskFail) {
+        await hooks.onAfterTaskFail({ task: response.params.task });
+      }
+    },
+  };
+  const hook = hookMap[response.name];
+  await hook();
   const taskString = result[result.length - 1] as string | null;
   const nextTaskToHandle = taskString ? deSerializeTask(taskString) : null;
   return nextTaskToHandle;

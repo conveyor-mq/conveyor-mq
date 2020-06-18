@@ -24,7 +24,12 @@ import {
   createClientAndLoadLuaScripts,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
-import { processTask } from './process-task';
+import {
+  processTask,
+  OnAfterTaskSuccess,
+  OnAfterTaskError,
+  OnAfterTaskFail,
+} from './process-task';
 import {
   getWorkerStartedChannel,
   getWorkerPausedChannel,
@@ -39,6 +44,37 @@ import { Worker } from '../domain/worker/worker';
 import { markTaskProcessing } from './mark-task-processing';
 
 const debug = debugF('conveyor-mq:worker');
+
+export type OnBeforeTaskProcessing = ({ taskId }: { taskId: string }) => any;
+export type OnAfterTaskProcessing = ({ task }: { task: Task }) => any;
+
+export interface WorkerInput {
+  queue: string;
+  redisConfig: RedisConfig;
+  redisClient?: Redis;
+  handler: Handler;
+  concurrency?: number;
+  defaultStallTimeout?: number;
+  defaultTaskAcknowledgementInterval?: number;
+  getRetryDelay?: getRetryDelayType;
+  onTaskSuccess?: TaskSuccessCb;
+  onTaskError?: TaskErrorCb;
+  onTaskFailed?: TaskFailedCb;
+  onHandlerError?: (error: any) => any;
+  onIdle?: () => any;
+  idleTimeout?: number;
+  onReady?: () => any;
+  autoStart?: boolean;
+  removeOnSuccess?: boolean;
+  removeOnFailed?: boolean;
+  hooks?: {
+    onBeforeTaskProcessing?: OnBeforeTaskProcessing;
+    onAfterTaskProcessing?: OnAfterTaskProcessing;
+    onAfterTaskSuccess?: OnAfterTaskSuccess;
+    onAfterTaskError?: OnAfterTaskError;
+    onAfterTaskFail?: OnAfterTaskFail;
+  };
+}
 
 /**
  * Creates a worker which processes tasks on the queue.
@@ -96,26 +132,8 @@ export const createWorker = ({
   autoStart = true,
   removeOnSuccess = false,
   removeOnFailed = false,
-}: {
-  queue: string;
-  redisConfig: RedisConfig;
-  redisClient?: Redis;
-  handler: Handler;
-  concurrency?: number;
-  defaultStallTimeout?: number;
-  defaultTaskAcknowledgementInterval?: number;
-  getRetryDelay?: getRetryDelayType;
-  onTaskSuccess?: TaskSuccessCb;
-  onTaskError?: TaskErrorCb;
-  onTaskFailed?: TaskFailedCb;
-  onHandlerError?: (error: any) => any;
-  onIdle?: () => any;
-  idleTimeout?: number;
-  onReady?: () => any;
-  autoStart?: boolean;
-  removeOnSuccess?: boolean;
-  removeOnFailed?: boolean;
-}): Worker => {
+  hooks,
+}: WorkerInput): Worker => {
   debug('Starting');
   let isPausing = false;
   let isPaused = true;
@@ -161,12 +179,18 @@ export const createWorker = ({
               client: takerClient,
             });
             if (!taskId) return null;
+            if (hooks?.onBeforeTaskProcessing) {
+              await hooks.onBeforeTaskProcessing({ taskId });
+            }
             const processingTask = await markTaskProcessing({
               taskId,
               queue,
               stallTimeout: defaultStallTimeout,
               client: workerClient,
             });
+            if (hooks?.onAfterTaskProcessing) {
+              await hooks.onAfterTaskProcessing({ task: processingTask });
+            }
             return processingTask;
           },
           () => isActive(),
@@ -205,6 +229,11 @@ export const createWorker = ({
                   task.removeOnFailed !== undefined
                     ? task.removeOnFailed
                     : removeOnFailed,
+                hooks: {
+                  onAfterTaskSuccess: hooks?.onAfterTaskSuccess,
+                  onAfterTaskError: hooks?.onAfterTaskError,
+                  onAfterTaskFail: hooks?.onAfterTaskFail,
+                },
               });
               debug(`Processed task ${task.id}`);
               return nextTaskToHandle;
