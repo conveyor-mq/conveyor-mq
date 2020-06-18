@@ -1,5 +1,6 @@
 import { registerPlugins, Plugin } from 'conveyor-mq';
 
+// Create a plugin.
 const myPlugin: Plugin = {
   onBeforeEnqueueTask: ({ task }) => {
     console.log(task);
@@ -9,6 +10,7 @@ const myPlugin: Plugin = {
   },
 };
 
+// Register the plugin and destructure createManager and createWorker functions.
 const { createManager, createWorker } = registerPlugins(myPlugin);
 
 const queue = 'my-queue';
