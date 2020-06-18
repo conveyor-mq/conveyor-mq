@@ -43,7 +43,7 @@ const worker = createWorker({
   - Task, Queue and Worker events
 - Concurrent worker processing
 - Fast & efficient, polling-free design
-- Simple and extensible design
+- Highly extensible design with [plugins](#plugins)
 - Async/await/Promise APIs
 - Robust
   - Atomic operations with Redis [transactions](https://redis.io/commands/multi)
@@ -70,6 +70,7 @@ const worker = createWorker({
    - [Stalled tasks](#stalled-tasks)
    - [Scheduled tasks](#scheduled-tasks)
    - [Listener](#listener)
+   - [Plugins](#plugins)
    - [Sharing Redis connections](#sharing-redis-connections)
    - [Debugging](#debugging)
 6. [API Reference](#api-reference)
@@ -80,6 +81,7 @@ const worker = createWorker({
    - [Child/sub tasks example](#childsub-tasks-example)
    - [Task types example](#task-types-example)
    - [Shared Redis client example](#shared-redis-client-example)
+   - [Plugins example](#plugins-example)
 8. [Roadmap](#roadmap)
 9. [Contributing](#contributing)
 10. [License](#license)
@@ -506,6 +508,51 @@ listener.on('task_complete', ({ event }) => {
 });
 ```
 
+### Plugins
+
+Conveyor MQ is highly extensible through its plugin & hooks architecture. The `createManager`, `createWorker` and `createOrchestrator` functions have an optional `hooks` parameter through which various hook functions can be passed to hook into the various queue lifecycle actions.
+Plugins can be created by implementing hook functions, and then calling `registerPlugins` to register plugins.
+
+#### Create a plugin
+
+A plugin is a simple object with keys corresponding to hook names, and values of functions.
+
+```js
+import { registerPlugins } from 'conveyor-mq';
+
+// Create a simple plugin.
+const myPlugin = {
+  onBeforeEnqueueTask: ({ task }) => console.log(task),
+  onAfterEnqueueTask: ({ task }) => console.log(task),
+  onBeforeTaskProcessing: ({ taskId }) => console.log(taskId),
+  onAfterTaskProcessing: ({ task }) => console.log(task),
+  onAfterTaskSuccess: ({ task }) => console.log(task),
+  onAfterTaskError: ({ task }) => console.log(task),
+  onAfterTailFail: ({ task }) => console.log(task),
+};
+
+// Register the plugin and unpack new createManager and createWorker functions.
+const { createManager, createWorker } = registerPlugins(myPlugin);
+
+const queue = 'my-queue';
+const redisConfig = { host: 'localhost', port: 6370 };
+
+// Create a manager which is registered with myPlugin.
+const manager = createManager({ queue, redisConfig });
+
+// Create a worker which is registered with myPlugin.
+const manager = createManager({
+  queue,
+  redisConfig,
+  handler: ({ task }) => {
+    // Do processing
+    return 'some-result';
+  },
+});
+```
+
+See the [Plugins example](#plugins-example) for more information.
+
 ### Sharing Redis connections
 
 Redis connections can be shared between a manager, worker and orchestrator as an optimization to reduce the total number of Redis connections used. This is particularly useful to do when your Redis server is hosted and priced based on the number of active connections, such as on Heroku or Compose.
@@ -825,6 +872,8 @@ const worker = createWorker({
 ### [Task types example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/task-types-example)
 
 ### [Shared redis client example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/redis-client-sharing-example)
+
+### [Plugins example](https://github.com/conveyor-mq/conveyor-mq/tree/master/examples/plugins-example)
 
 ## Roadmap
 
