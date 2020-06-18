@@ -207,4 +207,32 @@ describe('createManager', () => {
     // A shared redis client should be left ready after manager.quit call
     expect(configuredRedisClient.status).toBe('ready');
   });
+  it('createManager enqueueTask calls onBeforeEnqueueTask hook', async () => {
+    const fn = jest.fn();
+    const manager = createManager({
+      queue,
+      redisConfig,
+      hooks: {
+        onBeforeEnqueueTask: fn,
+      },
+    });
+    const { task } = await manager.enqueueTask({ id: 'a', data: 'hi' });
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(expect.objectContaining({ task }));
+    await manager.quit();
+  });
+  it('createManager enqueueTask calls onAfterEnqueueTask hook', async () => {
+    const fn = jest.fn();
+    const manager = createManager({
+      queue,
+      redisConfig,
+      hooks: {
+        onAfterEnqueueTask: fn,
+      },
+    });
+    const { task } = await manager.enqueueTask({ id: 'a', data: 'hi' });
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(expect.objectContaining({ task }));
+    await manager.quit();
+  });
 });

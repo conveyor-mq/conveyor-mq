@@ -24,7 +24,12 @@ import {
   createClientAndLoadLuaScripts,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
-import { processTask } from './process-task';
+import {
+  processTask,
+  OnAfterTaskSuccess,
+  OnAfterTaskError,
+  OnAfterTaskFail,
+} from './process-task';
 import {
   getWorkerStartedChannel,
   getWorkerPausedChannel,
@@ -65,6 +70,9 @@ export interface WorkerInput {
   hooks?: {
     onBeforeTaskProcessing?: OnBeforeTaskProcessing;
     onAfterTaskProcessing?: OnAfterTaskProcessing;
+    onAfterTaskSuccess?: OnAfterTaskSuccess;
+    onAfterTaskError?: OnAfterTaskError;
+    onAfterTaskFail?: OnAfterTaskFail;
   };
 }
 
@@ -172,7 +180,7 @@ export const createWorker = ({
             });
             if (!taskId) return null;
             if (hooks?.onBeforeTaskProcessing) {
-              hooks.onBeforeTaskProcessing({ taskId });
+              await hooks.onBeforeTaskProcessing({ taskId });
             }
             const processingTask = await markTaskProcessing({
               taskId,
@@ -181,7 +189,7 @@ export const createWorker = ({
               client: workerClient,
             });
             if (hooks?.onAfterTaskProcessing) {
-              hooks.onAfterTaskProcessing({ task: processingTask });
+              await hooks.onAfterTaskProcessing({ task: processingTask });
             }
             return processingTask;
           },
@@ -221,6 +229,11 @@ export const createWorker = ({
                   task.removeOnFailed !== undefined
                     ? task.removeOnFailed
                     : removeOnFailed,
+                hooks: {
+                  onAfterTaskSuccess: hooks?.onAfterTaskSuccess,
+                  onAfterTaskError: hooks?.onAfterTaskError,
+                  onAfterTaskFail: hooks?.onAfterTaskFail,
+                },
               });
               debug(`Processed task ${task.id}`);
               return nextTaskToHandle;

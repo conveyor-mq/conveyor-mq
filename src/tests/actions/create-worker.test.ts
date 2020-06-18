@@ -284,4 +284,106 @@ describe('createWorker', () => {
     // A shared redis client should be left ready after worker.shutdown call
     expect(configuredRedisClient.status).toBe('ready');
   });
+  it('createWorker calls onBeforeTaskProcessing hook', async () => {
+    const fn = jest.fn();
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+      hooks: { onBeforeTaskProcessing: fn },
+    });
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    const { task } = await manager.enqueueTask({ id: 'a', data: 'hi' });
+    await sleep(20);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(
+      expect.objectContaining({ taskId: task.id }),
+    );
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createWorker calls onAfterTaskProcessing hook', async () => {
+    const fn = jest.fn();
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+      hooks: { onAfterTaskProcessing: fn },
+    });
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    await manager.enqueueTask({ id: 'a', data: 'hi' });
+    await sleep(20);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledWith(
+      expect.objectContaining({ task: expect.anything() }),
+    );
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createWorker calls onAfterTaskSuccess hook', async () => {
+    const onAfterTaskSuccessFn = jest.fn();
+    const onAfterTaskErrorFn = jest.fn();
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+      hooks: {
+        onAfterTaskSuccess: onAfterTaskSuccessFn,
+        onAfterTaskError: onAfterTaskErrorFn,
+      },
+    });
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    await manager.enqueueTask({ id: 'a', data: 'hi' });
+    await sleep(20);
+    expect(onAfterTaskErrorFn).toHaveBeenCalledTimes(0);
+    expect(onAfterTaskSuccessFn).toHaveBeenCalledTimes(1);
+    expect(onAfterTaskSuccessFn).toHaveBeenCalledWith(
+      expect.objectContaining({ task: expect.anything() }),
+    );
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createWorker calls onAfterTask{Error,Fail} hook', async () => {
+    const onAfterTaskSuccessFn = jest.fn();
+    const onAfterTaskErrorFn = jest.fn();
+    const onAfterTaskFailFn = jest.fn();
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      handler: () => {
+        throw new Error('some-error');
+      },
+      hooks: {
+        onAfterTaskSuccess: onAfterTaskSuccessFn,
+        onAfterTaskError: onAfterTaskErrorFn,
+        onAfterTaskFail: onAfterTaskFailFn,
+      },
+    });
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    await manager.enqueueTask({ id: 'a', data: 'hi' });
+    await sleep(20);
+    expect(onAfterTaskSuccessFn).toHaveBeenCalledTimes(0);
+    expect(onAfterTaskErrorFn).toHaveBeenCalledTimes(1);
+    expect(onAfterTaskErrorFn).toHaveBeenCalledWith(
+      expect.objectContaining({ task: expect.anything() }),
+    );
+    expect(onAfterTaskFailFn).toHaveBeenCalledTimes(1);
+    expect(onAfterTaskFailFn).toHaveBeenCalledWith(
+      expect.objectContaining({ task: expect.anything() }),
+    );
+    await manager.quit();
+    await worker.shutdown();
+  });
 });
