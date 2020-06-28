@@ -44,6 +44,8 @@ import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Task } from '../domain/tasks/task';
 import { Worker } from '../domain/worker/worker';
 import { markTaskProcessing } from './mark-task-processing';
+import { getQueueRateLimitConfig } from './get-queue-rate-limit-config';
+import { createListener } from './create-listener';
 
 const debug = debugF('conveyor-mq:worker');
 
@@ -286,6 +288,42 @@ export const createWorker = ({
     });
   };
 
+  const setQueueRateLimit = ({
+    points,
+    duration,
+  }: {
+    points: number;
+    duration: number;
+  }) => {
+    rateLimiter = new RateLimiterRedis({
+      storeClient: workerClient,
+      points,
+      duration,
+      keyPrefix: queue,
+      inmemoryBlockOnConsumed: points + 1,
+    });
+  };
+
+  const clearQueueRateLimit = () => {
+    rateLimiter = undefined;
+  };
+
+  const setupListener = async () => {
+    const listener = createListener({
+      queue,
+      redisConfig,
+      events: [EventType.QueueRateLimitUpdated],
+    });
+    await listener.onReady();
+    listener.on(EventType.QueueRateLimitUpdated, ({ event }) => {
+      if (event.data?.rateLimitConfig) {
+        setQueueRateLimit(event.data.rateLimitConfig);
+      } else {
+        clearQueueRateLimit();
+      }
+    });
+  };
+
   const pause = async ({
     killProcessingTasks,
   }: {
@@ -341,13 +379,20 @@ export const createWorker = ({
           ensureConnected({ client }),
         ),
       );
-      rateLimiter = new RateLimiterRedis({
-        storeClient: workerClient,
-        points: 1,
-        duration: 5,
-        keyPrefix: queue,
-        inmemoryBlockOnConsumed: 1,
+      const rateLimitConfig = await getQueueRateLimitConfig({
+        queue,
+        client: workerClient,
       });
+      if (
+        rateLimitConfig &&
+        rateLimitConfig.duration &&
+        rateLimitConfig.points
+      ) {
+        setQueueRateLimit({
+          points: rateLimitConfig.points,
+          duration: rateLimitConfig.duration,
+        });
+      }
       forEach([workerQueue, takerQueue], (q) => q.start());
       await upsertWorker();
       upsertInterval = setIntervalAsync(upsertWorker, 15000);
@@ -413,6 +458,7 @@ export const createWorker = ({
   };
 
   const ready = async () => {
+    await setupListener();
     if (autoStart) await start();
     if (onReady) onReady();
     debug('Ready');

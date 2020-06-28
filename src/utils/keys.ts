@@ -81,6 +81,9 @@ export const getWorkerStartedChannel = ({ queue }: { queue: string }) =>
 export const getWorkerShutdownChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:worker-shutdown`;
 
+export const getQueueRateLimitUpdatedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:queue-rate-limit-updated`;
+
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;
 

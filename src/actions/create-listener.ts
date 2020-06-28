@@ -14,6 +14,7 @@ import {
   getWorkerShutdownChannel,
   getQueueTaskScheduledChannel,
   getQueueTaskProgressUpdatedChannel,
+  getQueueRateLimitUpdatedChannel,
 } from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
@@ -72,6 +73,9 @@ export const createListener = ({
       [EventType.WorkerStarted]: getWorkerStartedChannel({ queue }),
       [EventType.WorkerPaused]: getWorkerPausedChannel({ queue }),
       [EventType.WorkerShutdown]: getWorkerShutdownChannel({ queue }),
+      [EventType.QueueRateLimitUpdated]: getQueueRateLimitUpdatedChannel({
+        queue,
+      }),
     };
     client.on('message', (channel, eventString) => {
       const event = deSerializeEvent(eventString);

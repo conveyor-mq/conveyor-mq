@@ -1,21 +1,35 @@
 import { Redis } from 'ioredis';
-import { set } from '../utils/redis';
-import { getQueueRateLimitKey } from '../utils/keys';
+import { exec } from '../utils/redis';
+import {
+  getQueueRateLimitKey,
+  getQueueRateLimitUpdatedChannel,
+} from '../utils/keys';
+import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
 
 export const setQueueRateLimit = async ({
-  amount,
-  interval,
+  points,
+  duration,
   queue,
   client,
 }: {
-  amount: number;
-  interval: number;
+  points: number;
+  duration: number;
   queue: string;
   client: Redis;
 }) => {
-  await set({
-    key: getQueueRateLimitKey({ queue }),
-    value: JSON.stringify({ amount, interval }),
-    client,
-  });
+  const multi = client.multi();
+  multi.set(
+    getQueueRateLimitKey({ queue }),
+    JSON.stringify({ points, duration }),
+  );
+  multi.publish(
+    getQueueRateLimitUpdatedChannel({ queue }),
+    serializeEvent({
+      type: EventType.QueueRateLimitUpdated,
+      createdAt: new Date(),
+      data: { rateLimitConfig: { points, duration } },
+    }),
+  );
+  await exec(multi);
 };

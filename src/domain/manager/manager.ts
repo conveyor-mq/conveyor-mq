@@ -1,3 +1,4 @@
+import { duration } from 'moment';
 import { Task } from '../tasks/task';
 import { TaskResponse } from './task-response';
 import { WorkerInstance } from '../worker/worker-instance';
@@ -22,6 +23,13 @@ export interface Manager {
   destroyQueue: () => Promise<void>;
   pauseQueue: () => Promise<void>;
   resumeQueue: () => Promise<void>;
+  setQueueRateLimit: ({
+    points,
+    duration,
+  }: {
+    points: number;
+    duration: number;
+  }) => Promise<void>;
   onReady: () => Promise<void>;
   quit: () => Promise<void>;
 }

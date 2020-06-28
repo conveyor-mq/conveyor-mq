@@ -257,3 +257,9 @@ export const mget = ({
   keys: string[];
   client: Redis;
 }) => client.mget(...mgetKeys);
+
+export const get = ({ key, client }: { key: string; client: Redis }) =>
+  client.get(key);
+
+export const del = ({ key, client }: { key: string; client: Redis }) =>
+  client.del(key);
