@@ -10,8 +10,8 @@ import { enqueueScheduledTasks } from './enqueue-scheduled-tasks';
 import {
   quit as redisQuit,
   createClientAndLoadLuaScripts,
+  RedisConfig,
 } from '../utils/redis';
-import { RedisConfig } from '../utils/general';
 import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
 import { Orchestrator } from '../domain/orchestrator/orchestrator';
 

@@ -1,6 +1,5 @@
 import { forEach, pickBy } from 'lodash';
 import debugF from 'debug';
-import { RedisConfig } from '../utils/general';
 import {
   getQueueTaskQueuedChannel,
   getQueueTaskProcessingChannel,
@@ -22,6 +21,7 @@ import { EventType } from '../domain/events/event-type';
 import {
   createClientAndLoadLuaScripts,
   ensureDisconnected,
+  RedisConfig,
 } from '../utils/redis';
 import { Listener } from '../domain/listener/listener';
 

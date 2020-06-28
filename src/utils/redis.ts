@@ -2,30 +2,44 @@ import RedisClient, { Redis, Pipeline } from 'ioredis';
 import { map } from 'lodash';
 import { loadLuaScripts, LuaScriptName } from '../lua';
 
+export type RedisConfig = {
+  host?: string;
+  port?: number;
+  db?: number;
+  password?: string;
+  url?: string;
+  lazyConnect?: boolean;
+  enableReadyCheck?: boolean;
+  tls?: any;
+};
+
 export const createClientAndLoadLuaScripts = ({
   host,
   port,
   db = 0,
   password,
+  url,
   lazyConnect,
   enableReadyCheck,
-}: {
-  host: string;
-  port: number;
-  db?: number;
-  password?: string;
-  lazyConnect?: boolean;
-  enableReadyCheck?: boolean;
-}) => {
-  const client = new RedisClient({
-    host,
-    port,
-    db,
-    password,
-    lazyConnect,
-    maxRetriesPerRequest: null,
-    enableReadyCheck,
-  });
+  tls,
+}: RedisConfig) => {
+  const client = url
+    ? new RedisClient(url, {
+        lazyConnect,
+        maxRetriesPerRequest: null,
+        enableReadyCheck,
+        tls,
+      })
+    : new RedisClient({
+        host,
+        port,
+        db,
+        password,
+        lazyConnect,
+        maxRetriesPerRequest: null,
+        enableReadyCheck,
+        tls,
+      });
   const updatedClient = loadLuaScripts({ client });
   return updatedClient;
 };

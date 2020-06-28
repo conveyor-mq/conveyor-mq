@@ -7,7 +7,7 @@ import {
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
 import { Redis } from 'ioredis';
-import { RedisConfig, sleep, createWorkerId } from '../utils/general';
+import { sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
   TaskSuccessCb,
@@ -22,6 +22,7 @@ import {
   publish,
   set,
   createClientAndLoadLuaScripts,
+  RedisConfig,
 } from '../utils/redis';
 import { takeTaskBlocking } from './take-task-blocking';
 import {

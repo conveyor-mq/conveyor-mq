@@ -6,10 +6,10 @@ import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import {
   ensureDisconnected,
   createClientAndLoadLuaScripts,
+  RedisConfig,
 } from '../utils/redis';
 import { getTaskById } from './get-task-by-id';
 import { getTasksById } from './get-tasks-by-id';
-import { RedisConfig } from '../utils/general';
 import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
 import { createListener } from './create-listener';
