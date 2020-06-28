@@ -50,6 +50,7 @@ describe('createListener', () => {
   });
   it('createListener listens for task scheduled event', async () => {
     const listener = createListener({ queue, redisConfig });
+    await listener.onReady();
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskScheduled, ({ event }) => {
         resolve(event);

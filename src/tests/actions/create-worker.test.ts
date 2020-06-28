@@ -368,6 +368,7 @@ describe('createWorker', () => {
         onAfterTaskFail: onAfterTaskFailFn,
       },
     });
+    await worker.onReady();
     const manager = createManager({
       queue,
       redisConfig,
