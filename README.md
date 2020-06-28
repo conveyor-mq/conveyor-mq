@@ -44,6 +44,7 @@ const worker = createWorker({
 - Concurrent worker processing
 - Fast & efficient, polling-free design
 - Highly extensible design with [plugins](#plugins)
+- Task rate limits
 - Async/await/Promise APIs
 - Robust
   - Atomic operations with Redis [transactions](https://redis.io/commands/multi)
@@ -589,6 +590,7 @@ node ./my-app.js
 - [manager.removeTaskById](#managerremoveTaskById)
 - [manager.pauseQueue](#managerpauseQueue)
 - [manager.resumeQueue](#managerresumeQueue)
+- [manager.setQueueRateLimit](#managersetqueueratelimit)
 - [manager.destroyQueue](#managerdestroyQueue)
 - [manager.quit](#managerquit)
 
@@ -605,8 +607,23 @@ Returns a promise which resolves with a manager instance.
 import { createManager } from 'conveyor-mq';
 
 const manager = createManager({
-  queue: 'my-queue', // Queue name.
-  redisConfig: { host: 'localhost', port: 6379 }, // Redis configuration.
+  // Queue name.
+  queue: 'my-queue',
+  // Redis configuration
+  redisConfig: {
+    host: 'localhost',
+    port: 6379,
+    db: 0,
+    password: 'abc',
+    url: 'redis://some-password@localhost:6371/0',
+  },
+  // Pass in a shared redis instance.
+  redisClient: sharedRedisInstance,
+  // Rate limit config. 1 task every 10 seconds.
+  queueRateLimitConfig: {
+    points: 1,
+    duration: 10,
+  },
 });
 ```
 
@@ -755,6 +772,14 @@ Resumes a queue.
 await manager.resumeQueue();
 ```
 
+#### manager.setQueueRateLimit
+
+Sets the rate limit of a queue.
+
+```js
+await manager.setQueueRateLimit({ points: 100, duration: 60 });
+```
+
 #### manager.destroyQueue
 
 Destroys all queue data and data structures. Returns a promise.
@@ -880,7 +905,7 @@ const worker = createWorker({
 - [ ] Improve documentation
 - [ ] Task priorities
 - [ ] Recurring tasks
-- [ ] Task rate limiting
+- [x] Task rate limiting
 - [ ] Performance optimisations
 - [ ] Child process workers
 - [ ] Web UI
