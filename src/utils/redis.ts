@@ -10,6 +10,7 @@ export type RedisConfig = {
   url?: string;
   lazyConnect?: boolean;
   enableReadyCheck?: boolean;
+  enableOfflineQueue?: boolean;
   tls?: any;
 };
 
@@ -21,6 +22,7 @@ export const createClientAndLoadLuaScripts = ({
   url,
   lazyConnect,
   enableReadyCheck,
+  enableOfflineQueue,
   tls,
 }: RedisConfig) => {
   const client = url
@@ -28,6 +30,7 @@ export const createClientAndLoadLuaScripts = ({
         lazyConnect,
         maxRetriesPerRequest: null,
         enableReadyCheck,
+        enableOfflineQueue,
         tls,
       })
     : new RedisClient({
@@ -37,6 +40,7 @@ export const createClientAndLoadLuaScripts = ({
         password,
         lazyConnect,
         maxRetriesPerRequest: null,
+        enableOfflineQueue,
         enableReadyCheck,
         tls,
       });

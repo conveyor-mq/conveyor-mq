@@ -1,12 +1,14 @@
 import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
+import { Redis } from 'ioredis';
 import {
   setIntervalAsync,
   clearIntervalAsync,
   SetIntervalAsyncTimer,
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
-import { Redis } from 'ioredis';
+
+import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -141,6 +143,7 @@ export const createWorker = ({
   let isShuttingDown = false;
   let isShutdown = false;
   let upsertInterval: SetIntervalAsyncTimer;
+  let rateLimiter: RateLimiterRedis | undefined;
 
   const worker: WorkerInstance = {
     id: createWorkerId(),
@@ -171,6 +174,17 @@ export const createWorker = ({
         : `Starting to check for tasks to process`,
     );
     try {
+      if (rateLimiter) {
+        try {
+          await rateLimiter.consume(queue);
+        } catch (e) {
+          if (e.msBeforeNext) {
+            await sleep(e.msBeforeNext);
+            takerQueue.add(takeAndProcessTask);
+            return;
+          }
+        }
+      }
       const task =
         t ||
         (await tryIgnore(
@@ -323,12 +337,19 @@ export const createWorker = ({
       throw new Error('Cannot start a pausing worker.');
     }
     if (isPaused) {
-      forEach([workerQueue, takerQueue], (q) => q.start());
       await Promise.all(
         map([takerClient, workerClient], (client) =>
           ensureConnected({ client }),
         ),
       );
+      rateLimiter = new RateLimiterRedis({
+        storeClient: workerClient,
+        points: 1,
+        duration: 5,
+        keyPrefix: queue,
+        inmemoryBlockOnConsumed: 1,
+      });
+      forEach([workerQueue, takerQueue], (q) => q.start());
       await upsertWorker();
       upsertInterval = setIntervalAsync(upsertWorker, 15000);
       takerQueue.addAll(
