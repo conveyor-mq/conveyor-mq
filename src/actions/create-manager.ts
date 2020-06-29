@@ -26,7 +26,7 @@ import { Manager } from '../domain/manager/manager';
 import { TaskResponse } from '../domain/manager/task-response';
 import { OnBeforeEnqueueTask, OnAfterEnqueueTask } from './enqueue-task';
 import { setQueueRateLimit } from './set-queue-rate-limit';
-import { QueueRateLimitConfig } from './get-queue-rate-limit-config';
+import { getQueueRateLimitConfig } from './get-queue-rate-limit-config';
 
 const debug = debugF('conveyor-mq:manager');
 
@@ -34,7 +34,6 @@ export interface ManagerInput {
   queue: string;
   redisConfig: RedisConfig;
   redisClient?: Redis;
-  queueRateLimitConfig?: QueueRateLimitConfig;
   hooks?: {
     onBeforeEnqueueTask?: OnBeforeEnqueueTask;
     onAfterEnqueueTask?: OnAfterEnqueueTask;
@@ -64,6 +63,7 @@ export interface ManagerInput {
  * - .pauseQueue(): Promise<void> - Pauses the queue.
  * - .resumeQueue(): Promise<void> - Resumes the queue.
  * - .setQueueRateLimit({ points, duration }): Promise<void> - Sets the rate limit on the queue.
+ * - .getQueueRateLimit(): Promise<{ points, duration }> - Gets the rate limit on the queue.
  * - .onReady(): Promise<void> - Returns a promise which resolves once the manager is ready.
  * - .quit(): Promise<void> - Quits the manager, disconnects the redis clients.
  */
@@ -71,7 +71,6 @@ export const createManager = ({
   queue,
   redisConfig,
   redisClient,
-  queueRateLimitConfig,
   hooks,
 }: ManagerInput): Manager => {
   debug('Starting');
@@ -173,14 +172,6 @@ export const createManager = ({
 
   const ready = async () => {
     await Promise.all([listenerSetupPromise]);
-    if (queueRateLimitConfig) {
-      await setQueueRateLimit({
-        points: queueRateLimitConfig.points,
-        duration: queueRateLimitConfig.duration,
-        queue,
-        client,
-      });
-    }
     debug('Ready');
   };
   const readyPromise = ready();
@@ -260,6 +251,10 @@ export const createManager = ({
     }) => {
       await readyPromise;
       await setQueueRateLimit({ points, duration, queue, client });
+    },
+    getQueueRateLimit: async () => {
+      await readyPromise;
+      return getQueueRateLimitConfig({ queue, client });
     },
     onReady: async () => {
       await readyPromise;

@@ -235,4 +235,15 @@ describe('createManager', () => {
     expect(fn).toHaveBeenCalledWith(expect.objectContaining({ task }));
     await manager.quit();
   });
+  it('createManager setQueueRateLimit sets queue rate limit', async () => {
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    await manager.setQueueRateLimit({ points: 100, duration: 60 });
+    const rateLimitConfig = await manager.getQueueRateLimit();
+    expect(rateLimitConfig?.points).toBe(100);
+    expect(rateLimitConfig?.duration).toBe(60);
+    await manager.quit();
+  });
 });

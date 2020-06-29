@@ -619,11 +619,6 @@ const manager = createManager({
   },
   // Pass in a shared redis instance.
   redisClient: sharedRedisInstance,
-  // Rate limit config. 1 task every 10 seconds.
-  queueRateLimitConfig: {
-    points: 1,
-    duration: 10,
-  },
 });
 ```
 
@@ -774,7 +769,7 @@ await manager.resumeQueue();
 
 #### manager.setQueueRateLimit
 
-Sets the rate limit of a queue.
+Sets the rate limit of a queue. (100 tasks every 60 seconds)
 
 ```js
 await manager.setQueueRateLimit({ points: 100, duration: 60 });

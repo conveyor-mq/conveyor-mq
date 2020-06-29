@@ -44,7 +44,10 @@ import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Task } from '../domain/tasks/task';
 import { Worker } from '../domain/worker/worker';
 import { markTaskProcessing } from './mark-task-processing';
-import { getQueueRateLimitConfig } from './get-queue-rate-limit-config';
+import {
+  getQueueRateLimitConfig,
+  QueueRateLimitConfig,
+} from './get-queue-rate-limit-config';
 import { createListener } from './create-listener';
 
 const debug = debugF('conveyor-mq:worker');
@@ -144,6 +147,7 @@ export const createWorker = ({
   let isShuttingDown = false;
   let isShutdown = false;
   let upsertInterval: SetIntervalAsyncTimer;
+  let rateLimitConfig: QueueRateLimitConfig | undefined;
   let rateLimiter: RateLimiterRedis | undefined;
 
   const worker: WorkerInstance = {
@@ -295,6 +299,7 @@ export const createWorker = ({
     points: number;
     duration: number;
   }) => {
+    rateLimitConfig = { points, duration };
     rateLimiter = new RateLimiterRedis({
       storeClient: workerClient,
       points,
@@ -305,6 +310,7 @@ export const createWorker = ({
   };
 
   const clearQueueRateLimit = () => {
+    rateLimitConfig = undefined;
     rateLimiter = undefined;
   };
 
@@ -379,18 +385,18 @@ export const createWorker = ({
           ensureConnected({ client }),
         ),
       );
-      const rateLimitConfig = await getQueueRateLimitConfig({
+      const queueRateLimitConfig = await getQueueRateLimitConfig({
         queue,
         client: workerClient,
       });
       if (
-        rateLimitConfig &&
-        rateLimitConfig.duration &&
-        rateLimitConfig.points
+        queueRateLimitConfig &&
+        queueRateLimitConfig.duration &&
+        queueRateLimitConfig.points
       ) {
         setQueueRateLimit({
-          points: rateLimitConfig.points,
-          duration: rateLimitConfig.duration,
+          points: queueRateLimitConfig.points,
+          duration: queueRateLimitConfig.duration,
         });
       }
       forEach([workerQueue, takerQueue], (q) => q.start());
@@ -477,6 +483,7 @@ export const createWorker = ({
       return pause({ killProcessingTasks });
     },
     start: () => start(),
+    getQueueRateLimitConfig: async () => rateLimitConfig,
     shutdown: async (killProcessingTasks?: boolean) => {
       await readyPromise;
       return shutdown({ killProcessingTasks });
