@@ -591,6 +591,7 @@ node ./my-app.js
 - [manager.pauseQueue](#managerpauseQueue)
 - [manager.resumeQueue](#managerresumeQueue)
 - [manager.setQueueRateLimit](#managersetqueueratelimit)
+- [manager.getQueueRateLimit](#managergetqueueratelimit)
 - [manager.destroyQueue](#managerdestroyQueue)
 - [manager.quit](#managerquit)
 
@@ -773,6 +774,15 @@ Sets the rate limit of a queue. (100 tasks every 60 seconds)
 
 ```js
 await manager.setQueueRateLimit({ points: 100, duration: 60 });
+```
+
+#### manager.getQueueRateLimit
+
+Gets the rate limit of a queue.
+
+```js
+const rateLimit = await manager.getQueueRateLimit();
+// rateLimit = { points: 100, duration: 60 }
 ```
 
 #### manager.destroyQueue
