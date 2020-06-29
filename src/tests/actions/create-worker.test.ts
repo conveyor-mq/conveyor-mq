@@ -343,7 +343,7 @@ describe('createWorker', () => {
       redisConfig,
     });
     await manager.enqueueTask({ id: 'a', data: 'hi' });
-    await sleep(20);
+    await sleep(50);
     expect(onAfterTaskErrorFn).toHaveBeenCalledTimes(0);
     expect(onAfterTaskSuccessFn).toHaveBeenCalledTimes(1);
     expect(onAfterTaskSuccessFn).toHaveBeenCalledWith(
@@ -374,7 +374,7 @@ describe('createWorker', () => {
       redisConfig,
     });
     await manager.enqueueTask({ id: 'a', data: 'hi' });
-    await sleep(20);
+    await sleep(50);
     expect(onAfterTaskSuccessFn).toHaveBeenCalledTimes(0);
     expect(onAfterTaskErrorFn).toHaveBeenCalledTimes(1);
     expect(onAfterTaskErrorFn).toHaveBeenCalledWith(
@@ -384,6 +384,26 @@ describe('createWorker', () => {
     expect(onAfterTaskFailFn).toHaveBeenCalledWith(
       expect.objectContaining({ task: expect.anything() }),
     );
+    await manager.quit();
+    await worker.shutdown();
+  });
+  it('createWorker queue rate limit gets set', async () => {
+    const worker = createWorker({
+      queue,
+      redisConfig,
+      handler: () => 'some-result',
+    });
+    const manager = createManager({
+      queue,
+      redisConfig,
+    });
+    const rateLimitConfig = await worker.getQueueRateLimitConfig();
+    expect(rateLimitConfig).toBe(undefined);
+    await manager.setQueueRateLimit({ points: 100, duration: 60 });
+    await sleep(50);
+    const rateLimitConfig2 = await worker.getQueueRateLimitConfig();
+    expect(rateLimitConfig2?.points).toBe(100);
+    expect(rateLimitConfig2?.duration).toBe(60);
     await manager.quit();
     await worker.shutdown();
   });

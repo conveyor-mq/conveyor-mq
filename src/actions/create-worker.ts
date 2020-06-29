@@ -1,12 +1,13 @@
 import { map, debounce, forEach } from 'lodash';
 import PQueue from 'p-queue';
+import { Redis } from 'ioredis';
 import {
   setIntervalAsync,
   clearIntervalAsync,
   SetIntervalAsyncTimer,
 } from 'set-interval-async/dynamic';
 import debugF from 'debug';
-import { Redis } from 'ioredis';
+import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { sleep, createWorkerId } from '../utils/general';
 import {
   getRetryDelayType,
@@ -43,6 +44,11 @@ import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Task } from '../domain/tasks/task';
 import { Worker } from '../domain/worker/worker';
 import { markTaskProcessing } from './mark-task-processing';
+import {
+  getQueueRateLimitConfig,
+  QueueRateLimitConfig,
+} from './get-queue-rate-limit-config';
+import { createListener } from './create-listener';
 
 const debug = debugF('conveyor-mq:worker');
 
@@ -141,6 +147,8 @@ export const createWorker = ({
   let isShuttingDown = false;
   let isShutdown = false;
   let upsertInterval: SetIntervalAsyncTimer;
+  let rateLimitConfig: QueueRateLimitConfig | undefined;
+  let rateLimiter: RateLimiterRedis | undefined;
 
   const worker: WorkerInstance = {
     id: createWorkerId(),
@@ -171,6 +179,17 @@ export const createWorker = ({
         : `Starting to check for tasks to process`,
     );
     try {
+      if (rateLimiter) {
+        try {
+          await rateLimiter.consume(queue);
+        } catch (e) {
+          if (e.msBeforeNext) {
+            await sleep(e.msBeforeNext);
+            takerQueue.add(takeAndProcessTask);
+            return;
+          }
+        }
+      }
       const task =
         t ||
         (await tryIgnore(
@@ -273,6 +292,44 @@ export const createWorker = ({
     });
   };
 
+  const setQueueRateLimit = ({
+    points,
+    duration,
+  }: {
+    points: number;
+    duration: number;
+  }) => {
+    rateLimitConfig = { points, duration };
+    rateLimiter = new RateLimiterRedis({
+      storeClient: workerClient,
+      points,
+      duration,
+      keyPrefix: queue,
+      inmemoryBlockOnConsumed: points + 1,
+    });
+  };
+
+  const clearQueueRateLimit = () => {
+    rateLimitConfig = undefined;
+    rateLimiter = undefined;
+  };
+
+  const setupListener = async () => {
+    const listener = createListener({
+      queue,
+      redisConfig,
+      events: [EventType.QueueRateLimitUpdated],
+    });
+    await listener.onReady();
+    listener.on(EventType.QueueRateLimitUpdated, ({ event }) => {
+      if (event.data?.rateLimitConfig) {
+        setQueueRateLimit(event.data.rateLimitConfig);
+      } else {
+        clearQueueRateLimit();
+      }
+    });
+  };
+
   const pause = async ({
     killProcessingTasks,
   }: {
@@ -323,12 +380,26 @@ export const createWorker = ({
       throw new Error('Cannot start a pausing worker.');
     }
     if (isPaused) {
-      forEach([workerQueue, takerQueue], (q) => q.start());
       await Promise.all(
         map([takerClient, workerClient], (client) =>
           ensureConnected({ client }),
         ),
       );
+      const queueRateLimitConfig = await getQueueRateLimitConfig({
+        queue,
+        client: workerClient,
+      });
+      if (
+        queueRateLimitConfig &&
+        queueRateLimitConfig.duration &&
+        queueRateLimitConfig.points
+      ) {
+        setQueueRateLimit({
+          points: queueRateLimitConfig.points,
+          duration: queueRateLimitConfig.duration,
+        });
+      }
+      forEach([workerQueue, takerQueue], (q) => q.start());
       await upsertWorker();
       upsertInterval = setIntervalAsync(upsertWorker, 15000);
       takerQueue.addAll(
@@ -393,6 +464,7 @@ export const createWorker = ({
   };
 
   const ready = async () => {
+    await setupListener();
     if (autoStart) await start();
     if (onReady) onReady();
     debug('Ready');
@@ -411,6 +483,7 @@ export const createWorker = ({
       return pause({ killProcessingTasks });
     },
     start: () => start(),
+    getQueueRateLimitConfig: async () => rateLimitConfig,
     shutdown: async (killProcessingTasks?: boolean) => {
       await readyPromise;
       return shutdown({ killProcessingTasks });

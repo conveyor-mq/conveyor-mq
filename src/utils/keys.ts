@@ -2,6 +2,10 @@
   Data structure keys:
 */
 
+export const getQueueRateLimitKey = ({ queue }: { queue: string }) => {
+  return `${queue}:rate-limit`;
+};
+
 export const getQueuePausedKey = ({ queue }: { queue: string }) => {
   return `${queue}:is-paused`;
 };
@@ -76,6 +80,9 @@ export const getWorkerStartedChannel = ({ queue }: { queue: string }) =>
 
 export const getWorkerShutdownChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:worker-shutdown`;
+
+export const getQueueRateLimitUpdatedChannel = ({ queue }: { queue: string }) =>
+  `queue:${queue}:queue-rate-limit-updated`;
 
 export const getQueueTaskQueuedChannel = ({ queue }: { queue: string }) =>
   `queue:${queue}:task-queued`;

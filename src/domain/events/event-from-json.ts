@@ -12,5 +12,6 @@ export const eventFromJson = (eventJson: any): Event => {
     type: eventJson.type as EventType,
     task: eventJson.task ? taskFromJson(eventJson.task) : undefined,
     worker: eventJson.worker ? workerFromJson(eventJson.worker) : undefined,
+    data: eventJson.data,
   };
 };

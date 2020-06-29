@@ -12,4 +12,5 @@ export enum EventType {
   WorkerStarted = 'worker_started',
   WorkerPaused = 'worker_paused',
   WorkerShutdown = 'worker_shutdown',
+  QueueRateLimitUpdated = 'queue_rate_limit_updated',
 }
