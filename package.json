@@ -41,7 +41,7 @@
     "lodash": "^4.17.15",
     "moment": "^2.26.0",
     "p-queue": "^6.4.0",
-    "p-timeout": "^3.2.0",
+    "p-timeout": "^5.0.1",
     "rate-limiter-flexible": "^2.1.7",
     "set-interval-async": "^1.0.32",
     "uuid": "^8.1.0"
