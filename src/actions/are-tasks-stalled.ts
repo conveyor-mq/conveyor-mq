@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { zipWith } from 'lodash';
+import { zipWith } from '../utils/general';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { getStallingTaskIds } from './get-stalling-task-ids';

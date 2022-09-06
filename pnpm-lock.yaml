@@ -4,9 +4,7 @@ specifiers:
   '@types/debug': 4.1.7
   '@types/ioredis': 4.28.10
   '@types/jest': 29.0.0
-  '@types/lodash': 4.14.184
   '@types/node': 18.7.15
-  '@types/set-interval-async': ^1.0.0
   '@types/uuid': 8.3.4
   '@typescript-eslint/eslint-plugin': 5.36.2
   '@typescript-eslint/parser': 5.36.2
@@ -22,7 +20,6 @@ specifiers:
   eslint-plugin-prettier: 4.2.1
   ioredis: 4.28.5
   jest: 29.0.2
-  lodash: 4.17.21
   np: 7.6.2
   p-queue: 6.6.2
   p-timeout: 4.1.0
@@ -40,7 +37,6 @@ dependencies:
   dayjs: 1.11.5
   debug: 4.3.4
   ioredis: 4.28.5
-  lodash: 4.17.21
   p-queue: 6.6.2
   p-timeout: 4.1.0
   rate-limiter-flexible: 2.3.8
@@ -51,9 +47,7 @@ devDependencies:
   '@types/debug': 4.1.7
   '@types/ioredis': 4.28.10
   '@types/jest': 29.0.0
-  '@types/lodash': 4.14.184
   '@types/node': 18.7.15
-  '@types/set-interval-async': 1.0.0
   '@types/uuid': 8.3.4
   '@typescript-eslint/eslint-plugin': 5.36.2_iurrlxgqcgk5svigzxakafpeuu
   '@typescript-eslint/parser': 5.36.2_yqf6kl63nyoq5megxukfnom5rm
@@ -966,10 +960,6 @@ packages:
       '@types/node': 18.7.15
     dev: true
 
-  /@types/lodash/4.14.184:
-    resolution: {integrity: sha512-RoZphVtHbxPZizt4IcILciSWiC6dcn+eZ8oX9IWEYfDMcocdd42f7NPI6fQj+6zI8y4E0L7gu2pcZKLGTRaV9Q==}
-    dev: true
-
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
@@ -998,10 +988,6 @@ packages:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
       '@types/node': 18.7.15
-    dev: true
-
-  /@types/set-interval-async/1.0.0:
-    resolution: {integrity: sha512-4twO6B7/dcd+lMyIHwUm/S1RMvVOsgZf0sCevNNCnwyAxn7t9mxLfuZxIGFimYCPhLjJYccsvo4HhXxp4UDoBg==}
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -4056,6 +4042,7 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
 
   /log-driver/1.2.7:
     resolution: {integrity: sha512-U7KCmLdqsGHBLeWqYlFA0V0Sl6P08EE1ZrmA9cxjUE0WVqT9qnyVDPz1kzpFEP0jdJuFnasWIfSd7fsaNXkpbg==}

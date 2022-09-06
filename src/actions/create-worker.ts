@@ -1,6 +1,5 @@
 import debugF from 'debug';
 import { Redis } from 'ioredis';
-import { debounce } from 'lodash';
 import PQueue from 'p-queue';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import {
@@ -14,7 +13,7 @@ import { Task } from '../domain/tasks/task';
 import { serializeWorker } from '../domain/worker/serialize-worker';
 import { Worker } from '../domain/worker/worker';
 import { WorkerInstance } from '../domain/worker/worker-instance';
-import { createWorkerId, sleep } from '../utils/general';
+import { createWorkerId, debounce, sleep } from '../utils/general';
 import {
   getWorkerKey,
   getWorkerPausedChannel,

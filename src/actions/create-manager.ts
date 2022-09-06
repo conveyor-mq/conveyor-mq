@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import debugF from 'debug';
 import { Redis } from 'ioredis';
-import { set } from 'lodash';
 import { Event } from '../domain/events/event';
 import { EventType } from '../domain/events/event-type';
 import { Manager } from '../domain/manager/manager';
 import { TaskResponse } from '../domain/manager/task-response';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
+import { set } from '../utils/general';
 import {
   createClientAndLoadLuaScripts,
   ensureDisconnected,
