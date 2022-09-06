@@ -10,12 +10,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.2
       - name: Setup Node.js
-        uses: actions/setup-node@v1.4.2
+        uses: actions/setup-node@v3.4.1
         with:
-          node-version: 13
+          node-version: 16
       - name: Install dependencies
-        run: npm i
+        run: pnpm i
       - name: Run lint
-        run: npm run lint
+        run: pnpm run lint

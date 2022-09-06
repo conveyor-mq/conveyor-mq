@@ -1,8 +1,7 @@
 import { Redis } from 'ioredis';
-import { map, filter } from 'lodash';
+import { Task } from '../domain/tasks/task';
 import { enqueueStalledTasks } from './enqueue-stalled-tasks';
 import { markTasksFailed } from './mark-tasks-failed';
-import { Task } from '../domain/tasks/task';
 
 /**
  * @ignore
@@ -16,7 +15,7 @@ export const handleStalledTasks = async ({
   client: Redis;
   tasks: Task[];
 }) => {
-  const results = map(tasks, (task) => {
+  const results = tasks.map((task) => {
     return {
       task,
       retryLimitReached:
@@ -26,21 +25,18 @@ export const handleStalledTasks = async ({
         (task.stallRetries || 0) >= task.stallRetryLimit,
     };
   });
-  const tasksToReQueue = map(
-    filter(
-      results,
+  const tasksToReQueue = results
+    .filter(
       ({ retryLimitReached, stallRetryLimitReached }) =>
         !retryLimitReached && !stallRetryLimitReached,
-    ),
-    (result) => result.task,
-  );
-  const tasksAndErrors = map(
-    filter(
-      results,
+    )
+    .map((result) => result.task);
+  const tasksAndErrors = results
+    .filter(
       ({ retryLimitReached, stallRetryLimitReached }) =>
         !!retryLimitReached || !!stallRetryLimitReached,
-    ),
-    ({ task, retryLimitReached, stallRetryLimitReached }) => {
+    )
+    .map(({ task, retryLimitReached, stallRetryLimitReached }) => {
       // eslint-disable-next-line no-nested-ternary
       const error = retryLimitReached
         ? 'Retry limit reached'
@@ -48,8 +44,7 @@ export const handleStalledTasks = async ({
         ? 'Stall retry limit reached'
         : '';
       return { task, error };
-    },
-  );
+    });
   const [failedTasks, reQueuedTasks] = await Promise.all([
     markTasksFailed({ tasksAndErrors, queue, client }),
     enqueueStalledTasks({ queue, tasks: tasksToReQueue, client }),

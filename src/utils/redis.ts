@@ -1,5 +1,4 @@
-import RedisClient, { Redis, Pipeline } from 'ioredis';
-import { map } from 'lodash';
+import RedisClient, { Pipeline, Redis } from 'ioredis';
 import { loadLuaScripts, LuaScriptName } from '../lua';
 
 export type RedisConfig = {
@@ -91,7 +90,7 @@ export const publish = ({
 export const ensureConnected = async ({ client }: { client: Redis }) => {
   try {
     await client.connect();
-  } catch (e) {
+  } catch (e: any) {
     if (e.message !== 'Redis is already connecting/connected') {
       throw e;
     }
@@ -105,7 +104,7 @@ export const tryIgnore = async <T>(
 ) => {
   try {
     return await f();
-  } catch (e) {
+  } catch (e: any) {
     if (shouldThrow(e)) {
       throw e;
     }
@@ -115,7 +114,7 @@ export const tryIgnore = async <T>(
 export const ensureDisconnected = ({ client }: { client: Redis }) => {
   return client.status === 'end'
     ? Promise.resolve()
-    : new Promise((resolve) => {
+    : new Promise<void>((resolve) => {
         client.disconnect();
         client.on('end', () => resolve());
       });
@@ -124,7 +123,7 @@ export const ensureDisconnected = ({ client }: { client: Redis }) => {
 export const exec = (multi_: Pipeline) => {
   return new Promise((resolve, reject) => {
     multi_.exec((err, results) =>
-      err ? reject(err) : resolve(map(results, (result) => result[1])),
+      err ? reject(err) : resolve(results.map((result) => result[1])),
     );
   }) as Promise<(string | number)[]>;
 };
@@ -172,7 +171,7 @@ export const set = ({
 }) =>
   new Promise((resolve, reject) => {
     if (ttl) {
-      client.set(key, value, 'px', ttl, (err, result) =>
+      client.set(key, value, 'PX', ttl, (err, result) =>
         err ? reject(err) : resolve(result),
       );
     } else {
@@ -195,7 +194,7 @@ export const brpoplpush = ({
 }): Promise<string | null> =>
   new Promise((resolve, reject) => {
     client.brpoplpush(fromKey, toKey, timeout, (err, result) =>
-      err ? reject(err) : resolve(result),
+      err ? reject(err) : resolve(result || null),
     );
   });
 
@@ -217,7 +216,14 @@ export const hkeys = ({
   key: string;
 }): Promise<string[]> =>
   new Promise((resolve, reject) => {
-    client.hkeys(key, (err, result) => (err ? reject(err) : resolve(result)));
+    client.hkeys(key, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      if (result && Array.isArray(result)) {
+        resolve(result);
+      }
+    });
   });
 
 export const lrange = ({
@@ -232,9 +238,14 @@ export const lrange = ({
   client: Redis;
 }): Promise<string[]> =>
   new Promise((resolve, reject) => {
-    client.lrange(key, start, stop, (err, result) =>
-      err ? reject(err) : resolve(result),
-    );
+    client.lrange(key, start, stop, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      if (result && Array.isArray(result)) {
+        resolve(result);
+      }
+    });
   });
 
 export const keys = ({
@@ -245,9 +256,14 @@ export const keys = ({
   client: Redis;
 }): Promise<string[]> =>
   new Promise((resolve, reject) => {
-    client.keys(pattern, (err, result) =>
-      err ? reject(err) : resolve(result),
-    );
+    client.keys(pattern, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      if (result && Array.isArray(result)) {
+        resolve(result);
+      }
+    });
   });
 
 export const mget = ({

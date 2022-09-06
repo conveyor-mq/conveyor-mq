@@ -1,18 +1,17 @@
 import { Redis } from 'ioredis';
-import { map } from 'lodash';
-import { callLuaScript } from '../utils/redis';
-import {
-  getScheduledSetKey,
-  getQueuedListKey,
-  getTaskKeyPrefix,
-  getQueueTaskQueuedChannel,
-  getQueuePausedKey,
-  getPausedListKey,
-} from '../utils/keys';
+import { EventType } from '../domain/events/event-type';
 import { deSerializeTask } from '../domain/tasks/deserialize-task';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { LuaScriptName } from '../lua';
-import { EventType } from '../domain/events/event-type';
+import {
+  getPausedListKey,
+  getQueuedListKey,
+  getQueuePausedKey,
+  getQueueTaskQueuedChannel,
+  getScheduledSetKey,
+  getTaskKeyPrefix,
+} from '../utils/keys';
+import { callLuaScript } from '../utils/redis';
 
 /**
  * @ignore
@@ -41,6 +40,6 @@ export const enqueueScheduledTasks = async ({
       getQueueTaskQueuedChannel({ queue }),
     ],
   })) as string[];
-  const tasks = map(taskStrings, (taskString) => deSerializeTask(taskString));
+  const tasks = taskStrings.map((taskString) => deSerializeTask(taskString));
   return tasks;
 };

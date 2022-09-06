@@ -1,21 +1,21 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
+import { createListener } from '../../actions/create-listener';
+import { createManager } from '../../actions/create-manager';
+import { createWorker } from '../../actions/create-worker';
+import { processStalledTasks } from '../../actions/process-stalled-tasks';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
+import { updateTask } from '../../actions/update-task';
+import { EventType } from '../../domain/events/event-type';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatus } from '../../domain/tasks/task-status';
+import { addByHoursToDate } from '../../utils/date';
+import { createUuid, sleep } from '../../utils/general';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
 } from '../../utils/redis';
-import { createUuid, sleep } from '../../utils/general';
-import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
-import { createListener } from '../../actions/create-listener';
-import { EventType } from '../../domain/events/event-type';
-import { TaskStatus } from '../../domain/tasks/task-status';
-import { createWorker } from '../../actions/create-worker';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
-import { processStalledTasks } from '../../actions/process-stalled-tasks';
-import { updateTask } from '../../actions/update-task';
-import { Task } from '../../domain/tasks/task';
 
 describe('createListener', () => {
   const queue = createUuid();
@@ -60,7 +60,7 @@ describe('createListener', () => {
     const task = {
       id: 'b',
       data: 'c',
-      enqueueAfter: moment().add(1, 'hours').toDate(),
+      enqueueAfter: addByHoursToDate(1),
     };
     await manager.scheduleTask(task);
     const event = await promise;

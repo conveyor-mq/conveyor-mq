@@ -1,25 +1,18 @@
 import RedisClient, { Redis } from 'ioredis';
-import { map, forEach } from 'lodash';
-import {
-  flushAll,
-  quit,
-  createClientAndLoadLuaScripts,
-  rpoplpush,
-} from '../../utils/redis';
-import { createUuid, sleep } from '../../utils/general';
 import { createManager } from '../../actions/create-manager';
-import { redisConfig } from '../config';
-import { Task } from '../../domain/tasks/task';
-import { createWorker } from '../../actions/create-worker';
-import { TaskStatus } from '../../domain/tasks/task-status';
-import {
-  getQueuedListKey,
-  getTaskKey,
-  getProcessingListKey,
-} from '../../utils/keys';
-import { loadLuaScripts } from '../../lua';
 import { createOrchestrator } from '../../actions/create-orchestrator';
 import { isTaskStalled } from '../../actions/is-task-stalled';
+import { TaskStatus } from '../../domain/tasks/task-status';
+import { loadLuaScripts } from '../../lua';
+import { createUuid, sleep } from '../../utils/general';
+import { getProcessingListKey, getQueuedListKey } from '../../utils/keys';
+import {
+  createClientAndLoadLuaScripts,
+  flushAll,
+  quit,
+  rpoplpush,
+} from '../../utils/redis';
+import { redisConfig } from '../config';
 
 describe('createOrchestrator', () => {
   const queue = createUuid();

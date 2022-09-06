@@ -1,7 +1,6 @@
-import { Redis, Pipeline } from 'ioredis';
-import { map } from 'lodash';
-import { exec } from '../utils/redis';
+import { Pipeline, Redis } from 'ioredis';
 import { Task } from '../domain/tasks/task';
+import { exec } from '../utils/redis';
 import { markTaskFailedMulti } from './mark-task-failed';
 
 /**
@@ -18,7 +17,7 @@ export const markTasksFailedMulti = ({
   multi: Pipeline;
   remove?: boolean;
 }): Task[] => {
-  const failedTasks = map(tasksAndErrors, ({ task, error }) =>
+  const failedTasks = tasksAndErrors.map(({ task, error }) =>
     markTaskFailedMulti({ task, queue, multi, error, remove }),
   );
   return failedTasks;

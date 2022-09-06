@@ -1,21 +1,21 @@
-import moment from 'moment';
 import { Redis } from 'ioredis';
 import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
-import { hasTaskExpired } from '../../actions/has-task-expired';
-import { handleTask } from '../../actions/handle-task';
 import { getTaskById } from '../../actions/get-task-by-id';
-import {
-  flushAll,
-  quit,
-  createClientAndLoadLuaScripts,
-  lrange,
-} from '../../utils/redis';
-import { createUuid, sleep } from '../../utils/general';
-import { redisConfig } from '../config';
+import { handleTask } from '../../actions/handle-task';
+import { hasTaskExpired } from '../../actions/has-task-expired';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
+import { strToDate } from '../../utils/date';
+import { createUuid, sleep } from '../../utils/general';
 import { getProcessingListKey } from '../../utils/keys';
+import {
+  createClientAndLoadLuaScripts,
+  flushAll,
+  lrange,
+  quit,
+} from '../../utils/redis';
+import { redisConfig } from '../config';
 
 describe('handleTask', () => {
   const queue = createUuid();
@@ -34,8 +34,8 @@ describe('handleTask', () => {
   });
 
   it('handleTask fails task if task is expired', async () => {
-    const thePast = moment('2020-01-01').toDate();
-    const theFuture = moment('2020-01-02').toDate();
+    const thePast = strToDate('2020-01-01');
+    const theFuture = strToDate('2020-01-02');
     const expiredTask: Task = { id: 'i', expiresAt: thePast, data: 'j' };
     expect(hasTaskExpired({ task: expiredTask, asOf: theFuture })).toBe(true);
     await enqueueTask({ task: expiredTask, queue, client });
@@ -139,7 +139,7 @@ describe('handleTask', () => {
     expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask handles task success case', async () => {
-    const now = moment('2020-01-02').toDate();
+    const now = strToDate('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j' };
     await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTaskAndMarkAsProcessing({
@@ -184,7 +184,7 @@ describe('handleTask', () => {
     expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask handles task failure case', async () => {
-    const now = moment('2020-01-02').toDate();
+    const now = strToDate('2020-01-02');
     const theTask: Task = { id: 'i', data: 'j', retryLimit: 0 };
     await enqueueTask({ queue, task: theTask, client });
     const processingTask = (await takeTaskAndMarkAsProcessing({
@@ -230,7 +230,7 @@ describe('handleTask', () => {
     expect(numberOfProcessingTasks.length).toBe(0);
   });
   it('handleTask retries errored task', async () => {
-    const now = moment('2020-01-02').toDate();
+    const now = strToDate('2020-01-02');
     const task: Task = { id: 'i', data: 'j', errorRetryLimit: 1 };
     await enqueueTask({ queue, task, client });
     const processingTask = (await takeTaskAndMarkAsProcessing({

@@ -1,19 +1,18 @@
-import { Redis, Pipeline } from 'ioredis';
-import moment from 'moment';
+import { Pipeline, Redis } from 'ioredis';
 import pTimeout from 'p-timeout';
-import { find } from 'lodash';
-import { hasTaskExpired } from './has-task-expired';
-import { markTaskSuccessMulti } from './mark-task-success';
-import { enqueueTaskMulti } from './enqueue-task';
-import { markTaskFailedMulti } from './mark-task-failed';
-import { getRetryDelayDefault } from '../utils/retry-strategies';
-import { getQueueTaskErrorChannel, getProcessingListKey } from '../utils/keys';
-import { Task } from '../domain/tasks/task';
-import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { Task } from '../domain/tasks/task';
+import { addByMsToDate } from '../utils/date';
+import { getProcessingListKey, getQueueTaskErrorChannel } from '../utils/keys';
+import { exec } from '../utils/redis';
+import { getRetryDelayDefault } from '../utils/retry-strategies';
+import { enqueueTaskMulti } from './enqueue-task';
+import { hasTaskExpired } from './has-task-expired';
+import { markTaskFailedMulti } from './mark-task-failed';
+import { markTaskSuccessMulti } from './mark-task-success';
 import { updateTask as updateTaskAction } from './update-task';
 import { updateTaskProgress as updateTaskProgressAction } from './update-task-progress';
-import { exec } from '../utils/redis';
 
 /**
  * @ignore
@@ -127,7 +126,7 @@ export const handleTaskMulti = async ({
         message: 'Retry limit reached',
       },
     ];
-    const error = find(errorMessages, ({ condition }) => !!condition)?.message;
+    const error = errorMessages.find(({ condition }) => !!condition)?.message;
     const failedTask = markTaskFailedMulti({
       task,
       queue,
@@ -180,7 +179,7 @@ export const handleTaskMulti = async ({
       name: 'taskSuccess',
       params: { task: successfulTask, result },
     };
-  } catch (e) {
+  } catch (e: any) {
     const error =
       e instanceof pTimeout.TimeoutError
         ? 'Task execution duration exceeded executionTimeout'
@@ -214,9 +213,7 @@ export const handleTaskMulti = async ({
       const retryDelay = await getRetryDelay({ task });
       const taskToEnqueue = {
         ...task,
-        enqueueAfter: retryDelay
-          ? moment().add(retryDelay, 'milliseconds').toDate()
-          : undefined,
+        enqueueAfter: retryDelay ? addByMsToDate(retryDelay) : undefined,
         retries: (task.retries || 0) + 1,
         errorRetries: (task.errorRetries || 0) + 1,
         processingEndedAt: new Date(),

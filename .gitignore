@@ -65,3 +65,5 @@ dist
 sandpit
 
 .DS_Store
+
+.vscode

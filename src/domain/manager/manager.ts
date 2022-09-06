@@ -1,8 +1,7 @@
-import { duration } from 'moment';
-import { Task } from '../tasks/task';
-import { TaskResponse } from './task-response';
-import { WorkerInstance } from '../worker/worker-instance';
 import { QueueRateLimitConfig } from '../../actions/get-queue-rate-limit-config';
+import { Task } from '../tasks/task';
+import { WorkerInstance } from '../worker/worker-instance';
+import { TaskResponse } from './task-response';
 
 export interface Manager {
   enqueueTask: (task: Partial<Task>) => Promise<TaskResponse>;

@@ -1,14 +1,13 @@
-import { map, filter, forEach } from 'lodash';
-import { OnBeforeEnqueueTask, OnAfterEnqueueTask } from './enqueue-task';
+import { createListener } from './create-listener';
 import { createManager, ManagerInput } from './create-manager';
+import { createOrchestrator } from './create-orchestrator';
 import {
   createWorker,
-  WorkerInput,
-  OnBeforeTaskProcessing,
   OnAfterTaskProcessing,
+  OnBeforeTaskProcessing,
+  WorkerInput,
 } from './create-worker';
-import { createOrchestrator } from './create-orchestrator';
-import { createListener } from './create-listener';
+import { OnAfterEnqueueTask, OnBeforeEnqueueTask } from './enqueue-task';
 
 export interface Plugin {
   onBeforeEnqueueTask?: OnBeforeEnqueueTask;
@@ -23,18 +22,16 @@ export const registerPlugins = (...plugins: Plugin[]) => {
       ...params,
       hooks: {
         onBeforeEnqueueTask: (hookParams) => {
-          const hooks = filter(
-            map(plugins, (plugin) => plugin.onBeforeEnqueueTask),
-            (hook) => !!hook,
-          ) as OnBeforeEnqueueTask[];
-          forEach(hooks, (hook) => hook(hookParams));
+          const hooks = plugins
+            .map((plugin) => plugin.onBeforeEnqueueTask)
+            .filter((hook) => !!hook) as OnBeforeEnqueueTask[];
+          hooks.forEach((hook) => hook(hookParams));
         },
         onAfterEnqueueTask: (hookParams) => {
-          const hooks = filter(
-            map(plugins, (plugin) => plugin.onAfterEnqueueTask),
-            (hook) => !!hook,
-          ) as OnAfterEnqueueTask[];
-          forEach(hooks, (hook) => hook(hookParams));
+          const hooks = plugins
+            .map((plugin) => plugin.onAfterEnqueueTask)
+            .filter((hook) => !!hook) as OnAfterEnqueueTask[];
+          hooks.forEach((hook) => hook(hookParams));
         },
         ...params.hooks,
       },
@@ -45,18 +42,16 @@ export const registerPlugins = (...plugins: Plugin[]) => {
       ...params,
       hooks: {
         onBeforeTaskProcessing: (hookParams) => {
-          const hooks = filter(
-            map(plugins, (plugin) => plugin.onBeforeTaskProcessing),
-            (hook) => !!hook,
-          ) as OnBeforeTaskProcessing[];
-          forEach(hooks, (hook) => hook(hookParams));
+          const hooks = plugins
+            .map((plugin) => plugin.onBeforeTaskProcessing)
+            .filter((hook) => !!hook) as OnBeforeTaskProcessing[];
+          hooks.forEach((hook) => hook(hookParams));
         },
         onAfterTaskProcessing: (hookParams) => {
-          const hooks = filter(
-            map(plugins, (plugin) => plugin.onAfterTaskProcessing),
-            (hook) => !!hook,
-          ) as OnAfterTaskProcessing[];
-          forEach(hooks, (hook) => hook(hookParams));
+          const hooks = plugins
+            .map((plugin) => plugin.onAfterTaskProcessing)
+            .filter((hook) => !!hook) as OnAfterTaskProcessing[];
+          hooks.forEach((hook) => hook(hookParams));
         },
         ...params.hooks,
       },

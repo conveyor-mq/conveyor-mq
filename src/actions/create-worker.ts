@@ -1,54 +1,54 @@
-import { map, debounce, forEach } from 'lodash';
-import PQueue from 'p-queue';
+import debugF from 'debug';
 import { Redis } from 'ioredis';
+import { debounce } from 'lodash';
+import PQueue from 'p-queue';
+import { RateLimiterRedis } from 'rate-limiter-flexible';
 import {
-  setIntervalAsync,
   clearIntervalAsync,
+  setIntervalAsync,
   SetIntervalAsyncTimer,
 } from 'set-interval-async/dynamic';
-import debugF from 'debug';
-import { RateLimiterRedis } from 'rate-limiter-flexible';
-import { sleep, createWorkerId } from '../utils/general';
+import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { Task } from '../domain/tasks/task';
+import { serializeWorker } from '../domain/worker/serialize-worker';
+import { Worker } from '../domain/worker/worker';
+import { WorkerInstance } from '../domain/worker/worker-instance';
+import { createWorkerId, sleep } from '../utils/general';
 import {
-  getRetryDelayType,
-  TaskSuccessCb,
-  TaskErrorCb,
-  TaskFailedCb,
-  Handler,
-} from './handle-task';
+  getWorkerKey,
+  getWorkerPausedChannel,
+  getWorkerStartedChannel,
+} from '../utils/keys';
 import {
+  createClientAndLoadLuaScripts,
   ensureConnected,
-  tryIgnore,
   ensureDisconnected,
   publish,
-  set,
-  createClientAndLoadLuaScripts,
   RedisConfig,
+  set,
+  tryIgnore,
 } from '../utils/redis';
-import { takeTaskBlocking } from './take-task-blocking';
-import {
-  processTask,
-  OnAfterTaskSuccess,
-  OnAfterTaskError,
-  OnAfterTaskFail,
-} from './process-task';
-import {
-  getWorkerStartedChannel,
-  getWorkerPausedChannel,
-  getWorkerKey,
-} from '../utils/keys';
-import { serializeEvent } from '../domain/events/serialize-event';
-import { EventType } from '../domain/events/event-type';
-import { WorkerInstance } from '../domain/worker/worker-instance';
-import { serializeWorker } from '../domain/worker/serialize-worker';
-import { Task } from '../domain/tasks/task';
-import { Worker } from '../domain/worker/worker';
-import { markTaskProcessing } from './mark-task-processing';
+import { createListener } from './create-listener';
 import {
   getQueueRateLimitConfig,
   QueueRateLimitConfig,
 } from './get-queue-rate-limit-config';
-import { createListener } from './create-listener';
+import {
+  getRetryDelayType,
+  Handler,
+  TaskErrorCb,
+  TaskFailedCb,
+  TaskSuccessCb,
+} from './handle-task';
+import { markTaskProcessing } from './mark-task-processing';
+import {
+  OnAfterTaskError,
+  OnAfterTaskFail,
+  OnAfterTaskSuccess,
+  processTask,
+} from './process-task';
+import { takeTaskBlocking } from './take-task-blocking';
 
 const debug = debugF('conveyor-mq:worker');
 
@@ -146,7 +146,7 @@ export const createWorker = ({
   let isPaused = true;
   let isShuttingDown = false;
   let isShutdown = false;
-  let upsertInterval: SetIntervalAsyncTimer;
+  let upsertInterval: SetIntervalAsyncTimer<any>;
   let rateLimitConfig: QueueRateLimitConfig | undefined;
   let rateLimiter: RateLimiterRedis | undefined;
 
@@ -182,7 +182,7 @@ export const createWorker = ({
       if (rateLimiter) {
         try {
           await rateLimiter.consume(queue);
-        } catch (e) {
+        } catch (e: any) {
           if (e.msBeforeNext) {
             await sleep(e.msBeforeNext);
             takerQueue.add(takeAndProcessTask);
@@ -341,8 +341,7 @@ export const createWorker = ({
     }
     isPausing = true;
     await clearIntervalAsync(upsertInterval);
-    forEach(
-      killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+    (killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue]).forEach(
       (q) => {
         q.pause();
         q.clear();
@@ -358,13 +357,11 @@ export const createWorker = ({
       client: workerClient,
     });
     await Promise.all([
-      ...map(
-        killProcessingTasks && !redisClient
-          ? [takerClient, workerClient]
-          : [takerClient],
-        (client) => ensureDisconnected({ client }),
-      ),
-      ...map([workerQueue, takerQueue], (q) => q.onIdle()),
+      ...(killProcessingTasks && !redisClient
+        ? [takerClient, workerClient]
+        : [takerClient]
+      ).map((client) => ensureDisconnected({ client })),
+      ...[workerQueue, takerQueue].map((q) => q.onIdle()),
     ]);
     isPaused = true;
     isPausing = false;
@@ -381,7 +378,7 @@ export const createWorker = ({
     }
     if (isPaused) {
       await Promise.all(
-        map([takerClient, workerClient], (client) =>
+        [takerClient, workerClient].map((client) =>
           ensureConnected({ client }),
         ),
       );
@@ -399,11 +396,11 @@ export const createWorker = ({
           duration: queueRateLimitConfig.duration,
         });
       }
-      forEach([workerQueue, takerQueue], (q) => q.start());
+      [workerQueue, takerQueue].forEach((q) => q.start());
       await upsertWorker();
       upsertInterval = setIntervalAsync(upsertWorker, 15000);
       takerQueue.addAll(
-        map(Array.from({ length: concurrency }), () => takeAndProcessTask),
+        Array.from({ length: concurrency }).map(() => takeAndProcessTask),
       );
       isPaused = false;
       await publish({
@@ -433,8 +430,7 @@ export const createWorker = ({
     }
     isShuttingDown = true;
     await clearIntervalAsync(upsertInterval);
-    forEach(
-      killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue],
+    (killProcessingTasks ? [takerQueue, workerQueue] : [takerQueue]).forEach(
       (q) => {
         q.pause();
         q.clear();
@@ -450,13 +446,10 @@ export const createWorker = ({
       client: workerClient,
     });
     await Promise.all([
-      ...map(
-        killProcessingTasks && !redisClient
-          ? [takerClient, workerClient]
-          : [takerClient],
-        (client) => ensureDisconnected({ client }),
-      ),
-      ...map([workerQueue, takerQueue], (q) => q.onIdle()),
+      ...(killProcessingTasks && !redisClient
+        ? [takerClient, workerClient]
+        : [takerClient].map((client) => ensureDisconnected({ client }))),
+      ...[workerQueue, takerQueue].map((q) => q.onIdle()),
     ]);
     isShutdown = true;
     isShuttingDown = false;
@@ -490,7 +483,7 @@ export const createWorker = ({
     },
     onIdle: async () => {
       debug('onIdle');
-      await Promise.all(map([takerQueue, workerQueue], (q) => q.onIdle()));
+      await Promise.all([takerQueue, workerQueue].map((q) => q.onIdle()));
     },
   };
 };

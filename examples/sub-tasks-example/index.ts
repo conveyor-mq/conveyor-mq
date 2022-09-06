@@ -2,7 +2,6 @@
  * This example demonstrates how to set up sub tasks be defining a parent task with child tasks.
  */
 import { createManager, createWorker } from 'conveyor-mq';
-import { map, reduce } from 'lodash';
 import { Task } from 'conveyor-mq/dist/domain/tasks/task';
 
 const queue = 'my-queue';
@@ -22,27 +21,25 @@ const worker = createWorker({
       const completedChildTasks = await Promise.all(
         // Iterate over child tasks and enqueue them and return a promise which resolves
         // once the tasks are complete.
-        map(task.data.childTasks, async (childTask: Task) => {
+        task.data.childTasks.map(async (childTask: Task) => {
           console.log('Enqueuing child task');
           const { onTaskComplete } = await manager.enqueueTask(childTask);
           return onTaskComplete();
         }),
       );
       console.log('Processed parent task');
-      const childSum = reduce(
-        completedChildTasks,
+      const childSum = completedChildTasks.reduce(
         (acc, curr) => acc + curr.result,
         0,
       );
       return task.data.x || task.data.y
         ? childSum + task.data.x + task.data.y
         : childSum;
-    } else {
-      console.log('Processing child task');
-      const result = task.data.x + task.data.y;
-      console.log('Processed child task');
-      return result;
     }
+    console.log('Processing child task');
+    const result = task.data.x + task.data.y;
+    console.log('Processed child task');
+    return result;
   },
 });
 

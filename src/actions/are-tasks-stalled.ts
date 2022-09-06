@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { map, forEach, zipWith, reduce } from 'lodash';
+import { zipWith } from 'lodash';
 import { getTaskAcknowledgedKey } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { getStallingTaskIds } from './get-stalling-task-ids';
@@ -17,26 +17,29 @@ export const areTasksStalled = async ({
   client: Redis;
 }) => {
   const stallingTasksIds = await getStallingTaskIds({ queue, client });
-  const taskAcknowledgeKeys = map(stallingTasksIds, (taskId) =>
+  const taskAcknowledgeKeys = stallingTasksIds.map((taskId) =>
     getTaskAcknowledgedKey({ taskId, queue }),
   );
   const multi = client.multi();
-  forEach(taskAcknowledgeKeys, (key) => {
+  taskAcknowledgeKeys.forEach((key) => {
     multi.exists(key);
   });
   const results = await exec(multi);
-  const isStalledByTaskId: { [key: string]: boolean } = reduce(
-    zipWith(stallingTasksIds, results, (taskId, result) => ({
+  const isStalledByTaskId: { [key: string]: boolean } = zipWith(
+    stallingTasksIds,
+    results,
+    (taskId, result) => ({
       taskId,
       isStalled: result === 0,
-    })),
+    }),
+  ).reduce(
     (acc, { taskId, isStalled }) => ({
       ...acc,
       [taskId]: isStalled,
     }),
     {},
   );
-  return map(taskIds, (taskId) => ({
+  return taskIds.map((taskId) => ({
     taskId,
     isStalled: !!isStalledByTaskId[taskId],
   }));

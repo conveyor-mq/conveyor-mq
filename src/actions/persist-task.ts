@@ -1,7 +1,7 @@
 import { Pipeline } from 'ioredis';
-import { getTaskKey } from '../utils/keys';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { Task } from '../domain/tasks/task';
+import { getTaskKey } from '../utils/keys';
 
 /**
  * @ignore

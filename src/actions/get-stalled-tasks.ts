@@ -1,10 +1,9 @@
-import { filter, map } from 'lodash';
 import { Redis } from 'ioredis';
-import { lrange } from '../utils/redis';
-import { getProcessingListKey } from '../utils/keys';
-import { getTasksById } from './get-tasks-by-id';
-import { areTasksStalled } from './are-tasks-stalled';
 import { Task } from '../domain/tasks/task';
+import { getProcessingListKey } from '../utils/keys';
+import { lrange } from '../utils/redis';
+import { areTasksStalled } from './are-tasks-stalled';
+import { getTasksById } from './get-tasks-by-id';
 
 // TODO: paging.
 /**
@@ -28,10 +27,9 @@ export const getStalledTasks = async ({
     queue,
     client,
   });
-  const stalledTasksIds = map(
-    filter(results, (result) => !!result.isStalled),
-    (result) => result.taskId,
-  );
+  const stalledTasksIds = results
+    .filter((result) => !!result.isStalled)
+    .map((result) => result.taskId);
   const stalledTasks = await getTasksById({
     queue,
     taskIds: stalledTasksIds,

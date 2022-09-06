@@ -1,8 +1,7 @@
 import { Redis } from 'ioredis';
-import { map } from 'lodash';
+import { Task } from '../domain/tasks/task';
 import { getProcessingListKey, getStallingHashKey } from '../utils/keys';
 import { exec } from '../utils/redis';
-import { Task } from '../domain/tasks/task';
 import { enqueueTasksMulti } from './enqueue-tasks';
 
 /**
@@ -19,7 +18,7 @@ export const enqueueStalledTasks = async ({
 }): Promise<Task[]> => {
   const multi = client.multi();
   const processingListKey = getProcessingListKey({ queue });
-  const tasksToQueue: Task[] = map(tasks, (task) => {
+  const tasksToQueue: Task[] = tasks.map((task) => {
     multi.lrem(processingListKey, 1, task.id);
     multi.hdel(getStallingHashKey({ queue }), task.id);
     return {

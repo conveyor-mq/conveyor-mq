@@ -2,15 +2,15 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { createManager, createWorker } from 'conveyor-mq';
 import BeeQueue from 'bee-queue';
 import BullQueue from 'bull';
+import { createManager, createWorker } from 'conveyor-mq';
 
 const redisConfig = { host: 'localhost', port: 6379 };
 
 const countdown = (n = 1) => {
   let next: () => boolean;
-  const done = new Promise((resolve) => {
+  const done = new Promise<void>((resolve) => {
     next = () => {
       n--;
       if (n < 0) return false;
@@ -73,7 +73,7 @@ const benchmarks = {
         handlerTimeout = 0,
       }) => {
         const queue = new BeeQueue('bee-queue');
-        const ready = new Promise((resolve) => {
+        const ready = new Promise<void>((resolve) => {
           queue.on('ready', () => {
             resolve();
           });
