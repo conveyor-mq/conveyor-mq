@@ -52,8 +52,8 @@ export const createOrchestrator = ({
     throw new Error('redisClient or redisConfig must be provided');
   }
   debug('Creating client');
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const client = redisClient || createClientAndLoadLuaScripts(redisConfig!);
+  const client =
+    redisClient || createClientAndLoadLuaScripts(redisConfig as RedisConfig);
 
   const processStalledTasksTick = async () => {
     try {

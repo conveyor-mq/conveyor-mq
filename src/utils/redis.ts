@@ -210,10 +210,7 @@ export const flushAll = ({ client }: { client: Redis }) =>
     client.flushall((err, result) => (err ? reject(err) : resolve(result)));
   });
 
-export const quit = ({ client }: { client: Redis }) =>
-  new Promise((resolve, reject) => {
-    client.quit((err, result) => (err ? reject(err) : resolve(result)));
-  });
+export const quit = ({ client }: { client: Redis }) => client.quit();
 
 export const hkeys = ({
   client,

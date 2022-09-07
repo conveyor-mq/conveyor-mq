@@ -45,7 +45,7 @@ export const loadLuaScripts = ({ client }: { client: Redis }) => {
       numberOfKeys: 1,
     },
   ];
-  commandDefinitions.forEach(async ({ name, filePath, numberOfKeys }) => {
+  commandDefinitions.forEach(({ name, filePath, numberOfKeys }) => {
     const script = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
     client.defineCommand(name, { numberOfKeys, lua: script });
   });
