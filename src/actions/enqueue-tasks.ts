@@ -1,4 +1,4 @@
-import { Pipeline, Redis } from 'ioredis';
+import { ChainableCommander, Redis } from 'ioredis';
 import { Task } from '../domain/tasks/task';
 import { exec } from '../utils/redis';
 import {
@@ -17,7 +17,7 @@ export const enqueueTasksMulti = ({
 }: {
   tasks: Partial<Task>[];
   queue: string;
-  multi: Pipeline;
+  multi: ChainableCommander;
 }): Task[] => {
   const tasksToQueue = tasks.map((task) =>
     enqueueTaskMulti({ task, queue, multi }),

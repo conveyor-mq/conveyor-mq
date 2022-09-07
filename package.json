@@ -38,16 +38,15 @@
   "dependencies": {
     "dayjs": "1.11.5",
     "debug": "4.3.4",
-    "ioredis": "4.28.5",
+    "ioredis": "5.2.3",
     "p-queue": "6.6.2",
     "p-timeout": "4.1.0",
-    "rate-limiter-flexible": "2.3.8",
+    "rate-limiter-flexible": "2.3.9",
     "set-interval-async": "3.0.2",
     "uuid": "9.0.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.7",
-    "@types/ioredis": "4.28.10",
     "@types/jest": "29.0.0",
     "@types/node": "18.7.15",
     "@types/uuid": "8.3.4",

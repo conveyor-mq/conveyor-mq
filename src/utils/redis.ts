@@ -1,4 +1,4 @@
-import RedisClient, { Pipeline, Redis } from 'ioredis';
+import RedisClient, { ChainableCommander, Redis } from 'ioredis';
 import { loadLuaScripts, LuaScriptName } from '../lua';
 
 export type RedisConfig = {
@@ -54,7 +54,7 @@ export const callLuaScriptMulti = ({
 }: {
   script: LuaScriptName;
   args: (string | number)[];
-  multi: Pipeline;
+  multi: ChainableCommander;
 }) => {
   (multi as any)[script](...args);
 };
@@ -120,11 +120,18 @@ export const ensureDisconnected = ({ client }: { client: Redis }) => {
       });
 };
 
-export const exec = (multi_: Pipeline) => {
+export const exec = (multi_: ChainableCommander) => {
   return new Promise((resolve, reject) => {
-    multi_.exec((err, results) =>
-      err ? reject(err) : resolve(results.map((result) => result[1])),
-    );
+    multi_.exec((err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        const data = results?.map((result) => result[1]);
+        if (data && Array.isArray(data)) {
+          resolve(data);
+        }
+      }
+    });
   }) as Promise<(string | number)[]>;
 };
 

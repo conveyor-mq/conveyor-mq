@@ -91,7 +91,7 @@ export const createListener = ({
           )
         : channelMap,
     );
-    await client.subscribe(channels);
+    await client.subscribe(...channels);
     debug('Client subscribed to channels');
   };
   const setupPromise = setupListener();

@@ -1,4 +1,4 @@
-import { Pipeline } from 'ioredis';
+import { ChainableCommander } from 'ioredis';
 import { serializeTask } from '../domain/tasks/serialize-task';
 import { Task } from '../domain/tasks/task';
 import { getTaskKey } from '../utils/keys';
@@ -13,7 +13,7 @@ export const persistTaskMulti = ({
 }: {
   task: Task;
   queue: string;
-  multi: Pipeline;
+  multi: ChainableCommander;
 }) => {
   const taskKey = getTaskKey({ taskId: task.id, queue });
   multi.set(taskKey, serializeTask(task));

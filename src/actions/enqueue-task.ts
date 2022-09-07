@@ -1,18 +1,18 @@
-import { Redis, Pipeline } from 'ioredis';
+import { ChainableCommander, Redis } from 'ioredis';
+import { EventType } from '../domain/events/event-type';
+import { serializeTask } from '../domain/tasks/serialize-task';
 import { Task } from '../domain/tasks/task';
-import { exec, callLuaScriptMulti } from '../utils/redis';
-import { createTaskId } from '../utils/general';
 import { TaskStatus } from '../domain/tasks/task-status';
 import { LuaScriptName } from '../lua';
+import { createTaskId } from '../utils/general';
 import {
-  getTaskKey,
-  getQueuedListKey,
-  getQueueTaskQueuedChannel,
-  getQueuePausedKey,
   getPausedListKey,
+  getQueuedListKey,
+  getQueuePausedKey,
+  getQueueTaskQueuedChannel,
+  getTaskKey,
 } from '../utils/keys';
-import { serializeTask } from '../domain/tasks/serialize-task';
-import { EventType } from '../domain/events/event-type';
+import { callLuaScriptMulti, exec } from '../utils/redis';
 
 /**
  * @ignore
@@ -24,7 +24,7 @@ export const enqueueTaskMulti = ({
 }: {
   task: Partial<Task>;
   queue: string;
-  multi: Pipeline;
+  multi: ChainableCommander;
 }): Task => {
   const taskToQueue: Task = {
     ...task,
@@ -67,7 +67,7 @@ export type OnBeforeEnqueueTask = ({
   multi,
 }: {
   task: Task;
-  multi: Pipeline;
+  multi: ChainableCommander;
 }) => any;
 
 export type OnAfterEnqueueTask = ({ task }: { task: Task }) => any;

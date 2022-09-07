@@ -1,4 +1,4 @@
-import { Pipeline, Redis } from 'ioredis';
+import { ChainableCommander, Redis } from 'ioredis';
 import pTimeout from 'p-timeout';
 import { EventType } from '../domain/events/event-type';
 import { serializeEvent } from '../domain/events/serialize-event';
@@ -82,7 +82,7 @@ export const handleTaskMulti = async ({
   task: Task;
   queue: string;
   client: Redis;
-  multi: Pipeline;
+  multi: ChainableCommander;
   handler: Handler;
   asOf: Date;
   getRetryDelay?: getRetryDelayType;
