@@ -355,11 +355,12 @@ export const createWorker = ({
       }),
       client: workerClient,
     });
-    await Promise.all([
-      ...(killProcessingTasks && !redisClient
+    const clients =
+      killProcessingTasks && !redisClient
         ? [takerClient, workerClient]
-        : [takerClient]
-      ).map((client) => ensureDisconnected({ client })),
+        : [takerClient];
+    await Promise.all([
+      ...clients.map((client) => ensureDisconnected({ client })),
       ...[workerQueue, takerQueue].map((q) => q.onIdle()),
     ]);
     isPaused = true;
