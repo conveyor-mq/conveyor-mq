@@ -1,37 +1,35 @@
-import dayjs from 'dayjs';
+import * as dateFns from 'date-fns';
 
-export function addToDateBy(date: number, by: dayjs.ManipulateType) {
-  return dayjs().add(date, by);
+export function addByMsToISO(by: number) {
+  return dateFns.addMilliseconds(Date.now(), by).toISOString();
 }
 
-export function subToDateBy(date: number, by: dayjs.ManipulateType) {
-  return dayjs().subtract(date, by);
-}
-
-export function addByMsToISO(date: number) {
-  return addToDateBy(date, 'milliseconds').toISOString();
-}
-
-export function addByMsToDate(date: number) {
-  return addToDateBy(date, 'milliseconds').toDate();
+export function addByMsToDate(by: number) {
+  return dateFns.addMilliseconds(Date.now(), by);
 }
 
 export function addByHoursToDate(date: number) {
-  return addToDateBy(date, 'hours').toDate();
+  return dateFns.addHours(Date.now(), date);
 }
 
 export function addByHourToDate(date: number) {
-  return addToDateBy(date, 'hour').toDate();
+  return dateFns.addHours(Date.now(), date);
 }
 
-export function dateToUnix(date?: Date) {
-  return dayjs(date).unix();
+export function dateToUnix(date?: Date | number) {
+  if (!date) {
+    return Date.now();
+  }
+  return dateFns.getUnixTime(date);
 }
 
 export function subtractByHourToDate(date: number) {
-  return subToDateBy(date, 'hour').toDate();
+  return dateFns.subHours(Date.now(), date);
 }
 
 export function strToDate(dateStr: string) {
-  return dayjs(dateStr).toDate();
+  if (!dateStr) {
+    return new Date();
+  }
+  return new Date(dateStr);
 }
