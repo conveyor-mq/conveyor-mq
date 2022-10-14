@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2.2.2
       - name: Setup Node.js
         uses: actions/setup-node@v3.4.1
         with:
@@ -21,7 +20,7 @@ jobs:
         with:
           redis version: 5
       - name: Install dependencies
-        run: pnpm i
+        run: npm i
       - name: Run Coveralls
         run: npx jest --forceExit --coverage
       - name: Coveralls GitHub Action
