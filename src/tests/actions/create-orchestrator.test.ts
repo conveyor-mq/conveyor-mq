@@ -70,10 +70,10 @@ describe('createOrchestrator', () => {
     const orchestrator = createOrchestrator({
       queue,
       redisConfig,
-      stalledCheckInterval: 10,
-      defaultStallTimeout: 10,
+      stalledCheckInterval: 5,
+      defaultStallTimeout: 5,
     });
-    await sleep(3000);
+    await sleep(30);
     expect(await isTaskStalled({ taskId, queue, client })).toBe(true);
     await orchestrator.quit();
     await manager.quit();
