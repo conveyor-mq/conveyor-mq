@@ -73,7 +73,7 @@ describe('createOrchestrator', () => {
       stalledCheckInterval: 10,
       defaultStallTimeout: 10,
     });
-    await sleep(30);
+    await sleep(3000);
     expect(await isTaskStalled({ taskId, queue, client })).toBe(true);
     await orchestrator.quit();
     await manager.quit();
