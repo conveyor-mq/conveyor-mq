@@ -1,17 +1,17 @@
-import { Redis, Pipeline } from 'ioredis';
-import { exec, callLuaScriptMulti } from '../utils/redis';
+import { ChainableCommander, Redis } from 'ioredis';
+import { EventType } from '../domain/events/event-type';
+import { deSerializeTask } from '../domain/tasks/deserialize-task';
+import { Task } from '../domain/tasks/task';
+import { TaskStatus } from '../domain/tasks/task-status';
+import { LuaScriptName } from '../lua';
 import {
-  getQueuedListKey,
   getProcessingListKey,
+  getQueuedListKey,
   getQueueTaskProcessingChannel,
   getStallingHashKey,
   getTaskKeyPrefix,
 } from '../utils/keys';
-import { deSerializeTask } from '../domain/tasks/deserialize-task';
-import { Task } from '../domain/tasks/task';
-import { EventType } from '../domain/events/event-type';
-import { TaskStatus } from '../domain/tasks/task-status';
-import { LuaScriptName } from '../lua';
+import { callLuaScriptMulti, exec } from '../utils/redis';
 
 /**
  * @ignore
@@ -22,7 +22,7 @@ export const takeTaskAndMarkAsProcessingMulti = ({
   stallTimeout = 1000,
 }: {
   queue: string;
-  multi: Pipeline;
+  multi: ChainableCommander;
   stallTimeout?: number;
 }): void => {
   callLuaScriptMulti({

@@ -1,8 +1,7 @@
 import { Redis } from 'ioredis';
-import { forEach } from 'lodash';
-import { getQueueTaskStalledChannel } from '../utils/keys';
-import { serializeEvent } from '../domain/events/serialize-event';
 import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
+import { getQueueTaskStalledChannel } from '../utils/keys';
 import { exec } from '../utils/redis';
 import { getStalledTasks } from './get-stalled-tasks';
 import { handleStalledTasks } from './handle-stalled-tasks';
@@ -20,7 +19,7 @@ export const processStalledTasks = async ({
 }) => {
   const stalledTasks = await getStalledTasks({ queue, client });
   const multi = client.multi();
-  forEach(stalledTasks, (task) => {
+  stalledTasks.forEach((task) => {
     multi.publish(
       getQueueTaskStalledChannel({ queue }),
       serializeEvent({

@@ -1,17 +1,17 @@
-import { Redis, Pipeline } from 'ioredis';
-import {
-  getTaskKey,
-  getProcessingListKey,
-  getQueueTaskSuccessChannel,
-  getQueueTaskCompleteChannel,
-  getStallingHashKey,
-  getSuccessListKey,
-} from '../utils/keys';
-import { exec } from '../utils/redis';
+import { ChainableCommander, Redis } from 'ioredis';
+import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
-import { serializeEvent } from '../domain/events/serialize-event';
-import { EventType } from '../domain/events/event-type';
+import {
+  getProcessingListKey,
+  getQueueTaskCompleteChannel,
+  getQueueTaskSuccessChannel,
+  getStallingHashKey,
+  getSuccessListKey,
+  getTaskKey,
+} from '../utils/keys';
+import { exec } from '../utils/redis';
 import { persistTaskMulti } from './persist-task';
 
 /**
@@ -27,7 +27,7 @@ export const markTaskSuccessMulti = ({
 }: {
   task: Task;
   queue: string;
-  multi: Pipeline;
+  multi: ChainableCommander;
   result?: any;
   asOf: Date;
   remove?: boolean;

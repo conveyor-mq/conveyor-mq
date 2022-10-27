@@ -1,16 +1,15 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
-import { map, forEach } from 'lodash';
-import {
-  getScheduledSetKey,
-  getQueueTaskScheduledChannel,
-} from '../utils/keys';
-import { exec } from '../utils/redis';
-import { createTaskId } from '../utils/general';
+import { EventType } from '../domain/events/event-type';
+import { serializeEvent } from '../domain/events/serialize-event';
 import { Task } from '../domain/tasks/task';
 import { TaskStatus } from '../domain/tasks/task-status';
-import { serializeEvent } from '../domain/events/serialize-event';
-import { EventType } from '../domain/events/event-type';
+import { dateToUnix } from '../utils/date';
+import { createTaskId } from '../utils/general';
+import {
+  getQueueTaskScheduledChannel,
+  getScheduledSetKey,
+} from '../utils/keys';
+import { exec } from '../utils/redis';
 import { persistTaskMulti } from './persist-task';
 
 /**
@@ -25,7 +24,7 @@ export const scheduleTasks = async ({
   queue: string;
   client: Redis;
 }): Promise<Task[]> => {
-  const tasksToSchedule: Task[] = map(tasks, (task) => {
+  const tasksToSchedule: Task[] = tasks.map((task) => {
     if (!task.enqueueAfter) {
       throw new Error('Scheduled task must specify enqueueAfter property.');
     }
@@ -46,11 +45,11 @@ export const scheduleTasks = async ({
     };
   });
   const multi = client.multi();
-  forEach(tasksToSchedule, (task) => {
+  tasksToSchedule.forEach((task) => {
     persistTaskMulti({ task, queue, multi });
     multi.zadd(
       getScheduledSetKey({ queue }),
-      String(moment(task.enqueueAfter).unix()),
+      String(dateToUnix(task.enqueueAfter)),
       task.id,
     );
     multi.publish(

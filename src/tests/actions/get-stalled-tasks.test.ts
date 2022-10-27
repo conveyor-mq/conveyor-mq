@@ -1,16 +1,15 @@
-import { map } from 'lodash';
 import { Redis } from 'ioredis';
+import { enqueueTasks } from '../../actions/enqueue-tasks';
+import { getStalledTasks } from '../../actions/get-stalled-tasks';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
+import { Task } from '../../domain/tasks/task';
+import { createUuid, sleep } from '../../utils/general';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
 } from '../../utils/redis';
-import { createUuid, sleep } from '../../utils/general';
-import { enqueueTasks } from '../../actions/enqueue-tasks';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
-import { getStalledTasks } from '../../actions/get-stalled-tasks';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/tasks/task';
 
 describe('getStalledTasks', () => {
   const queue = createUuid();
@@ -29,8 +28,7 @@ describe('getStalledTasks', () => {
   });
 
   it('getStalledTasks gets stalled tasks', async () => {
-    const tasks = map(
-      Array.from({ length: 10 }),
+    const tasks = Array.from({ length: 10 }).map(
       (i, index) =>
         ({
           id: `task ${index}`,
@@ -39,7 +37,7 @@ describe('getStalledTasks', () => {
     );
     await enqueueTasks({ queue, tasks, client });
     const takenTasks = await Promise.all(
-      map(tasks, () =>
+      tasks.map(() =>
         takeTaskAndMarkAsProcessing({ queue, client, stallTimeout: 100 }),
       ),
     );

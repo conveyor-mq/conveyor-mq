@@ -1,14 +1,13 @@
-import { map } from 'lodash';
 import { Redis } from 'ioredis';
+import { enqueueTask } from '../../actions/enqueue-task';
+import { getProcessingTasks } from '../../actions/get-processing-tasks';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
+import { createUuid } from '../../utils/general';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
 } from '../../utils/redis';
-import { createUuid } from '../../utils/general';
-import { enqueueTask } from '../../actions/enqueue-task';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
-import { getProcessingTasks } from '../../actions/get-processing-tasks';
 import { redisConfig } from '../config';
 
 describe('getProcessingTasks', () => {
@@ -29,7 +28,7 @@ describe('getProcessingTasks', () => {
 
   it('getProcessingTasks gets tasks', async () => {
     const puttedTasks = await Promise.all(
-      map(Array.from({ length: 10 }), async (i, index) => {
+      Array.from({ length: 10 }).map(async (i, index) => {
         return enqueueTask({
           queue,
           task: { id: `task ${index}`, data: 'some-data' },
@@ -38,7 +37,7 @@ describe('getProcessingTasks', () => {
       }),
     );
     await Promise.all(
-      map(puttedTasks, () => {
+      puttedTasks.map(() => {
         return takeTaskAndMarkAsProcessing({ queue, client });
       }),
     );

@@ -1,19 +1,18 @@
-import {
-  setIntervalAsync,
-  clearIntervalAsync,
-} from 'set-interval-async/dynamic';
 import debugF from 'debug';
-import { map } from 'lodash';
 import { Redis } from 'ioredis';
-import { processStalledTasks } from './process-stalled-tasks';
-import { enqueueScheduledTasks } from './enqueue-scheduled-tasks';
 import {
-  quit as redisQuit,
+  clearIntervalAsync,
+  setIntervalAsync,
+} from 'set-interval-async/dynamic';
+import { Orchestrator } from '../domain/orchestrator/orchestrator';
+import {
   createClientAndLoadLuaScripts,
+  quit as redisQuit,
   RedisConfig,
 } from '../utils/redis';
 import { acknowledgeOrphanedProcessingTasks } from './acknowledge-orphaned-processing-tasks';
-import { Orchestrator } from '../domain/orchestrator/orchestrator';
+import { enqueueScheduledTasks } from './enqueue-scheduled-tasks';
+import { processStalledTasks } from './process-stalled-tasks';
 
 const debug = debugF('conveyor-mq:orchestrator');
 
@@ -53,8 +52,8 @@ export const createOrchestrator = ({
     throw new Error('redisClient or redisConfig must be provided');
   }
   debug('Creating client');
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const client = redisClient || createClientAndLoadLuaScripts(redisConfig!);
+  const client =
+    redisClient || createClientAndLoadLuaScripts(redisConfig as RedisConfig);
 
   const processStalledTasksTick = async () => {
     try {
@@ -66,7 +65,7 @@ export const createOrchestrator = ({
       });
       debug('processStalledTasks');
       await processStalledTasks({ queue, client });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.toString());
     }
   };
@@ -79,7 +78,7 @@ export const createOrchestrator = ({
     debug('enqueueScheduledTasks');
     try {
       await enqueueScheduledTasks({ queue, client });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.toString());
     }
   };
@@ -91,7 +90,7 @@ export const createOrchestrator = ({
   const quit = async () => {
     debug('quit');
     await Promise.all(
-      map([stalledTimer, enqueueDelayedTasksTimer], (timer) =>
+      [stalledTimer, enqueueDelayedTasksTimer].map((timer) =>
         clearIntervalAsync(timer),
       ),
     );

@@ -1,32 +1,32 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { forEach, map, set } from 'lodash';
 import debugF from 'debug';
 import { Redis } from 'ioredis';
-import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
-import {
-  ensureDisconnected,
-  createClientAndLoadLuaScripts,
-  RedisConfig,
-} from '../utils/redis';
-import { getTaskById } from './get-task-by-id';
-import { getTasksById } from './get-tasks-by-id';
-import { Task } from '../domain/tasks/task';
 import { Event } from '../domain/events/event';
-import { createListener } from './create-listener';
 import { EventType } from '../domain/events/event-type';
-import { TaskStatus } from '../domain/tasks/task-status';
-import { getTaskCounts } from './get-task-counts';
-import { destroyQueue } from './destroy-queue';
-import { removeTaskById } from './remove-task-by-id';
-import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
-import { getWorkers } from './get-workers';
-import { pauseQueue } from './pause-queue';
-import { resumeQueue } from './resume-queue';
 import { Manager } from '../domain/manager/manager';
 import { TaskResponse } from '../domain/manager/task-response';
-import { OnBeforeEnqueueTask, OnAfterEnqueueTask } from './enqueue-task';
-import { setQueueRateLimit } from './set-queue-rate-limit';
+import { Task } from '../domain/tasks/task';
+import { TaskStatus } from '../domain/tasks/task-status';
+import { set } from '../utils/general';
+import {
+  createClientAndLoadLuaScripts,
+  ensureDisconnected,
+  RedisConfig,
+} from '../utils/redis';
+import { createListener } from './create-listener';
+import { destroyQueue } from './destroy-queue';
+import { OnAfterEnqueueTask, OnBeforeEnqueueTask } from './enqueue-task';
+import { enqueueTasks as enqueueTasksAction } from './enqueue-tasks';
 import { getQueueRateLimitConfig } from './get-queue-rate-limit-config';
+import { getTaskById } from './get-task-by-id';
+import { getTaskCounts } from './get-task-counts';
+import { getTasksById } from './get-tasks-by-id';
+import { getWorkers } from './get-workers';
+import { pauseQueue } from './pause-queue';
+import { removeTaskById } from './remove-task-by-id';
+import { resumeQueue } from './resume-queue';
+import { scheduleTasks as scheduleTasksAction } from './schedule-tasks';
+import { setQueueRateLimit } from './set-queue-rate-limit';
 
 const debug = debugF('conveyor-mq:manager');
 
@@ -92,7 +92,7 @@ export const createManager = ({
       if (!event || !event.task || !event.task.id) return;
       const { task } = event;
       const handlers = eventSubscriptions?.[EventType.TaskComplete]?.[task.id];
-      forEach(handlers || [], (handler) => {
+      (handlers || []).forEach((handler) => {
         handler({ event });
       });
       if (handlers) {
@@ -107,7 +107,11 @@ export const createManager = ({
     const promise = new Promise((resolve) => {
       set(eventSubscriptions, `${EventType.TaskComplete}.${taskId}`, [
         ...(eventSubscriptions?.[EventType.TaskComplete]?.[taskId] || []),
-        ({ event }: { event: Event }) => resolve(event.task),
+        ({ event }: { event: Event }) => {
+          if (event?.task) {
+            resolve(event.task);
+          }
+        },
       ]);
     }) as Promise<Task>;
     const task = await getTaskById({ queue, taskId, client });
@@ -134,7 +138,7 @@ export const createManager = ({
       onBeforeEnqueueTask: hooks?.onBeforeEnqueueTask,
       onAfterEnqueueTask: hooks?.onAfterEnqueueTask,
     });
-    return map(enqueuedTasks, (task) => ({
+    return enqueuedTasks.map((task) => ({
       task,
       onTaskComplete: () => onTaskComplete({ taskId: task.id }),
     }));
@@ -155,7 +159,7 @@ export const createManager = ({
     tasks: Partial<Task>[];
   }): Promise<TaskResponse[]> => {
     const scheduledTasks = await scheduleTasksAction({ tasks, queue, client });
-    return map(scheduledTasks, (task) => ({
+    return scheduledTasks.map((task) => ({
       task,
       onTaskComplete: () => onTaskComplete({ taskId: task.id }),
     }));

@@ -1,17 +1,16 @@
 import { Redis } from 'ioredis';
-import { find } from 'lodash';
+import { acknowledgeOrphanedProcessingTasks } from '../../actions/acknowledge-orphaned-processing-tasks';
+import { enqueueTask } from '../../actions/enqueue-task';
 import { isTaskStalled } from '../../actions/is-task-stalled';
+import { createUuid, sleep } from '../../utils/general';
+import { getProcessingListKey, getQueuedListKey } from '../../utils/keys';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
   rpoplpush,
 } from '../../utils/redis';
-import { sleep, createUuid } from '../../utils/general';
-import { enqueueTask } from '../../actions/enqueue-task';
 import { redisConfig } from '../config';
-import { getQueuedListKey, getProcessingListKey } from '../../utils/keys';
-import { acknowledgeOrphanedProcessingTasks } from '../../actions/acknowledge-orphaned-processing-tasks';
 
 describe('acknowledgeOrphanedProcessingTasks', () => {
   const queue = createUuid();
@@ -62,10 +61,10 @@ describe('acknowledgeOrphanedProcessingTasks', () => {
       client,
     });
     expect(acknowledgedTaskIds.length).toBe(2);
-    expect(find(acknowledgedTaskIds, (taskId) => taskId === task.id)).toBe(
+    expect(acknowledgedTaskIds.find((taskId) => taskId === task.id)).toBe(
       task.id,
     );
-    expect(find(acknowledgedTaskIds, (taskId) => taskId === task2.id)).toBe(
+    expect(acknowledgedTaskIds.find((taskId) => taskId === task2.id)).toBe(
       task2.id,
     );
 

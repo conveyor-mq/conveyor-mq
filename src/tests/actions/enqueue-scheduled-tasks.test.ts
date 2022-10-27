@@ -1,19 +1,19 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
+import { createListener } from '../../actions/create-listener';
+import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
+import { scheduleTask } from '../../actions/schedule-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
+import { EventType } from '../../domain/events/event-type';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatus } from '../../domain/tasks/task-status';
+import { addByHourToDate, subtractByHourToDate } from '../../utils/date';
+import { createUuid } from '../../utils/general';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
 } from '../../utils/redis';
-import { createUuid } from '../../utils/general';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/tasks/task';
-import { enqueueScheduledTasks } from '../../actions/enqueue-scheduled-tasks';
-import { TaskStatus } from '../../domain/tasks/task-status';
-import { scheduleTask } from '../../actions/schedule-task';
-import { createListener } from '../../actions/create-listener';
-import { EventType } from '../../domain/events/event-type';
 
 describe('enqueueScheduledTasks', () => {
   const queue = createUuid();
@@ -47,7 +47,7 @@ describe('enqueueScheduledTasks', () => {
     expect(takenTask?.id).toBe(task.id);
   });
   it('enqueueScheduledTasks enqueues past tasks', async () => {
-    const thePast = moment().subtract(1, 'hour').toDate();
+    const thePast = subtractByHourToDate(1);
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
     await scheduleTask({ queue, task, client });
 
@@ -69,7 +69,7 @@ describe('enqueueScheduledTasks', () => {
         resolve('task-queue-event-called'),
       );
     });
-    const thePast = moment().subtract(1, 'hour').toDate();
+    const thePast = subtractByHourToDate(1);
     const task: Task = { id: 'b', data: 'c', enqueueAfter: thePast };
     await scheduleTask({ queue, task, client });
 
@@ -81,7 +81,7 @@ describe('enqueueScheduledTasks', () => {
     expect(result).toBe('task-queue-event-called');
   });
   it('enqueueScheduledTasks does not enqueue future task', async () => {
-    const theFuture = moment().add(1, 'hour').toDate();
+    const theFuture = addByHourToDate(1);
     const task: Task = { id: 'b', data: 'c', enqueueAfter: theFuture };
     await scheduleTask({ queue, task, client });
 

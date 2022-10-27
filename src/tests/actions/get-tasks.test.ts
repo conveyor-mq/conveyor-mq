@@ -1,13 +1,12 @@
-import { map } from 'lodash';
 import { Redis } from 'ioredis';
-import {
-  flushAll,
-  quit,
-  createClientAndLoadLuaScripts,
-} from '../../utils/redis';
-import { createUuid } from '../../utils/general';
 import { enqueueTask } from '../../actions/enqueue-task';
 import { getTasksById } from '../../actions/get-tasks-by-id';
+import { createUuid } from '../../utils/general';
+import {
+  createClientAndLoadLuaScripts,
+  flushAll,
+  quit,
+} from '../../utils/redis';
 import { redisConfig } from '../config';
 
 describe('getTasks', () => {
@@ -28,7 +27,7 @@ describe('getTasks', () => {
 
   it('getTasks gets tasks', async () => {
     const puttedTasks = await Promise.all(
-      map(Array.from({ length: 10 }), async (i, index) => {
+      Array.from({ length: 10 }).map(async (i, index) => {
         return enqueueTask({
           queue,
           task: { id: `task ${index}`, data: 'some-data' },
@@ -38,7 +37,7 @@ describe('getTasks', () => {
     );
     const tasks = await getTasksById({
       queue,
-      taskIds: map(puttedTasks, (task) => task.id),
+      taskIds: puttedTasks.map((task) => task.id),
       client,
     });
     expect(tasks.length).toBe(10);

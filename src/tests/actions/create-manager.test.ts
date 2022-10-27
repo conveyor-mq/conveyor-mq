@@ -1,18 +1,17 @@
 import RedisClient, { Redis } from 'ioredis';
-import { map, forEach } from 'lodash';
+import { createManager } from '../../actions/create-manager';
+import { createWorker } from '../../actions/create-worker';
+import { Task } from '../../domain/tasks/task';
+import { TaskStatus } from '../../domain/tasks/task-status';
+import { loadLuaScripts } from '../../lua';
+import { createUuid, sleep } from '../../utils/general';
+import { getQueuedListKey, getTaskKey } from '../../utils/keys';
 import {
+  createClientAndLoadLuaScripts,
   flushAll,
   quit,
-  createClientAndLoadLuaScripts,
 } from '../../utils/redis';
-import { createUuid, sleep } from '../../utils/general';
-import { createManager } from '../../actions/create-manager';
 import { redisConfig } from '../config';
-import { Task } from '../../domain/tasks/task';
-import { createWorker } from '../../actions/create-worker';
-import { TaskStatus } from '../../domain/tasks/task-status';
-import { getQueuedListKey, getTaskKey } from '../../utils/keys';
-import { loadLuaScripts } from '../../lua';
 
 describe('createManager', () => {
   const queue = createUuid();
@@ -101,16 +100,16 @@ describe('createManager', () => {
       },
     });
     const manager = createManager({ queue, redisConfig });
-    const tasks = map(Array.from({ length: 10 }), (val, index) => ({
+    const tasks = Array.from({ length: 10 }).map((val, index) => ({
       id: `${index}a`,
     }));
     await manager.enqueueTasks(tasks);
     await sleep(100);
     const results = await Promise.all(
-      map(tasks, (task) => manager.onTaskComplete(task.id)),
+      tasks.map((task) => manager.onTaskComplete(task.id)),
     );
     expect(results.length).toBe(tasks.length);
-    forEach(results, (result, index) => {
+    results.forEach((result, index) => {
       expect(result.id).toBe(tasks[index].id);
     });
     await manager.quit();

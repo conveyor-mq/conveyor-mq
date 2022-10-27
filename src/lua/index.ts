@@ -1,7 +1,6 @@
 import fs from 'fs';
-import path from 'path';
 import { Redis } from 'ioredis';
-import { forEach } from 'lodash';
+import path from 'path';
 
 export enum LuaScriptName {
   takeTaskAndMarkAsProcessing = 'takeTask',
@@ -46,7 +45,7 @@ export const loadLuaScripts = ({ client }: { client: Redis }) => {
       numberOfKeys: 1,
     },
   ];
-  forEach(commandDefinitions, async ({ name, filePath, numberOfKeys }) => {
+  commandDefinitions.forEach(({ name, filePath, numberOfKeys }) => {
     const script = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
     client.defineCommand(name, { numberOfKeys, lua: script });
   });

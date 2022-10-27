@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
-import moment from 'moment';
-import { set } from '../utils/redis';
+import { addByMsToISO } from '../utils/date';
 import { getTaskAcknowledgedKey } from '../utils/keys';
+import { set } from '../utils/redis';
 
 /**
  * @ignore
@@ -20,7 +20,7 @@ export const acknowledgeTask = async ({
   const taskStalledKey = getTaskAcknowledgedKey({ taskId, queue });
   await set({
     key: taskStalledKey,
-    value: moment().add(ttl, 'milliseconds').toISOString(),
+    value: addByMsToISO(ttl),
     ttl,
     client,
   });

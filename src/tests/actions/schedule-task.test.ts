@@ -1,18 +1,18 @@
-import moment from 'moment';
 import { Redis } from 'ioredis';
-import {
-  flushAll,
-  quit,
-  createClientAndLoadLuaScripts,
-  zrangebyscore,
-} from '../../utils/redis';
-import { createUuid } from '../../utils/general';
-import { getScheduledSetKey } from '../../utils/keys';
-import { redisConfig } from '../config';
+import { scheduleTask } from '../../actions/schedule-task';
+import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
 import { Task } from '../../domain/tasks/task';
 import { TaskStatus } from '../../domain/tasks/task-status';
-import { takeTaskAndMarkAsProcessing } from '../../actions/take-task-and-mark-as-processing';
-import { scheduleTask } from '../../actions/schedule-task';
+import { addByHoursToDate, dateToUnix } from '../../utils/date';
+import { createUuid } from '../../utils/general';
+import { getScheduledSetKey } from '../../utils/keys';
+import {
+  createClientAndLoadLuaScripts,
+  flushAll,
+  quit,
+  zrangebyscore,
+} from '../../utils/redis';
+import { redisConfig } from '../config';
 
 describe('scheduleTask', () => {
   const queue = createUuid();
@@ -34,7 +34,7 @@ describe('scheduleTask', () => {
     const task: Task = {
       id: 'a',
       data: 'b',
-      enqueueAfter: moment().add(1, 'hours').toDate(),
+      enqueueAfter: addByHoursToDate(1),
     };
     const scheduledTask = await scheduleTask({ queue, client, task });
     expect(scheduledTask.data).toBe(task.data);
@@ -56,7 +56,7 @@ describe('scheduleTask', () => {
       retryLimit: null,
       errorRetryLimit: null,
       stallRetryLimit: null,
-      enqueueAfter: moment().add(1, 'hours').toDate(),
+      enqueueAfter: addByHoursToDate(1),
     };
     const scheduledTask = await scheduleTask({ queue, client, task });
     expect(scheduledTask.data).toBe(task.data);
@@ -72,7 +72,7 @@ describe('scheduleTask', () => {
     expect(scheduledTask.stallRetryLimit).toBe(null);
   });
   it('enqueueTask schedules delayed task', async () => {
-    const enqueueAfter = moment().add(1, 'hours').toDate();
+    const enqueueAfter = addByHoursToDate(1);
     const task: Task = {
       id: 'a',
       data: 'b',
@@ -88,7 +88,7 @@ describe('scheduleTask', () => {
       client,
       key: getScheduledSetKey({ queue }),
       min: 0,
-      max: moment(enqueueAfter).unix(),
+      max: dateToUnix(enqueueAfter),
     });
     expect(taskId).toBe(task.id);
   });

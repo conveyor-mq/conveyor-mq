@@ -1,30 +1,30 @@
-import { forEach, pickBy } from 'lodash';
 import debugF from 'debug';
-import {
-  getQueueTaskQueuedChannel,
-  getQueueTaskProcessingChannel,
-  getQueueTaskSuccessChannel,
-  getQueueTaskErrorChannel,
-  getQueueTaskStalledChannel,
-  getQueueTaskFailedChannel,
-  getQueueTaskCompleteChannel,
-  getQueueTaskUpdatedChannel,
-  getWorkerStartedChannel,
-  getWorkerPausedChannel,
-  getWorkerShutdownChannel,
-  getQueueTaskScheduledChannel,
-  getQueueTaskProgressUpdatedChannel,
-  getQueueRateLimitUpdatedChannel,
-} from '../utils/keys';
 import { deSerializeEvent } from '../domain/events/deserialize-event';
 import { Event } from '../domain/events/event';
 import { EventType } from '../domain/events/event-type';
+import { Listener } from '../domain/listener/listener';
+import { pickBy } from '../utils/general';
+import {
+  getQueueRateLimitUpdatedChannel,
+  getQueueTaskCompleteChannel,
+  getQueueTaskErrorChannel,
+  getQueueTaskFailedChannel,
+  getQueueTaskProcessingChannel,
+  getQueueTaskProgressUpdatedChannel,
+  getQueueTaskQueuedChannel,
+  getQueueTaskScheduledChannel,
+  getQueueTaskStalledChannel,
+  getQueueTaskSuccessChannel,
+  getQueueTaskUpdatedChannel,
+  getWorkerPausedChannel,
+  getWorkerShutdownChannel,
+  getWorkerStartedChannel,
+} from '../utils/keys';
 import {
   createClientAndLoadLuaScripts,
   ensureDisconnected,
   RedisConfig,
 } from '../utils/redis';
-import { Listener } from '../domain/listener/listener';
 
 const debug = debugF('conveyor-mq:listener');
 
@@ -81,7 +81,7 @@ export const createListener = ({
       const event = deSerializeEvent(eventString);
       const handlersToCall = handlers[event.type];
       debug(`Received message ${eventString} on channel ${channel}`);
-      forEach(handlersToCall, (handler) => handler({ event }));
+      (handlersToCall || []).forEach((handler) => handler({ event }));
     });
     debug('Registered message handler');
     const channels = Object.values(
@@ -91,7 +91,7 @@ export const createListener = ({
           )
         : channelMap,
     );
-    await client.subscribe(channels);
+    await client.subscribe(...channels);
     debug('Client subscribed to channels');
   };
   const setupPromise = setupListener();
