@@ -39,7 +39,7 @@
     "date-fns": "^2.29.3",
     "debug": "^4.3.4",
     "ioredis": "^5.2.3",
-    "p-queue": "^6.6.2",
+    "p-queue": "^7.3.0",
     "p-timeout": "^4.1.0",
     "rate-limiter-flexible": "^2.4.0",
     "set-interval-async": "^3.0.2",
