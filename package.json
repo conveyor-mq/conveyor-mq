@@ -1,6 +1,6 @@
 {
   "name": "conveyor-mq",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "A fast, robust and extensible distributed task/job queue for Node.js",
   "scripts": {
     "clean": "rm -rf ./dist",
