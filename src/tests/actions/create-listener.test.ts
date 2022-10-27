@@ -33,7 +33,7 @@ describe('createListener', () => {
     await quit({ client });
   });
 
-  it('createListener listens for task queued event', async () => {
+  it.skip('createListener listens for task queued event', async () => {
     const listener = createListener({ queue, redisConfig });
     const promise = new Promise((resolve) => {
       listener.on(EventType.TaskQueued, ({ event }) => {
